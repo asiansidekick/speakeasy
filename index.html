@@ -308,6 +308,12 @@ html,body{overflow-x:hidden;max-width:100%}
 #offBar{margin:0 0 8px;padding:6px 16px;border-radius:999px;background:var(--hl);color:var(--ink);font-size:var(--fs-s)}
 #offBar[hidden]{display:none}
 #moreBack[hidden],#moreFresh[hidden]{display:none}
+.tn{display:inline-flex;flex-wrap:wrap;justify-content:center;align-items:flex-end;gap:2px 7px}
+.ts{display:inline-flex;flex-direction:column;align-items:center;line-height:1.1}
+.ts svg,.tlg svg{width:1.5em;height:.85em;min-width:20px;min-height:11px;margin-bottom:3px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;overflow:visible}
+.ts svg .tg,.tlg svg .tg{stroke-width:1;opacity:.3}
+.tlg{display:flex;flex-wrap:wrap;gap:4px 14px;margin:2px 0 10px 28px;font-size:13px;color:var(--mute)}
+.tlg span{display:inline-flex;align-items:center;gap:4px}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@500&display=swap" rel="stylesheet">
 </head>
@@ -429,6 +435,7 @@ html,body{overflow-x:hidden;max-width:100%}
   <select id="voice"></select>
   <label class="ck"><input type="checkbox" id="sLight"> Light theme. Off = dark theme</label>
   <label class="ck"><input type="checkbox" id="sRo"> Show phonetics (how it sounds)</label>
+  <div class="tlg" id="tLeg"></div>
   <label class="ck"><input type="checkbox" id="sEn"> Show English</label>
   <label>Changes for the next release</label>
   <div class="row" style="gap:8px"><button class="ib" id="expChg" style="flex:1">Export my changes</button><button class="ib" id="expCopy">Copy</button></div>
@@ -452,7 +459,7 @@ html,body{overflow-x:hidden;max-width:100%}
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 11 Oct 2026, build 15</div>
+  <div class="hint">Version: 15 Oct 2026, build 17</div>
   <label>Backup (everything on this device)</label>
   <div class="row"><button class="ib" id="exp" style="flex:1">Export backup</button><button class="ib" id="imp" style="flex:1">Import backup</button></div>
   <input type="file" id="file" accept=".json,application/json" hidden>
@@ -466,15 +473,15 @@ html,body{overflow-x:hidden;max-width:100%}
 <script>
 const BAKED=/*B*/null/*E*/;
 const D={
-"Basics":["สวัสดี|sa-wat-dee|Hello","ขอบคุณ|khop khun|Thank you","ไม่เป็นไร|mai pen rai|You're welcome / no problem","ขอโทษ|khor thot|Sorry / excuse me","ใช่|chai|Yes (that's right)","ไม่|mai|No","ได้|dai|OK / can do","ไม่ได้|mai dai|Can't / not allowed","ลาก่อน|laa gon|Goodbye","เข้าใจแล้ว|khao jai laeo|I understand","ไม่เข้าใจ|mai khao jai|I don't understand","พูดช้าๆ ได้ไหม|phuut chaa-chaa dai mai|Can you speak slowly?","พูดอีกครั้งได้ไหม|phuut eek khrang dai mai|Can you say it again?","พูดภาษาไทยได้นิดหน่อย|phuut phaa-saa thai dai nit noi|I speak a little Thai","พูดภาษาอังกฤษได้ไหม|phuut phaa-saa ang-grit dai mai|Do you speak English?"],
-"Eating":["ขอเมนูหน่อย|khor may-nuu noi|Menu, please","ขอน้ำเปล่า|khor nam plao|Water, please","ขอเช็คบิลหน่อย|khor chek bin noi|Check, please","อร่อยมาก|a-roi maak|Delicious","ไม่เผ็ด|mai phet|Not spicy","เผ็ดนิดหน่อย|phet nit noi|A little spicy","ไม่ใส่ผักชี|mai sai phak chee|No coriander","กินมังสวิรัติ|gin mang-sa-wi-rat|I'm vegetarian","แพ้ถั่วลิสง|phae thua li-song|I'm allergic to peanuts","ขออีกหนึ่ง|khor eek neung|One more, please","ห่อกลับบ้าน|hor glap baan|Takeaway, please"],
-"Getting around":["ห้องน้ำอยู่ที่ไหน|hong nam yuu thi nai|Where's the toilet?","ไปสนามบิน|pai sa-naam bin|To the airport","ไปโรงแรม|pai rong raem|To the hotel","เปิดมิเตอร์ได้ไหม|poet mi-tter dai mai|Can you use the meter?","จอดที่นี่|jort thi nii|Stop here","เลี้ยวซ้าย|liao saai|Turn left","เลี้ยวขวา|liao khwaa|Turn right","ตรงไป|trong pai|Straight ahead","ไกลไหม|glai mai|Is it far?","สถานีรถไฟฟ้าอยู่ที่ไหน|sa-thaa-nii rot fai faa yuu thi nai|Where's the skytrain station?"],
-"Shopping":["ราคาเท่าไหร่|raa-khaa thao rai|How much?","แพงไป|phaeng pai|Too expensive","ลดได้ไหม|lot dai mai|Can you discount it?","ขอดูอันนี้หน่อย|khor duu an nii noi|Can I see this one?","เอาอันนี้|ao an nii|I'll take this","จ่ายด้วยบัตรได้ไหม|jaai duay bat dai mai|Can I pay by card?","มีไซส์ใหญ่กว่านี้ไหม|mii sai yai gwaa nii mai|Do you have a bigger size?"],
+"Basics":["สวัสดี|sa-wat-dee|Hello","ขอบคุณ|khop khun|Thank you","ไม่เป็นไร|mai pen rai|You're welcome / no problem","ขอโทษ|khor thot|Sorry / excuse me","ใช่|chai|Yes (that's right)","ไม่ใช่|mai chai|No (that's not it)","ได้|dai|OK / can do","ไม่ได้|mai dai|Can't / not allowed","ไปก่อนนะ|pai gon na|Bye, I'm off","เข้าใจแล้ว|khao jai laeo|I understand","ไม่เข้าใจ|mai khao jai|I don't understand","พูดช้าๆ หน่อยได้ไหม|phuut chaa-chaa noi dai mai|Can you speak slowly?","พูดอีกทีได้ไหม|phuut eek thii dai mai|Can you say it again?","พูดไทยได้นิดหน่อย|phuut thai dai nit noi|I speak a little Thai","พูดอังกฤษได้ไหม|phuut ang-grit dai mai|Do you speak English?"],
+"Eating":["ขอเมนูหน่อย|khor may-nuu noi|Menu, please","ขอน้ำเปล่าหน่อย|khor nam plao noi|Water, please","เช็คบิลด้วย|chek bin duay|Check, please","อร่อยมาก|a-roi maak|Delicious","ไม่เผ็ด|mai phet|Not spicy","เผ็ดนิดหน่อย|phet nit noi|A little spicy","ไม่ใส่ผักชี|mai sai phak chee|No coriander","ไม่กินเนื้อสัตว์|mai gin neua sat|I don't eat meat (vegetarian)","แพ้ถั่วลิสง|phae thua li-song|I'm allergic to peanuts","ขออีกอันนึง|khor eek an neung|One more, please","ห่อกลับบ้านด้วย|hor glap baan duay|Takeaway, please"],
+"Getting around":["ห้องน้ำอยู่ไหน|hong nam yuu nai|Where's the toilet?","ไปสนามบิน|pai sa-naam bin|To the airport","ไปโรงแรม|pai rong raem|To the hotel","กดมิเตอร์ได้ไหม|got mi-toe dai mai|Can you use the meter?","จอดตรงนี้|jot trong nii|Stop here","เลี้ยวซ้าย|liao saai|Turn left","เลี้ยวขวา|liao khwaa|Turn right","ตรงไป|trong pai|Straight ahead","ไกลไหม|glai mai|Is it far?","รถไฟฟ้าอยู่ไหน|rot fai faa yuu nai|Where's the skytrain station?"],
+"Shopping":["อันนี้เท่าไหร่|an nii thao rai|How much is this?","แพงไป|phaeng pai|Too expensive","ลดหน่อยได้ไหม|lot noi dai mai|Can you discount it?","ขอดูอันนี้หน่อย|khor duu an nii noi|Can I see this one?","เอาอันนี้|ao an nii|I'll take this","รูดบัตรได้ไหม|ruut bat dai mai|Can I pay by card?","มีไซส์ใหญ่กว่านี้ไหม|mii sai yai gwaa nii mai|Do you have a bigger size?"],
 "Numbers":["หนึ่ง|neung|1","สอง|song|2","สาม|saam|3","สี่|sii|4","ห้า|haa|5","หก|hok|6","เจ็ด|jet|7","แปด|paet|8","เก้า|gao|9","สิบ|sip|10","ร้อย|roi|100","พัน|phan|1,000"],
-"Social":["สบายดีไหม|sa-baai dii mai|How are you?","สบายดี|sa-baai dii|I'm fine","ยินดีที่ได้รู้จัก|yin dii thii dai ruu jak|Nice to meet you","คุณชื่ออะไร|khun cheu a-rai|What's your name?","สนุกมาก|sa-nuk maak|Really fun","สวยมาก|suay maak|Beautiful","เจอกันใหม่|jer gan mai|See you again"],
-"Emergency":["ช่วยด้วย|chuay duay|Help!","เรียกตำรวจ|riak tam-ruat|Call the police","เรียกรถพยาบาล|riak rot pha-yaa-baan|Call an ambulance","โรงพยาบาลอยู่ที่ไหน|rong pha-yaa-baan yuu thi nai|Where's the hospital?","ไม่สบาย|mai sa-baai|I feel unwell","หลงทาง|long thaang|I'm lost"],
-"Film production":["แอคชั่น|aek-chan|Action!|-","คัท|khat|Cut!|-","ผ่าน|phaan|Good, approved","อีกเทค|eek thek|One more take","เงียบ|ngiap|Quiet, please|-","พร้อม|phrom|Ready|-","ทุกคนเข้าตำแหน่ง|thuk khon khao tam-naeng|Everyone to your positions|-","ฉากต่อไป|chaak tor pai|Next scene|-","พักก่อน|phak gon|Take a break","เลิกกอง|loek gong|That's a wrap|-","กองถ่าย|gong thaai|Film set|-","ถ่ายทำ|thaai tham|Filming / shooting|-","ตารางถ่ายทำ|taa-raang thaai tham|Shooting schedule|-","บท|bot|Script|-","ผู้กำกับ|phuu gam-gap|Director|-","ผู้กำกับภาพ|phuu gam-gap phaap|Cinematographer (DP)|-","ผู้ช่วยผู้กำกับ|phuu chuay phuu gam-gap|Assistant director|-","ผู้อำนวยการสร้าง|phuu am-nuay-gaan sang|Producer|-","นักแสดง|nak sa-daeng|Actor|-","ทีมงาน|thiim ngaan|Crew|-","กล้อง|klong|Camera|-","ย้ายกล้อง|yaai klong|Move the camera|-","ไฟ|fai|Light|-","ไฟสว่างไป|fai sa-waang pai|The light is too bright","ไมค์|mai|Microphone|-","เสียงดังไป|siang dang pai|Too loud","ขอดูมอนิเตอร์หน่อย|khor duu mon-ni-toe noi|Can I see the monitor?","เครื่องแต่งกาย|khrueang taeng gaai|Costume|-","แต่งหน้า|taeng naa|Makeup|-","อุปกรณ์ประกอบฉาก|up-pa-gon pra-gop chaak|Props|-","ตัดต่อ|tat tor|Editing|-"],
-"On set":["เซ็ตต่อไป|set tor pai|Next set-up|-","ไปต่อ|pai tor|Moving on|-","เริ่มถ่าย|roem thaai|Start shooting|-","ฉากที่หนึ่ง เทคสอง|chaak thii neung thek song|Scene one, take two|-","ซ้อมก่อน|sorm gon|Rehearse first|-","ถ่ายซ้ำ|thaai sam|Reshoot / retake|-","ตั้งกล้อง|tang klong|Set up the camera|-","ตั้งไฟ|tang fai|Set up the lights|-","มุมกล้อง|mum klong|Camera angle|-","ภาพมุมกว้าง|phaap mum gwaang|Wide shot|-","แพนกล้อง|phaen klong|Pan the camera|-","ซูมเข้า|suum khao|Zoom in|-","ซูมออก|suum ok|Zoom out|-","โฟกัส|foh-gat|Focus|-","ภาพเบลอ|phaap bler|Out of focus|-","ไมค์บูม|mai buum|Boom mic|-","เช็คเสียงหน่อย|chek siang noi|Sound check, please","ปิดเสียงโทรศัพท์|pit siang thoo-ra-sap|Silence your phones|-","ห้ามเข้า|haam khao|Do not enter|-","ยืนตรงนี้|yuen trong nii|Stand here|-","มองกล้อง|mong klong|Look at the camera|-","อย่ามองกล้อง|yaa mong klong|Don't look at the camera|-","พูดเสียงดังขึ้น|phuut siang dang khuen|Speak louder|-","ช้ากว่านี้|chaa gwaa nii|Slower|-","เร็วกว่านี้|reo gwaa nii|Faster|-","ทำอีกครั้ง|tham eek khrang|Do it again|-","ดีมาก|dii maak|Very good","พักกินข้าว|phak gin khaao|Lunch break","เวลาเรียกตัว|we-laa riak tua|Call time|-","ขอเวลาเตรียมฉากหน่อย|khor we-laa triam chaak noi|I need a moment to set up the scene","ขออนุญาตถ่ายทำที่นี่ได้ไหม|khor a-nu-yaat thaai tham thii nii dai mai|May we film here?","ต้องขอใบอนุญาตถ่ายทำไหม|tong khor bai a-nu-yaat thaai tham mai|Do we need a filming permit?","ขอบคุณทุกคน|khop khun thuk khon|Thanks, everyone"]
+"Social":["เป็นไงบ้าง|pen ngai baang|How's it going?","สบายดี|sa-baai dii|I'm fine","ยินดีที่ได้รู้จัก|yin dii thii dai ruu jak|Nice to meet you","ชื่ออะไร|cheu a-rai|What's your name?","สนุกมาก|sa-nuk maak|Really fun","สวยมาก|suay maak|Beautiful","เจอกันใหม่|jer gan mai|See you again"],
+"Emergency":["ช่วยด้วย|chuay duay|Help!","เรียกตำรวจให้หน่อย|riak tam-ruat hai noi|Please call the police","เรียกรถพยาบาลให้หน่อย|riak rot pha-yaa-baan hai noi|Please call an ambulance","โรงพยาบาลอยู่ไหน|rong pha-yaa-baan yuu nai|Where's the hospital?","ไม่สบาย|mai sa-baai|I feel unwell","หลงทางแล้ว|long thaang laeo|I'm lost"],
+"Film production":["แอคชั่น|aek-chan|Action!|-","คัท|khat|Cut!|-","ผ่าน|phaan|Good, approved","อีกเทค|eek thek|One more take","ขอเงียบด้วย|khor ngiap duay|Quiet, please|-","พร้อมแล้ว|phrom laeo|Ready|-","ทุกคนเข้าตำแหน่ง|thuk khon khao tam-naeng|Everyone to your positions|-","ฉากต่อไป|chaak tor pai|Next scene|-","พักก่อน|phak gon|Take a break","เลิกกอง|loek gong|That's a wrap|-","กองถ่าย|gong thaai|Film set|-","ถ่ายทำ|thaai tham|Filming / shooting|-","ตารางถ่ายทำ|taa-raang thaai tham|Shooting schedule|-","บท|bot|Script|-","ผู้กำกับ|phuu gam-gap|Director|-","ผู้กำกับภาพ|phuu gam-gap phaap|Cinematographer (DP)|-","ผู้ช่วยผู้กำกับ|phuu chuay phuu gam-gap|Assistant director|-","ผู้อำนวยการสร้าง|phuu am-nuay-gaan sang|Producer|-","นักแสดง|nak sa-daeng|Actor|-","ทีมงาน|thiim ngaan|Crew|-","กล้อง|klong|Camera|-","ย้ายกล้อง|yaai klong|Move the camera|-","ไฟ|fai|Light|-","ไฟสว่างไป|fai sa-waang pai|The light is too bright","ไมค์|mai|Microphone|-","เสียงดังไป|siang dang pai|Too loud","ขอดูมอนิเตอร์หน่อย|khor duu mon-ni-toe noi|Can I see the monitor?","เสื้อผ้า|seua phaa|Costume / wardrobe|-","แต่งหน้า|taeng naa|Makeup|-","พร็อพ|phrop|Props|-","ตัดต่อ|tat tor|Editing|-"],
+"On set":["เซ็ตต่อไป|set tor pai|Next set-up|-","ไปต่อ|pai tor|Moving on|-","เริ่มถ่าย|roem thaai|Start shooting|-","ซีนหนึ่ง เทคสอง|siin neung thek song|Scene one, take two|-","ซ้อมก่อน|sorm gon|Rehearse first|-","ถ่ายซ้ำ|thaai sam|Reshoot / retake|-","ตั้งกล้อง|tang klong|Set up the camera|-","ตั้งไฟ|tang fai|Set up the lights|-","มุมกล้อง|mum klong|Camera angle|-","ภาพมุมกว้าง|phaap mum gwaang|Wide shot|-","แพนกล้อง|phaen klong|Pan the camera|-","ซูมเข้า|suum khao|Zoom in|-","ซูมออก|suum ok|Zoom out|-","โฟกัส|foh-gat|Focus|-","โฟกัสหลุด|foh-gat lut|Out of focus|-","ไมค์บูม|mai buum|Boom mic|-","เช็คเสียงหน่อย|chek siang noi|Sound check, please","ปิดเสียงมือถือด้วย|pit siang meu-thue duay|Silence your phones, please|-","ห้ามเข้า|haam khao|Do not enter|-","ยืนตรงนี้|yuen trong nii|Stand here|-","มองกล้อง|mong klong|Look at the camera|-","อย่ามองกล้อง|yaa mong klong|Don't look at the camera|-","พูดเสียงดังขึ้น|phuut siang dang khuen|Speak louder|-","ช้ากว่านี้|chaa gwaa nii|Slower|-","เร็วกว่านี้|reo gwaa nii|Faster|-","ทำอีกครั้ง|tham eek khrang|Do it again|-","ดีมาก|dii maak|Very good","พักกินข้าว|phak gin khaao|Lunch break","คอลไทม์|khon-thaim|Call time|-","ขอเวลาเตรียมฉากหน่อย|khor we-laa triam chaak noi|I need a moment to set up the scene","ขอถ่ายตรงนี้ได้ไหม|khor thaai trong nii dai mai|Can we shoot here?","ต้องขอใบอนุญาตถ่ายทำไหม|tong khor bai a-nu-yaat thaai tham mai|Do we need a filming permit?","ขอบคุณทุกคน|khop khun thuk khon|Thanks, everyone"]
 };
 const KEY="thaisb.v2",Q=/(ไหม|ไหน|อะไร|เท่าไหร่|เหรอ|หรือเปล่า)$/;
 let S={items:[],pol:"m",polite:false,rate:0.9,slow:false,voice:"",ro:true,en:true,lang:"th",light:false,deleted:[]},cat="All",edit=false,qs="";
@@ -622,7 +629,217 @@ function applyP12(){
   });
   S.light=false;S.applied.push('neutral3');save();
 }
-const OLD=["Basics","Eating","Getting around","Shopping","Numbers","Social","Emergency"];
+// Spoken-Thai rewrite: swaps textbook/literal defaults for what people actually say.
+// Only touches built-in phrases still holding the old wording, so your own edits are kept.
+const P13={key:'natural1',fix:[
+["ไม่", "ไม่ใช่", "mai chai", "No (that's not it)"],
+["ลาก่อน", "ไปก่อนนะ", "pai gon na", "Bye, I'm off"],
+["พูดช้าๆ ได้ไหม", "พูดช้าๆ หน่อยได้ไหม", "phuut chaa-chaa noi dai mai", ""],
+["พูดอีกครั้งได้ไหม", "พูดอีกทีได้ไหม", "phuut eek thii dai mai", ""],
+["พูดภาษาไทยได้นิดหน่อย", "พูดไทยได้นิดหน่อย", "phuut thai dai nit noi", ""],
+["พูดภาษาอังกฤษได้ไหม", "พูดอังกฤษได้ไหม", "phuut ang-grit dai mai", ""],
+["ขอน้ำเปล่า", "ขอน้ำเปล่าหน่อย", "khor nam plao noi", ""],
+["ขอเช็คบิลหน่อย", "เช็คบิลด้วย", "chek bin duay", ""],
+["กินมังสวิรัติ", "ไม่กินเนื้อสัตว์", "mai gin neua sat", "I don't eat meat (vegetarian)"],
+["ขออีกหนึ่ง", "ขออีกอันนึง", "khor eek an neung", ""],
+["ห่อกลับบ้าน", "ห่อกลับบ้านด้วย", "hor glap baan duay", ""],
+["ห้องน้ำอยู่ที่ไหน", "ห้องน้ำอยู่ไหน", "hong nam yuu nai", ""],
+["เปิดมิเตอร์ได้ไหม", "กดมิเตอร์ได้ไหม", "got mi-toe dai mai", ""],
+["จอดที่นี่", "จอดตรงนี้", "jot trong nii", ""],
+["สถานีรถไฟฟ้าอยู่ที่ไหน", "รถไฟฟ้าอยู่ไหน", "rot fai faa yuu nai", ""],
+["ราคาเท่าไหร่", "อันนี้เท่าไหร่", "an nii thao rai", "How much is this?"],
+["ลดได้ไหม", "ลดหน่อยได้ไหม", "lot noi dai mai", ""],
+["จ่ายด้วยบัตรได้ไหม", "รูดบัตรได้ไหม", "ruut bat dai mai", ""],
+["สบายดีไหม", "เป็นไงบ้าง", "pen ngai baang", "How's it going?"],
+["คุณชื่ออะไร", "ชื่ออะไร", "cheu a-rai", ""],
+["เรียกตำรวจ", "เรียกตำรวจให้หน่อย", "riak tam-ruat hai noi", "Please call the police"],
+["เรียกรถพยาบาล", "เรียกรถพยาบาลให้หน่อย", "riak rot pha-yaa-baan hai noi", "Please call an ambulance"],
+["โรงพยาบาลอยู่ที่ไหน", "โรงพยาบาลอยู่ไหน", "rong pha-yaa-baan yuu nai", ""],
+["หลงทาง", "หลงทางแล้ว", "long thaang laeo", ""],
+["เงียบ", "ขอเงียบด้วย", "khor ngiap duay", "Quiet, please"],
+["พร้อม", "พร้อมแล้ว", "phrom laeo", "Ready"],
+["เครื่องแต่งกาย", "เสื้อผ้า", "seua phaa", "Costume / wardrobe"],
+["อุปกรณ์ประกอบฉาก", "พร็อพ", "phrop", "Props"],
+["ฝ่ายศิลป์", "ฝ่ายอาร์ต", "faai aat", ""],
+["ฝ่ายเครื่องแต่งกาย", "ฝ่ายเสื้อผ้า", "faai seua phaa", "Costume / wardrobe department"],
+["คุณอยู่ฝ่ายไหน", "อยู่ฝ่ายไหน", "yuu faai nai", ""],
+["สัญญาณขาด", "สัญญาณหลุด", "san-yaan lut", ""],
+["ฉากที่หนึ่ง เทคสอง", "ซีนหนึ่ง เทคสอง", "siin neung thek song", ""],
+["ภาพเบลอ", "โฟกัสหลุด", "foh-gat lut", "Out of focus"],
+["ปิดเสียงโทรศัพท์", "ปิดเสียงมือถือด้วย", "pit siang meu-thue duay", "Silence your phones, please"],
+["เวลาเรียกตัว", "คอลไทม์", "khon-thaim", ""],
+["ขออนุญาตถ่ายทำที่นี่ได้ไหม", "ขอถ่ายตรงนี้ได้ไหม", "khor thaai trong nii dai mai", "Can we shoot here?"],
+["ซ่อนตัว", "หลบ", "lop", "Hide / get out of sight"],
+["ถอยหลัง", "ถอยออกไป", "thoi ok pai", "Stand back"],
+["ทุกคนถอยหลัง", "ทุกคนถอยออกไป", "thuk khon thoi ok pai", "Everyone stand back"],
+["เตรียมพร้อม", "สแตนด์บาย", "saen-baai", "Standing by"],
+["อีกหนึ่ง", "อีกอันนึง", "eek an neung", "One more (item)"],
+["แว่นตานิรภัย", "แว่นเซฟตี้", "waen sep-tii", ""],
+["กาแฟอยู่ที่ไหน", "กาแฟอยู่ไหน", "gaa-fae yuu nai", ""],
+["ขอกาแฟหนึ่งแก้ว", "ขอกาแฟแก้วนึง", "khor gaa-fae gaeo neung", ""],
+["น้ำดื่มอยู่ที่ไหน", "น้ำดื่มอยู่ไหน", "nam duem yuu nai", ""],
+["มื้อเช้าอยู่ที่ไหน", "ข้าวเช้าอยู่ไหน", "khaao chao yuu nai", ""],
+["ตอนนี้กี่โมง", "ตอนนี้กี่โมงแล้ว", "ton-nii gii mohng laeo", ""],
+["วันนี้มีกี่ฉาก", "วันนี้มีกี่ซีน", "wan-nii mii gii siin", ""],
+["จุดนัดพบอยู่ที่ไหน", "จุดนัดพบอยู่ไหน", "jut nat-phop yuu nai", ""],
+["ที่จอดรถอยู่ที่ไหน", "ที่จอดรถอยู่ไหน", "thii jot rot yuu nai", ""],
+["ห้องแต่งตัวอยู่ที่ไหน", "ห้องแต่งตัวอยู่ไหน", "hong taeng tua yuu nai", ""],
+["คราฟต์เซอร์วิสอยู่ที่ไหน", "คราฟต์เซอร์วิสอยู่ไหน", "khraap-soe-wit yuu nai", ""],
+["โต๊ะอาหารว่างอยู่ที่ไหน", "โต๊ะขนมอยู่ไหน", "to kha-nom yuu nai", ""]
+],add:[
+["Basics", "ไม่เอา", "mai ao", "No thanks (I don't want it)"],
+["Shopping", "สแกนจ่ายได้ไหม", "sa-gaen jaai dai mai", "Can I pay by QR scan?"],
+["On set", "เอาอีกที", "ao eek thii", "One more time"]
+]};
+function applyP13(){
+  if(!Array.isArray(S.applied))S.applied=[];
+  if(S.applied.includes(P13.key))return;
+  P13.fix.forEach(([o,n,ro,en])=>S.items.forEach(i=>{
+    if(i.t||i.th!==o)return;
+    i.th=n;i.ro=ro;i.ph="";i.auto=0;if(en)i.en=en;
+  }));
+  P13.add.forEach(([cat,t,ro,en])=>{
+    if(S.items.some(i=>i.th===t))return;
+    const it={id:uid(),th:t,ro,en,cat,np:0};
+    let at=-1;S.items.forEach((x,n)=>{if(x.cat===cat)at=n});
+    if(at<0)S.items.push(it);else S.items.splice(at+1,0,it);
+  });
+  S.applied.push(P13.key);save();
+}
+const P14={key:'casual1',add:[
+["Casual talk", "เจ๋ง", "jeng", "Cool! / Awesome", 1],
+["Casual talk", "สุดยอด", "sut yot", "Amazing! / The best", 1],
+["Casual talk", "ปังมาก", "pang maak", "Killer! (slang: awesome)", 1],
+["Casual talk", "เป๊ะ", "pe", "Spot on / perfect", 1],
+["Casual talk", "โอ้โห", "oh-hoh", "Wow!", 1],
+["Casual talk", "จริงดิ", "jing di", "Seriously? / For real?", 1],
+["Casual talk", "ไม่จริงอ่ะ", "mai jing a", "No way!", 1],
+["Casual talk", "ตายแล้ว", "taai laeo", "Oh my god!", 1],
+["Casual talk", "เออ", "oe", "Yeah (very casual)", 1],
+["Casual talk", "ได้เลย", "dai loei", "Sure thing", 1],
+["Casual talk", "โอเคเลย", "oh-khe loei", "Sure, all good", 1],
+["Casual talk", "จัดไป", "jat pai", "Let's do it / go for it", 1],
+["Casual talk", "ลุยเลย", "lui loei", "Let's go!", 1],
+["Casual talk", "เอาเลย", "ao loei", "Go ahead", 1],
+["Casual talk", "ชิลๆ", "chill chill", "Chill / no stress", 1],
+["Casual talk", "สบายๆ", "sa-baai sa-baai", "Take it easy", 1],
+["Casual talk", "ตามสบาย", "taam sa-baai", "Make yourself at home / as you like", 1],
+["Casual talk", "ช่างมัน", "chang man", "Forget it / whatever", 1],
+["Casual talk", "ไม่เป็นไรหรอก", "mai pen rai rok", "Don't worry about it", 1],
+["Casual talk", "ไม่รู้ดิ", "mai ruu di", "Dunno", 1],
+["Casual talk", "งงอ่ะ", "ngong a", "I'm confused", 1],
+["Casual talk", "เดี๋ยวก่อน", "diao gon", "Wait a sec", 1],
+["Casual talk", "แป๊บนึง", "paep neung", "Just a moment", 1],
+["Casual talk", "เดี๋ยวมา", "diao maa", "Be right back", 1],
+["Casual talk", "ไปละนะ", "pai la na", "I'm off then", 1],
+["Casual talk", "ว่าไง", "waa ngai", "What's up?", 1],
+["Casual talk", "ทำไรอยู่", "tham rai yuu", "What are you up to?", 1],
+["Casual talk", "ไปไหนมา", "pai nai maa", "Where've you been? (casual hello)", 1],
+["Casual talk", "กินข้าวยัง", "gin khao yang", "Eaten yet? (casual hello)", 1],
+["Casual talk", "กินแล้ว", "gin laeo", "Already ate", 1],
+["Casual talk", "ยังเลย", "yang loei", "Not yet", 1],
+["Casual talk", "หิวจัง", "hiu jang", "I'm so hungry", 1],
+["Casual talk", "ง่วงจัง", "nguang jang", "I'm so sleepy", 1],
+["Casual talk", "ร้อนจัง", "ron jang", "It's so hot", 1],
+["Casual talk", "เหนื่อยมาก", "nueay maak", "I'm exhausted", 1],
+["Casual talk", "ไม่ไหวแล้ว", "mai wai laeo", "I can't take any more", 1],
+["Casual talk", "เบื่อ", "buea", "I'm bored / fed up", 1],
+["Casual talk", "มันส์มาก", "man maak", "So much fun", 1],
+["Casual talk", "ตลกมาก", "ta-lok maak", "So funny", 1],
+["Casual talk", "น่ารักจัง", "naa rak jang", "So cute", 1],
+["Casual talk", "ชนแก้ว", "chon gaeo", "Cheers!", 1],
+["Casual talk", "เมาแล้ว", "mao laeo", "I'm drunk", 1],
+["Casual talk", "พอแล้ว", "phor laeo", "That's enough", 1],
+["Casual talk", "ขอบใจนะ", "khop jai na", "Thanks (to a friend)", 1],
+["Social", "ยินดีด้วย", "yin dii duay", "Congratulations", 0],
+["Social", "ไม่ต้องเกรงใจ", "mai tong kreng jai", "Don't be shy / no need to be formal", 0],
+["Social", "คิดถึงนะ", "khit thueng na", "Miss you", 1],
+["Social", "ฝันดีนะ", "fan dii na", "Sweet dreams", 1],
+["Social", "โชคดีนะ", "chok dii na", "Good luck", 1],
+["Social", "เดี๋ยวเจอกัน", "diao jer gan", "See you soon", 1],
+["Eating", "เผ็ดไหม", "phet mai", "Is it spicy?", 0],
+["Eating", "เอาเหมือนเดิม", "ao muean doem", "Same as usual", 0],
+["Eating", "ห่อกลับบ้าน", "hor glap baan", "To take away", 0],
+["Eating", "กินที่นี่", "gin thii nii", "Eat here", 0],
+["Eating", "อิ่มแล้ว", "im laeo", "I'm full", 0],
+["Eating", "ขอเพิ่มอีก", "khor phoem eek", "Can I get more?", 0],
+["Eating", "ไม่ใส่ผงชูรส", "mai sai phong chuu rot", "No MSG", 0],
+["Getting around", "ตรงไป", "trong pai", "Straight ahead", 0],
+["Getting around", "ถึงแล้ว", "thueng laeo", "We're here", 0],
+["Getting around", "อีกไกลไหม", "eek glai mai", "Is it much further?", 0],
+["Getting around", "รีบหน่อย", "riip noi", "Hurry a bit, please", 0],
+["Getting around", "รถติดมาก", "rot tit maak", "Traffic's terrible", 1],
+["Shopping", "แค่ดูเฉยๆ", "khae duu choei choei", "Just looking", 0],
+["Shopping", "ลดได้อีกไหม", "lot dai eek mai", "Any more discount?", 0],
+["Shopping", "มีไซซ์อื่นไหม", "mii sai uen mai", "Other sizes?", 0],
+["On set", "เยี่ยมเลย", "yiam loei", "Great job", 1],
+["On set", "เอาใหม่", "ao mai", "Again, from the top", 1],
+["On set", "เร็วๆ หน่อย", "reo reo noi", "A bit quicker", 1],
+["On set", "ช้าลงหน่อย", "chaa long noi", "Slow down a bit", 1],
+["On set", "พักห้านาที", "phak haa naa-thii", "Five-minute break", 1],
+["On set", "เลิกกอง", "loek gong", "That's a wrap", 1]
+]};
+function applyP14(){
+  if(!Array.isArray(S.applied))S.applied=[];
+  if(S.applied.includes(P14.key))return;
+  P14.add.forEach(([cat,t,ro,en,np])=>{
+    if(S.items.some(i=>i.th===t))return;
+    const it={id:uid(),th:t,ro,en,cat,np};
+    let at=-1;S.items.forEach((x,n)=>{if(x.cat===cat)at=n});
+    if(at<0)S.items.push(it);else S.items.splice(at+1,0,it);
+  });
+  S.applied.push(P14.key);save();
+}
+const P15={key:'slang1',add:[
+["Casual talk", "ฟินมาก", "fin maak", "So satisfying! / Pure bliss", 1],
+["Casual talk", "แซ่บมาก", "saep maak", "So tasty! (spicy-good)", 1],
+["Casual talk", "ขำๆ", "kham kham", "Just for fun / just joking", 1],
+["Casual talk", "ลำไย", "lam-yai", "Annoying! (slang)", 1],
+["Casual talk", "โดนแกง", "doon gaeng", "Got played / got tricked", 1],
+["Casual talk", "สุดปัง", "sut pang", "Absolutely stunning", 1],
+["Casual talk", "โป๊ะแตก", "po taek", "Busted! Cat's out of the bag", 1],
+["Casual talk", "เริ่ด", "roet", "Fabulous", 1],
+["Casual talk", "ฟาด", "faat", "Nailed it / killed it", 1],
+["Casual talk", "มองบน", "mong bon", "*eye roll*", 1],
+["Casual talk", "อย่าหาทำ", "yaa haa tham", "Don't even think about it", 1],
+["Casual talk", "กรอบ", "grop", "I'm broke", 1],
+["Casual talk", "เก็ต", "get", "Got it / I get it", 1],
+["Casual talk", "อินมาก", "in maak", "I'm so into it", 1],
+["Casual talk", "เว่อร์", "woe", "Over the top / exaggerating", 1],
+["Casual talk", "โคตรเท่", "khot the", "Super cool", 1],
+["Casual talk", "สู้ๆ", "suu suu", "You got this! Keep going", 1],
+["Casual talk", "แป๊บเดียว", "paep diao", "Just a sec", 1],
+["Casual talk", "ส้มหล่น", "som lon", "Lucky break", 1],
+["Casual talk", "จริงปะ", "jing pa", "Really? / Is that true?", 1],
+["Casual talk", "ใช่ปะ", "chai pa", "Right?", 1],
+["Casual talk", "ไรอ่ะ", "rai a", "What? / What's that?", 1],
+["Casual talk", "เอาไงดี", "ao ngai dii", "What should we do?", 1],
+["Casual talk", "ยังไงก็ได้", "yang ngai gor dai", "Whatever works", 1],
+["Casual talk", "แล้วแต่", "laeo tae", "Up to you", 1],
+["Casual talk", "ก็ได้", "gor dai", "OK then / fine", 1],
+["Casual talk", "ใช่เลย", "chai loei", "Exactly!", 1],
+["Casual talk", "นั่นแหละ", "nan lae", "That's it / exactly", 1],
+["Casual talk", "ไม่ต้อง", "mai tong", "No need", 1],
+["Casual talk", "เดี๋ยวจัดให้", "diao jat hai", "I'll sort it out", 1],
+["Casual talk", "ช่วยหน่อยดิ", "chuay noi di", "Give me a hand, come on", 1],
+["Casual talk", "กินด้วยกันมะ", "gin duay gan ma", "Wanna eat together?", 1],
+["Casual talk", "ไปเที่ยวกันมั้ย", "pai thiao gan mai", "Wanna go out?", 1],
+["Casual talk", "ไม่เป็นไรเนอะ", "mai pen rai noe", "It's fine, right?", 1],
+["Casual talk", "บ้าไปแล้ว", "baa pai laeo", "That's crazy", 1],
+["Casual talk", "ซวยแล้ว", "suay laeo", "Uh oh, we're in trouble", 1]
+]};
+function applyP15(){
+  if(!Array.isArray(S.applied))S.applied=[];
+  if(S.applied.includes(P15.key))return;
+  P15.add.forEach(([cat,t,ro,en,np])=>{
+    if(S.items.some(i=>i.th===t))return;
+    const it={id:uid(),th:t,ro,en,cat,np};
+    let at=-1;S.items.forEach((x,n)=>{if(x.cat===cat)at=n});
+    if(at<0)S.items.push(it);else S.items.splice(at+1,0,it);
+  });
+  S.applied.push(P15.key);save();
+}
+const OLD=["Basics","Eating","Getting around","Shopping","Numbers","Social","Casual talk","Emergency"];
 const bkey=i=>i.cat+"|"+(i.th||i.en);
 function fromBaked(){
   S.items=JSON.parse(JSON.stringify(BAKED.items));
@@ -639,7 +856,7 @@ function bakedMerge(){
   fromBaked();mine.forEach(i=>S.items.push(i));
   S.bakedV=BAKED.v;save();
 }
-function load(){try{const r=localStorage.getItem(KEY);if(r){const d=JSON.parse(r);if(d&&Array.isArray(d.items)){S=Object.assign(S,d);if(!("rate" in d))S.rate=d.slow?0.55:0.9;if(!("polite" in d)){S.polite=S.pol!=="";if(!S.pol)S.pol="m"}if(!Array.isArray(S.seen))S.seen=OLD.slice();const add=Object.keys(D).filter(c=>!S.seen.includes(c));if(add.length){defaults().filter(i=>add.includes(i.cat)).forEach(i=>S.items.push(i));S.seen=Object.keys(D);save()}bakedMerge();applyPatches();applyPatches2();applyP3();applyP4();applyP5();applyP6();applyP7();applyP8();applyP9();applyP10();applyP11();applyP12();return}}}catch(e){}S.items=defaults();S.seen=Object.keys(D);S.applied=Object.keys(PATCHES);if(BAKED&&BAKED.items){fromBaked();S.bakedV=BAKED.v}applyPatches2();applyP3();applyP4();applyP5();applyP6();applyP7();applyP8();applyP9();applyP10();applyP11();applyP12()}
+function load(){try{const r=localStorage.getItem(KEY);if(r){const d=JSON.parse(r);if(d&&Array.isArray(d.items)){S=Object.assign(S,d);if(!("rate" in d))S.rate=d.slow?0.55:0.9;if(!("polite" in d)){S.polite=S.pol!=="";if(!S.pol)S.pol="m"}if(!Array.isArray(S.seen))S.seen=OLD.slice();const add=Object.keys(D).filter(c=>!S.seen.includes(c));if(add.length){defaults().filter(i=>add.includes(i.cat)).forEach(i=>S.items.push(i));S.seen=Object.keys(D);save()}bakedMerge();applyPatches();applyPatches2();applyP3();applyP4();applyP5();applyP6();applyP7();applyP8();applyP9();applyP10();applyP11();applyP12();applyP13();applyP14();applyP15();return}}}catch(e){}S.items=defaults();S.seen=Object.keys(D);S.applied=Object.keys(PATCHES);if(BAKED&&BAKED.items){fromBaked();S.bakedV=BAKED.v}applyPatches2();applyP3();applyP4();applyP5();applyP6();applyP7();applyP8();applyP9();applyP10();applyP11();applyP12();applyP13();applyP14();applyP15()}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));return localStorage.getItem(KEY)!==null}catch(e){return false}}
 function testStore(){try{localStorage.setItem('__t','1');localStorage.removeItem('__t');return true}catch(e){return false}}
 const STORE_OK=testStore();
@@ -677,11 +894,141 @@ function phonFromRo(ro){
     return ini+(Object.prototype.hasOwnProperty.call(V,v)?V[v]:v)+fin;
   }).filter(Boolean).join(" ");
 }
+// Tone lines: TLEX holds hand-checked words as "tones romanization" (tones: M mid, L low, F falling, H high, R rising,
+// one letter per syllable). thPron() uses it first and sounds out any other Thai with the spelling rules.
+const TLEX={
+"ฟิน":"M fin","แซ่บ":"F saep","ขำ":"R kham","ลำไย":"MM lam-yai","โดน":"M doon","แกง":"M gaeng","โป๊ะ":"H po","แตก":"L taek","เริ่ด":"F roet","ฟาด":"F faat","มอง":"M mong","บน":"M bon","อย่า":"L yaa","กรอบ":"L grop","เก็ต":"L get","อิน":"M in","เว่อร์":"F woe","โคตร":"F khot","เท่":"F the","สู้":"F suu","ส้ม":"F som","หล่น":"L lon","ปะ":"L pa","แล้วแต่":"HL laeo-tae","แหละ":"L lae","มะ":"H ma","เที่ยว":"F thiao","มั้ย":"H mai","บ้า":"F baa","ซวย":"M suay",
+"เจ๋ง":"R jeng","สุดยอด":"LF sut-yot","ปัง":"M pang","เป๊ะ":"H pe","โอ้โห":"FR oh-hoh","ดิ":"H di","อ่ะ":"L a","ตาย":"M taai","เออ":"M oe","โอเค":"MM oh-khe","จัด":"L jat","ลุย":"M lui","ชิล":"H chill","ตาม":"M taam","รู้":"H ruu","งง":"M ngong","ละ":"H la","จัง":"M jang","ไหว":"R wai","เบื่อ":"L buea","มันส์":"M man","ตลก":"LH ta-lok","น่ารัก":"FH naa-rak","ชน":"M chon","เมา":"M mao","พอ":"M phor","ขอบใจ":"LM khop-jai","เกรงใจ":"MM kreng-jai","คิดถึง":"HR khit-thueng","ฝัน":"R fan","โชค":"F chok","เหมือน":"R muean","เดิม":"M doem","ผงชูรส":"RMH phong-chuu-rot","ถึง":"R thueng","เฉย":"R choei","ไซซ์":"M sai","เยี่ยม":"F yiam","ลง":"M long",
+"สวัสดี":"LLM sa-wat-dee","ขอบคุณ":"LM khop-khun","ไม่":"F mai","เป็น":"M pen","ไร":"M rai","ขอโทษ":"RF khor-thot","ใช่":"F chai","ได้":"F dai",
+"ไป":"M pai","ก่อน":"L gon","นะ":"H na","เข้าใจ":"FM khao-jai","แล้ว":"H laeo","พูด":"F phuut","ช้า":"H chaa","หน่อย":"L noi",
+"ไหม":"R mai","อีก":"L eek","ที":"M thii","ไทย":"M thai","นิดหน่อย":"HL nit-noi","อังกฤษ":"ML ang-grit","เอา":"M ao","ขอ":"R khor",
+"เมนู":"MM may-nuu","น้ำเปล่า":"HL nam-plao","เช็ค":"H chek","บิล":"M bin","ด้วย":"F duay","อร่อย":"LL a-roi","มาก":"F maak","เผ็ด":"L phet",
+"ใส่":"L sai","ผักชี":"LM phak-chee","กิน":"M gin","เนื้อ":"H neua","สัตว์":"L sat","แพ้":"H phae","ถั่ว":"L thua","ลิสง":"HR li-song",
+"อัน":"M an","นึง":"M neung","ห่อ":"L hor","กลับ":"L glap","บ้าน":"F baan","ไข่":"L khai","เป็ด":"L pet","ไก่":"L gai",
+"ย่าง":"F yaang","ต้ม":"F tom","ดาว":"M daao","หวาน":"R waan","ปู":"M puu","ปลา":"M plaa","หมึก":"L meuk","กุ้ง":"F gung",
+"มังกร":"MM mang-gon","ห้องน้ำ":"FH hong-nam","อยู่":"L yuu","ไหน":"R nai","สนามบิน":"LRM sa-naam-bin","โรงแรม":"MM rong-raem","กด":"L got","มิเตอร์":"HM mi-toe",
+"จอด":"L jot","ตรงนี้":"MH trong-nii","เลี้ยว":"H liao","ซ้าย":"H saai","ขวา":"R khwaa","ตรง":"M trong","ไกล":"M glai","รถไฟฟ้า":"HMH rot-fai-faa",
+"นี้":"H nii","เท่าไหร่":"FL thao-rai","แพง":"M phaeng","ลด":"H lot","ดู":"M duu","รูด":"F ruut","บัตร":"L bat","มี":"M mii",
+"ไซส์":"M sai","ใหญ่":"L yai","กว่า":"L gwaa","สแกน":"LM sa-gaen","จ่าย":"L jaai","หนึ่ง":"L neung","สอง":"R song","สาม":"R saam",
+"สี่":"L sii","ห้า":"F haa","หก":"L hok","เจ็ด":"L jet","แปด":"L paet","เก้า":"F gao","สิบ":"L sip","ร้อย":"H roi",
+"พัน":"M phan","ไง":"M ngai","บ้าง":"F baang","สบาย":"LM sa-baai","ดี":"M dii","ยินดี":"MM yin-dii","ที่":"F thii","รู้จัก":"HL ruu-jak",
+"ชื่อ":"F cheu","อะไร":"LM a-rai","สนุก":"LL sa-nuk","สวย":"R suay","เจอ":"M jer","กัน":"M gan","ใหม่":"L mai","ช่วย":"F chuay",
+"เรียก":"F riak","ตำรวจ":"ML tam-ruat","ให้":"F hai","รถ":"H rot","พยาบาล":"HMM pha-yaa-baan","โรง":"M rong","หลง":"R long","ทาง":"M thaang",
+"เงียบ":"F ngiap","พร้อม":"H phrom","พัก":"H phak","เลิก":"F loek","กอง":"M gong","ถ่าย":"L thaai","ทำ":"M tham","ตาราง":"MM taa-raang",
+"บท":"L bot","ผู้":"F phuu","กำกับ":"ML gam-gap","ภาพ":"F phaap","อำนวยการ":"MMM am-nuay-gaan","สร้าง":"F sang","นัก":"H nak","แสดง":"LM sa-daeng",
+"ทีม":"M thiim","งาน":"M ngaan","กล้อง":"F klong","ย้าย":"H yaai","ไฟ":"M fai","สว่าง":"LL sa-waang","ไมค์":"M mai","เสียง":"R siang",
+"ดัง":"M dang","มอนิเตอร์":"MHM mon-ni-toe","เสื้อ":"F seua","ผ้า":"F phaa","แต่ง":"L taeng","หน้า":"F naa","พร็อพ":"H phrop","ตัด":"L tat",
+"ต่อ":"L tor","ฝ่าย":"L faai","กริป":"L grip","อาร์ต":"M aat","ฉาก":"L chaak","โปรดักชัน":"MLM pro-dak-chan","ตา":"M taa","หัว":"R hua",
+"ช่าง":"F chaang","บันทึก":"MH ban-thuek","คน":"M khon","ถือ":"R thue","บูม":"M buum","ออกแบบ":"LL ok-baep","ศิลป์":"R sin","เครื่อง":"F khrueang",
+"กาย":"M gaai","ดูแล":"MM duu-lae","ความ":"M khwaam","ต่อเนื่อง":"LF tor-nuang","จัดการ":"LM jat-gaan","ประสาน":"LR pra-saan","พีเอ":"MM phii-ee","นิ่ง":"F ning",
+"ใคร":"M khrai","คุย":"M khui","กับ":"L gap","เซ็ต":"H set","ซีน":"M siin","เทค":"H thek","ตั้ง":"F tang","มุม":"M mum",
+"กว้าง":"F gwaang","แพน":"M phaen","ซูม":"M suum","เข้า":"F khao","ออก":"L ok","โฟกัส":"ML foh-gat","หลุด":"L lut","ปิด":"L pit",
+"มือถือ":"MR meu-thue","ห้าม":"F haam","ข้าว":"F khaao","คราฟต์":"F khraap","เซอร์วิส":"MH soe-wit","โต๊ะ":"H to","ขนม":"LR kha-nom","คอลไทม์":"MM khon-thaim",
+"เวลา":"MM we-laa","เตรียม":"M triam","ต้อง":"F tong","ใบ":"M bai","อนุญาต":"LHF a-nu-yaat","ทุก":"H thuk","เลนส์":"M len","ขา":"R khaa",
+"ดอลลี่":"MF don-lii","สเตดิแคม":"LMMM sa-te-dii-khaem","แอลอีดี":"MMM ael-ii-dii","ฟิลเตอร์":"MM fin-ter","ปั่น":"L pan","สาย":"R saai","ปลั๊ก":"H plak","พ่วง":"F phuang",
+"แบตเตอรี่":"LMF baet-toe-rii","การ์ด":"M gaat","จำ":"M jam","หู":"R huu","ฟัง":"M fang","วอล์กกี้":"HF wok-gii","ทอล์กกี้":"HF thok-gii","ไร้สาย":"HR rai-saai",
+"ปก":"L pok","รู":"M ruu","รับ":"H rap","แสง":"R saeng","ไว":"M wai","เร็ว":"M reo","ชัตเตอร์":"HM chat-toe","เฟรม":"M frem",
+"เรต":"H ret","ไวต์":"M wai","บาลานซ์":"MM baa-laan","ชัด":"H chat","ลึก":"H leuk","ระดับ":"HL ra-dap","ใช้":"H chai","แบต":"L baet",
+"หมด":"L mot","เพิ่ม":"F phoem","รบกวน":"HM rop-guan","สะท้อน":"LH sa-thon","สัญญาณ":"RM san-yaan","ดับ":"L dap","ควัน":"M khwan","หลบ":"L lop",
+"เคลียร์":"M khliia","นั้น":"H nan","ปลอดภัย":"LM plot-phai","จาก":"L jaak","ขอบ":"L khop","หนา":"R naa","บาง":"M baang","ถอย":"R thoi",
+"ระวัง":"HM ra-wang","ร้อน":"H ron","ลื่น":"F luen","อันตราย":"MLM an-ta-raai","หยุด":"L yut","เดี๋ยวนี้":"RH diao-nii","รอ":"M ror","สแตนด์บาย":"MM saen-baai",
+"เปิด":"L poet","พัดลม":"HM phat-lom","ไล่":"F lai","หมอก":"L mok","ฝน":"R fon","เทียม":"M thiam","น้ำยา":"HM nam-yaa","เติม":"M term",
+"ถัง":"R thang","เพลิง":"M phloeng","เจ้าหน้าที่":"FFF chao-naa-thii","เอฟเฟกต์":"MH e-fek","พิเศษ":"HL phi-set","โฟล์คลิฟท์":"FH fohk-lif","เครน":"M khreen","เฟส":"M fet",
+"เบียร์":"M bia","มอเตอร์ไซค์":"MMM mo-toe-sai","ชุด":"H chut","ปฐม":"LR pa-thom","แฟลมบาร์":"MM flaem-baa","เจล":"M jen","ติด":"L tit","แช็ก":"H chaek",
+"องศา":"MR ong-saa","หัน":"R han","ถุง":"R thung","มือ":"M mue","แว่น":"F waen","เซฟตี้":"HF sep-tii","กาแฟ":"MM gaa-fae","แก้ว":"F gaeo",
+"น้ำ":"H nam","ดื่ม":"L duem","เช้า":"H chao","กี่โมง":"LM gii-mohng","กี่":"L gii","นาที":"MM naa-thii","มา":"M maa","พรุ่งนี้":"FH phrung-nii",
+"วันนี้":"MH wan-nii","เมื่อวาน":"FM meua-waan","เสร็จ":"L set","ตอนนี้":"MH ton-nii","จุด":"L jut","นัดพบ":"HH nat-phop","ห้อง":"F hong","ตัว":"M tua",
+"อาทิตย์":"MH aa-thit","ชา":"M chaa","ผัด":"L phat","ก๋วยเตี๋ยว":"RR gwai-tiao","สถานี":"LRM sa-thaa-nii","ร้าน":"H raan","ขาย":"R khaai","ยา":"M yaa",
+"มื้อ":"H meu","ทั้งหมด":"HL thang-mot","ขวด":"L khuat","จาน":"M jaan","ชาม":"M chaam","ฟอง":"M fong","ใจ":"M jai","โมง":"M mohng",
+"ตอน":"M ton","ใน":"M nai","ไม่มี":"FM mai-mii","น้ำแข็ง":"HR nam-khaeng","เปล่า":"L plao","นิด":"H nit","ฟ้า":"H faa","บิน":"M bin",
+"แบบ":"L baep","สนาม":"LR sa-naam","ก็":"F gor","คุณ":"M khun","ผม":"R phom","ฉัน":"R chan","เขา":"R khao","เรา":"M rao",
+"มัน":"M man","จะ":"L ja","ของ":"R khong","และ":"H lae","หรือ":"R rue","ว่า":"F waa","คือ":"M khue","ทำไม":"MM tham-mai",
+"อย่างไร":"LM yaang-rai","ยังไง":"MM yang-ngai","เพราะ":"H phro","แต่":"L tae","ถ้า":"F thaa","หรอ":"R ror","จ้ะ":"F ja","เลย":"M loei",
+"เมื่อไร":"FM meua-rai","เมื่อไหร่":"FL meua-rai","อยาก":"L yaak","ต้องการ":"FM tong-gaan","รัก":"H rak","ชอบ":"F chop","เห็น":"R hen","บอก":"L bok",
+"ถาม":"R thaam","ตอบ":"L top","คิด":"H khit","ทราบ":"F saap","นี่":"F nii","นั่น":"F nan","โน่น":"F non","ทั้ง":"H thang",
+"ยัง":"M yang","กำลัง":"MM gam-lang","เคย":"M khoei","อาจ":"L aat","ควร":"M khuan","น่า":"F naa","ช่วง":"F chuang","เดียว":"M diao",
+"หลาย":"R laai","อื่น":"L uen","เอง":"M eng","ด้วยกัน":"FM duay-gan","แค่":"F khae","เท่านั้น":"FH thao-nan","น้อย":"H noi","เล็ก":"H lek",
+"เก่า":"L gao","เลว":"M leo","หล่อ":"L lor","ถูก":"L thuuk","หนาว":"R naao","เย็น":"M yen","อุ่น":"L un","หิว":"R hio",
+"อิ่ม":"L im","เหนื่อย":"L neuay","ง่วง":"F nguang","ป่วย":"L puay","เจ็บ":"L jep","ปวด":"L puat","ท้อง":"H thong","ฟัน":"M fan",
+"เท้า":"H thao","วัน":"M wan","คืน":"M kheun","เดือน":"M deuan","ปี":"M pii","ชั่วโมง":"FM chua-mohng","วินาที":"HMM wi-naa-thii","บ่าย":"L baai",
+"เย็นนี้":"MH yen-nii","คืนนี้":"MH kheun-nii","เดี๋ยว":"R diao","แป๊บ":"H paep","รีบ":"F riip","ค่อยๆ":"FF khoi-khoi","อาหาร":"MR aa-haan","หมู":"R muu",
+"ผัก":"L phak","ผลไม้":"RMH phon-la-mai","ตลาด":"LL ta-laat","ถนน":"LR tha-non","ซอย":"M soi","รถเมล์":"HM rot-me","แท็กซี่":"HF thaek-sii","เงิน":"M ngern",
+"บาท":"L baat","ทอน":"M thon","ซื้อ":"H seu","ราคา":"MM raa-khaa","เพื่อน":"F pheuan","แฟน":"M faen","พ่อ":"F phor","แม่":"F mae",
+"พี่":"F phii","น้อง":"H nong","ลูก":"F luuk","ผู้หญิง":"FR phuu-ying","ผู้ชาย":"FM phuu-chaai","เด็ก":"L dek","ครู":"M khruu","หมอ":"R mor",
+"ทำงาน":"MM tham-ngaan","เรียน":"M rian","นอน":"M non","ตื่น":"L teun","อาบน้ำ":"LH aap-nam","เดิน":"M doen","วิ่ง":"F wing","นั่ง":"F nang",
+"ยืน":"M yeun","หา":"R haa","ลืม":"M leum","เอามา":"MM ao-maa","ส่ง":"L song","โทร":"M thoh","คุยกัน":"MM khui-gan","ไม่เป็นไร":"FMM mai-pen-rai",
+"โรงพยาบาล":"MHMM rong-pha-yaa-baan","ประเทศ":"LF pra-thet","ภาษา":"MR phaa-saa","จีน":"M jiin","ญี่ปุ่น":"FL yii-pun","อเมริกา":"LMHM a-me-ri-gaa","ปัญหา":"MR pan-haa","เรื่อง":"F reuang",
+"ที่ไหน":"FR thii-nai","สามารถ":"RF saa-maat","ประมาณ":"LM pra-maan","เกือบ":"L gueap","แล้วก็":"HF laeo-gor","จริงๆ":"MM jing-jing","จริง":"M jing","ใช่ไหม":"FR chai-mai",
+"หรือเปล่า":"RL rue-plao","เถอะ":"L thoe","สิ":"L si","ล่ะ":"F la","หรอก":"L rok","ซิ":"H si","เนอะ":"H noe","ครับ":"H krap",
+"ค่ะ":"F ka","คะ":"H ka"
+};
+const TPATH={M:"M3 5.5H17",L:"M3 8.5H17",H:"M3 3.5Q11 3.5 17 1.5",F:"M3 4Q7 1 17 9",R:"M3 6.5Q8 10.5 17 2"};
+const TNAME={M:"mid",L:"low",F:"falling",H:"high",R:"rising"};
+const ticon=t=>`<svg viewBox="0 0 20 11" role="img" aria-label="${TNAME[t]} tone"><rect class="tg" x="0" y="0" width="20" height="11" rx="2"/><path d="${TPATH[t]}"/></svg>`;
+const TH_MID="กจดตฎฏบปอ",TH_HIGH="ขฃฉฐถผฝศษสห";
+const TH_INIT={ก:"g",ข:"kh",ฃ:"kh",ค:"kh",ฅ:"kh",ฆ:"kh",ง:"ng",จ:"j",ฉ:"ch",ช:"ch",ซ:"s",ฌ:"ch",ญ:"y",ฎ:"d",ฏ:"t",ฐ:"th",ฑ:"th",ฒ:"th",ณ:"n",ด:"d",ต:"t",ถ:"th",ท:"th",ธ:"th",น:"n",บ:"b",ป:"p",ผ:"ph",ฝ:"f",พ:"ph",ฟ:"f",ภ:"ph",ม:"m",ย:"y",ร:"r",ล:"l",ว:"w",ศ:"s",ษ:"s",ส:"s",ห:"h",ฬ:"l",อ:"",ฮ:"h"};
+const TH_FIN=c=>"กขคฆ".includes(c)?"k":"บปพฟภ".includes(c)?"p":c==="ง"?"ng":c==="ม"?"m":c==="ย"?"i":c==="ว"?"o":"ญณนรลฬ".includes(c)?"n":"t";
+const TH_C="[ก-ฮ]",TH_IN="(?:ห[งญนมยรลว]|อย|[กขคปพ][รล]|ตร|[กขค]ว|[จทสศซ]ร|[ก-ฮ])",TH_S="(?:ทร์|[ก-ฮ][ิุ]?์)?";
+const TH_BASE=[ // [pattern, vowel, length (0 short, 1 long, 2 always live), cost]; I initial, T tone mark, F final consonant
+ ["เIีTยF?","ia",1,3],["เIืTอF?","uea",1,3],["IัTวะ","ua",0,3],["IัTวF?","ua",1,3],["ITวF","ua",1,3],
+ ["เIาะ","o",0,3],["เITาะ","o",0,3],["เITา","ao",2,3],["เITอะ","oe",0,3],["เIิTF","oe",1,3],["เITอ","oe",1,3],["เITย","oei",1,3],
+ ["เITะ","e",0,3],["เI็TF","e",0,3],["เITF","e",1,3],["เIT","e",1,3],
+ ["แITะ","ae",0,3],["แI็TF","ae",0,3],["แITF?","ae",1,3],["โITะ","o",0,3],["โITF?","o",1,3],
+ ["[ใไ]ITย","ai",2,3],["[ใไ]IT","ai",2,3],["ITำ","am",2,3],["ITะ","a",0,3],["IัTF","a",0,3],["ITาF?","aa",1,3],
+ ["IิTF?","i",0,3],["IีTF?","ii",1,3],["IึTF?","ue",0,3],["IืTอF?","uee",1,3],["IืTF","uee",1,3],["IุTF?","u",0,3],["IูTF?","uu",1,3],
+ ["ITรรF","a",0,3],["ITรร","an",2,3],["ITอF","o",1,3],["ITอ","or",1,3],["I็T","o",0,4],["ITF","o",0,4],["IT","a",0,5]
+].flatMap(r=>r[0].includes("F?")?[[r[0].replace("F?","F"),...r.slice(1)],[r[0].replace("F?",""),...r.slice(1)]]:[r]);
+const TH_RE=(p,lead)=>new RegExp("^"+p.replace("I",(lead?"(?<l>"+TH_C+")(?<i>"+TH_C+")":"(?<i>"+TH_IN+")")).replace("T","(?<t>[่้๊๋]?)").replace("F","(?<f>"+TH_C+")")+TH_S);
+// Second set: a consonant with an unwritten "a" before the syllable (สนาม sa-naam, ขนม kha-nom, แสดง sa-daeng).
+const TH_PAT=TH_BASE.map(([p,v,l,c])=>[TH_RE(p,0),v,l,c]).concat(TH_BASE.filter(r=>r[3]<5).map(([p,v,l,c])=>[TH_RE(p,1),v,l,c+4]));
+const thCls=c=>TH_MID.includes(c)?"M":TH_HIGH.includes(c)?"H":"L";
+function thSyl(m,v,long){
+  const ini=m.groups.i,t=m.groups.t||"",f=m.groups.f||"",ld=m.groups.l||"";
+  const out=[];
+  let cls=ini.length>1&&ini[0]==="ห"?"H":ini==="อย"?"M":thCls(ini[0]);
+  if(ld){out.push({ro:TH_INIT[ld]+"a",tn:thCls(ld)==="L"?"H":"L"});if("งญนมยรลว".includes(ini)&&thCls(ld)!=="L")cls=thCls(ld)}
+  const lead=ini.length>1&&(ini[0]==="ห"||ini==="อย");
+  const ro=lead?TH_INIT[ini[1]]:/^[จทสศซ]ร$/.test(ini)?TH_INIT[ini[0]]:ini.split("").map(c=>TH_INIT[c]).join("");
+  const fin=f?TH_FIN(f):"";
+  const live=long===2||(fin?/^(ng|n|m|i|o)$/.test(fin):long===1);
+  let tone;
+  if(t==="่")tone=cls==="L"?"F":"L";else if(t==="้")tone=cls==="L"?"H":"F";else if(t==="๊")tone="H";else if(t==="๋")tone="R";
+  else if(live)tone=cls==="H"?"R":"M";else tone=cls==="L"?(long?"F":"H"):"L";
+  out.push({ro:ro+(v==="or"&&fin?"o":v)+fin,tn:tone});
+  return out;
+}
+function thPron(th){
+  const s=String(th||"").replace(/[\s.,!?'"()\-–—…:;]+/g,""),n=s.length;if(!n||!/^[฀-๿]+$/.test(s))return null;
+  const B=new Array(n+1).fill(null);B[0]={c:0,ro:[],tn:"",last:null};
+  const step=(i,L,c,ro,tn)=>{const b=B[i],k=i+L;if(!B[k]||B[k].c>b.c+c)B[k]={c:b.c+c,ro:b.ro.concat(ro),tn:b.tn+tn,last:{ro,tn}}};
+  for(let i=0;i<n;i++){const b=B[i];if(!b)continue;
+    if(s[i]==="ๆ"){if(b.last)step(i,1,1,b.last.ro,b.last.tn);continue}
+    if(s[i]==="ฯ"){step(i,1,0,[],"");continue}
+    for(let L=1;L<=14&&i+L<=n;L++){const w=TLEX[s.slice(i,i+L)];if(w){const[tn,ro]=w.split(" ");step(i,L,1,ro.split("-"),tn)}}
+    const rest=s.slice(i);
+    for(const[re,v,long,c]of TH_PAT){const m=rest.match(re);if(m){const y=thSyl(m,v,long);step(i,m[0].length,c,y.map(x=>x.ro),y.map(x=>x.tn).join(""))}}
+  }
+  return B[n]?{ro:B[n].ro,tn:B[n].tn}:null;
+}
+// th: Thai text; ph: phonetics already shown (space-separated syllables); tn: tones from Claude, if any.
+// force: when the phonetics don't line up with the syllables (or are missing), show the sounded-out version instead.
+function toneHTML(th,ph,tn,force){
+  if(S.lang!=="th"||!th)return esc(ph||"");
+  let sy=String(ph||"").trim().split(/\s+/).filter(Boolean),t=tn||"";
+  const pm=String(th).match(/(ครับ|ค่ะ|คะ)$/);
+  if(t&&pm&&sy.length===t.length+1)t+=TLEX[pm[1]][0];
+  if(!t||t.length!==sy.length){
+    const P=thPron(th);t=P?P.tn:"";
+    if(P&&t.length!==sy.length&&(force||!sy.length))sy=P.ro.map(x=>phonFromRo(x)||x);
+  }
+  if(!t||t.length!==sy.length)return esc(ph||"");
+  return `<span class="tn">${sy.map((x,k)=>`<span class="ts">${ticon(t[k])}${esc(x)}</span>`).join("")}</span>`;
+}
 function sx(r){return r.ph||(r.ro?(S.lang==="th"?phonFromRo(r.ro):r.ro):"")}
 function full(i){
   let th=i.th,ro=i.ro||"";
   if(S.polite&&S.pol&&(i.lang||S.lang)==="th"&&i.cat!=="Numbers"&&!i.np){
-    const q=Q.test(i.th);
+    const q=Q.test(i.th)||/นะ$/.test(i.th)||/\?\s*$/.test(i.en||"");
     th+=S.pol==="m"?"ครับ":(q?"คะ":"ค่ะ");
     if(ro)ro+=S.pol==="m"?" krap":" ka";
   }
@@ -881,7 +1228,7 @@ async function translate(){
   if(!en||!SM)return false;
   $("trs").textContent="Translating…";
   try{
-    const r=await SM.json(`Translate this English phrase into natural, polite ${LG().n} for a traveler. Do not add a politeness particle at the end. Reply with ONLY JSON: {"th":"${LG().n} text","ro":"simple romanization with hyphenated syllables, no tone marks","cat":"one of: Basics, Eating, Getting around, Shopping, Numbers, Social, Emergency, or a short new category name"}\nPhrase: ${en}`);
+    const r=await SM.json(`Translate this English phrase into ${LG().n} the way a local would actually say it out loud to a coworker on a film set: everyday spoken register, not textbook or written style. Drop pronouns when obvious, use loanwords crews really use, and add softeners (like หน่อย, ด้วย, นะ in Thai) where a native speaker would. Do not add a politeness particle at the end. Reply with ONLY JSON: {"th":"${LG().n} text","ro":"simple romanization with hyphenated syllables, no tone marks","cat":"one of: Basics, Eating, Getting around, Shopping, Numbers, Social, Emergency, or a short new category name"}\nPhrase: ${en}`);
     if(r&&r.th){$("th").value=r.th;$("ro").value=r.ro||"";if(r.cat&&cats().includes(r.cat))$("cat").value=r.cat;$("trs").textContent="Check it looks right, then tap Save.";return true}
   }catch(e){}
   $("trs").textContent="Couldn't translate. You can type the translation yourself.";
@@ -910,14 +1257,19 @@ function shown(r){return r.dir==="en"?full({th:r.th,ro:sx(r),en:r.en,cat:"x"}):{
 function reshow(){if(RES)showRes(RES.th,RES.ro,RES.en,RES.note,RES.auto,true,RES.ph,RES.alts)}
 const SUG=[["Emergency",/\b(help|police|ambulance|hospital|doctor|emergency|danger|lost|sick|medic)/i],["Eating",/\b(eat|food|drink|menu|water|coffee|tea|beer|rice|noodle|chicken|egg|fish|crab|shrimp|squid|lobster|spicy|sweet|the bill|hungry|thirsty|vegetarian|allerg)/i],["Getting around",/\b(where|toilet|bathroom|airport|hotel|taxi|bus|train|station|turn left|turn right|straight|stop here|how far|road|street|direction)/i],["Shopping",/\b(price|how much|cost|expensive|cheap|discount|buy|pay|card|cash|size|receipt)/i],["Schedule & meals",/\b(what time|when|call time|wrap|schedule|lunch|breakfast|tomorrow|today|yesterday|early|late)/i],["SFX",/\b(smoke|fog|rain|flame|spark|safe|safety|hide|clear the frame|get out of shot|extinguisher|glove|glasses|lighter|stand back)/i],["Technical",/\b(camera|lens|lighting|light|mic|microphone|battery|cable|generator|tripod|dolly|crane|focus|frame rate|iso|aperture|monitor|sound|audio)/i],["Film production",/\b(director|producer|crew|department|actor|script|editor|gaffer|grip|assistant)/i],["On set",/\b(scene|take|shot|rehears|quiet|set up|standing by|moving on|reset)/i],["Numbers",/^\s*\d+([.,]\d+)?\s*$|\b(one|two|three|four|five|six|seven|eight|nine|ten|hundred|thousand)\b/i],["Social",/\b(hello|hi there|goodbye|thank|sorry|please|nice to meet|how are you|good morning|good night|welcome)/i]];
 function suggestCat(en){for(const [c,re] of SUG)if(re.test(en||""))return c;return""}
-function showRes(th,ro,en,note,auto,nohist,ph,alts){
-  RES={th,ro,en,ph:ph||"",auto:auto?1:0,note:note||"",dir:DIR,alts:alts||[]};
+function showRes(th,ro,en,note,auto,nohist,ph,alts,tn){
+  if(DIR==="en"&&S.lang==="th"){
+    const sy=String(ro||"").trim().split(/[\s\-]+/).filter(Boolean);
+    if(tn&&sy.length===tn.length)ph=sy.map(x=>phonFromRo(x)||x).join(" ");else tn="";
+    if(!ro&&!ph){const P=thPron(th);if(P)ro=P.ro.join("-")}
+  }
+  RES={th,ro,en,ph:ph||"",tn:tn||"",auto:auto?1:0,note:note||"",dir:DIR,alts:alts||[]};
   if(DIR==="en"&&S.lang==="th"&&!sx(RES)&&!SM&&!S.aiKey)note=(note?note+" ":"")+"No English sounds for this phrase yet. Add a Claude key in Settings, or save it and tap Edit to type them.";
   const f=shown(RES);
   const cs=cats();
   const opts=cs.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");
-  const rev=DIR!=="en";
-  $("trOut").innerHTML=`<div class="bub"><div class="rth" lang="${rev?"en":S.lang}" dir="auto">${esc(rev?en:f.th)}</div>${(!rev&&f.ro)?`<div class="rro">${esc(f.ro)}</div>`:""}<div class="ren" lang="${rev?S.lang:"en"}" dir="auto">${esc(rev?th:en)}</div></div>`+
+  const rev=DIR!=="en";let rp;
+  $("trOut").innerHTML=`<div class="bub"><div class="rth" lang="${rev?"en":S.lang}" dir="auto">${esc(rev?en:f.th)}</div>${(!rev&&f.ro)?`<div class="rro">${toneHTML(f.th,f.ro,RES.tn,true)}</div>`:""}<div class="ren" lang="${rev?S.lang:"en"}" dir="auto">${esc(rev?th:en)}</div>${rev&&S.lang==="th"&&(rp=toneHTML(th,"","",true))?`<div class="rro">${rp}</div>`:""}</div>`+
    `<div class="row actrow"><button class="ib speakbtn" data-a="sp">🔊 Speak</button><button class="ib" data-a="show">Show</button><button class="ib" data-a="more" aria-label="More options">⋯</button></div>`+
    `<div class="row actrow"><select id="rcat" aria-label="Save to category" style="flex:1;min-width:0">${opts}<option value="__new">＋ New category…</option></select><button class="ib savebtn sm" data-a="save">💾 Save</button></div><input id="rcatNew" placeholder="New category name" style="display:none;margin-top:8px">`+
    (note?`<div style="margin-top:10px;font-size:var(--fs-s)">${esc(note)}</div>`:"");
@@ -956,7 +1308,7 @@ async function doTr(depth){
   try{
     if(DIR==="en"){
       const r=await aiTr(q,"en",S.lang);
-      if(r){showRes(r.t,r.ro,q,"",false,false,r.ph,r.alts);return}
+      if(r){showRes(r.t,r.ro,q,"",false,false,r.ph,r.alts,r.tn);return}
       const b=await webTrBoth(q,"en",LG().mm,S.lang,"en");
       const clean=x=>{if(S.lang==="th"){x=x.replace(/\s*(ครับ|ค่ะ|คะ)\s*$/,"").trim();if(!/[\u0e00-\u0e7f]/.test(x))return""}return x};
       const t=clean(b.t);if(!t)throw new Error("the answer wasn't in "+LG().n);
@@ -1119,16 +1471,26 @@ async function gtx(q,from,to){
     return t;
   }finally{clearTimeout(tm)}
 }
+// Spoken Thai: machine translators write textbook Thai, so turn the common written forms into what people actually say.
+const CASUAL=[[/^กรุณา\s*(.+?)(ด้วย|หน่อย)?$/,"$1หน่อย"],[/สักครู่/g,"แป๊บนึง"],[/ขณะนี้/g,"ตอนนี้"],[/ไม่ทราบ/g,"ไม่รู้"],[/ทราบ/g,"รู้"],[/รับประทาน/g,"กิน"],
+ [/เป็นอย่างไรบ้าง/g,"เป็นไงบ้าง"],[/อย่างไร/g,"ยังไง"],[/เท่าไร(?!่)/g,"เท่าไหร่"],[/เมื่อไร(?!่)/g,"เมื่อไหร่"],[/อย่างนี้/g,"แบบนี้"],[/อย่างนั้น/g,"แบบนั้น"],
+ [/ใช่หรือไม่/g,"ใช่ไหม"],[/หรือไม่\s*\??$/,"ไหม"],[/หรือไม่(?=\s|$)/g,"รึเปล่า"],[/ดิฉัน/g,"ฉัน"],[/(?<=[ก-๎])(?<!ที่)หนึ่ง(?![ก-๎])/g,"นึง"],[/ทำอะไรอยู่/g,"ทำไรอยู่"],[/แป๊บนึงหน่อย$/,"แป๊บนึงนะ"]];
+function casualTh(t){
+  if(!t||!/[฀-๿]/.test(t))return t;
+  let r=t.trim();CASUAL.forEach(([a,b])=>{r=r.replace(a,b)});
+  if(S.pol!=="f")r=r.replace(/^ฉัน/,"ผม").replace(/(\s)ฉัน/g,"$1ผม");
+  return r;
+}
 async function webTr(q,from,to){
   const toCode=codeFromMM(to);
   let gErr="",mErr="";
-  try{const gt=await tryTwice(()=>gtx(q,from,to));if(plausible(gt,q,toCode))return gt;gErr="the answer didn't look like "+nm(toCode)}catch(e){gErr=why(e)}
-  try{const mt=await mm(q,from+"|"+to);if(plausible(mt,q,toCode))return mt;mErr="the answer didn't look like "+nm(toCode)}catch(e){mErr=QUOTA?"daily free limit reached":why(e)}
+  try{const gt=await tryTwice(()=>gtx(q,from,to));if(plausible(gt,q,toCode))return toCode==="th"?casualTh(gt):gt;gErr="the answer didn't look like "+nm(toCode)}catch(e){gErr=why(e)}
+  try{const mt=await mm(q,from+"|"+to);if(plausible(mt,q,toCode))return toCode==="th"?casualTh(mt):mt;mErr="the answer didn't look like "+nm(toCode)}catch(e){mErr=QUOTA?"daily free limit reached":why(e)}
   LASTERR="Google: "+gErr+" / MyMemory: "+mErr;
   throw new Error(LASTERR);
 }
 async function aiTr(q,from,to){
-  const prompt=`Translate this ${to==="en"?"text (probably "+nm(from)+", but detect the language if it is different)":nm(from)+" text"} into ${nm(to)} for a film crew or traveler. Use natural wording and no politeness particle at the end. Reply with ONLY JSON: {"t":"the translation","ro":"standard romanization if the translation is not written in Latin letters, otherwise an empty string","ph":"how an English speaker should say the translation, written with plain English letters and spaces only: no symbols, no accents, no hyphens, no tone marks, no IPA. Empty string if the translation is English","alts":[{"label":"Formal or Casual or similar","t":"another natural way to say it","ro":"","ph":""}]}\nGive 0 to 2 alternatives, such as formal versus casual speech, and an empty alts array if there is no useful alternative.\nText: ${q}`;
+  const prompt=`Translate this ${to==="en"?"text (probably "+nm(from)+", but detect the language if it is different)":nm(from)+" text"} into ${nm(to)} the way a native speaker would actually say it out loud on a film set or while travelling: everyday spoken register, not textbook or word-for-word. Drop pronouns when obvious, use the loanwords crews really use (in Thai: เทค, ซีน, คอลไทม์), and add softeners (in Thai: หน่อย, ด้วย, นะ) where natural. For Thai, write it the way Thais really talk, not how they write: use spoken forms like ไร for อะไร, ยังไง/ไง for อย่างไร, นึง for หนึ่ง after a classifier, มั้ย for ไหม, ป่ะ or รึเปล่า for หรือไม่, เท่าไหร่, เดี๋ยว, แป๊บนึง, and casual endings like อ่ะ, ดิ, เนอะ, ละ when they fit. Use ผม for a male speaker and ฉัน or เรา for a female one, or drop it. No politeness particle at the end. Reply with ONLY JSON: {"t":"the translation","ro":"standard romanization if the translation is not written in Latin letters, with syllables separated by hyphens or spaces, otherwise an empty string","tn":"only for Thai: the spoken tone of each syllable in ro, one letter per syllable in order (M mid, L low, F falling, H high, R rising); otherwise an empty string","ph":"how an English speaker should say the translation, written with plain English letters and spaces only: no symbols, no accents, no hyphens, no tone marks, no IPA. Empty string if the translation is English","alts":[{"label":"Formal or Casual or similar","t":"another natural way to say it","ro":"","ph":""}]}\nGive 0 to 2 alternatives: usually one labelled "Slang" with how Thai friends would say it among themselves (current slang is fine if it fits), and one labelled "Polite" for strangers or elders, and an empty alts array if there is no useful alternative.\nText: ${q}`;
   let r=null;
   if(SM){r=await SM.json(prompt)}
   else if(S.aiKey){
@@ -1140,7 +1502,7 @@ async function aiTr(q,from,to){
   }else return null;
   if(!r||!r.t)throw new Error("Claude gave no translation");
   const alts=(Array.isArray(r.alts)?r.alts:[]).slice(0,2).map(a=>({label:String(a.label||"Other"),t:String(a.t||"").trim(),ro:a.ro||"",ph:a.ph||""})).filter(a=>a.t);
-  return{t:String(r.t).trim(),ro:r.ro||"",ph:r.ph||"",alts};
+  return{t:String(r.t).trim(),ro:r.ro||"",ph:r.ph||"",tn:/^[MLFHR]+$/.test(r.tn||"")?r.tn:"",alts};
 }
 async function translateItem(it,L){
   const s=srcFor(it);
@@ -1180,8 +1542,8 @@ async function pumpTr(){
 }
 function tileHTML(i){
   const v=vw(i),f=full({th:v.th,ro:v.ro,en:v.en,cat:i.cat,np:i.np,lang:S.lang});
-  const need=!v.th;
-  return `<button class="tile${need?" pend":""}${SEL.has(i.id)?" sel":""}"${need?' data-need="1"':""} style="--c:${colr(i.cat)}" data-id="${i.id}"><span class="th" lang="${S.lang}" dir="auto">${need?"…":esc(f.th)}</span>${S.ro&&f.ro?`<small class="ro">${esc(f.ro)}</small>`:""}${S.en&&f.en?`<small class="en">${esc(f.en)}</small>`:""}${v.auto&&!need?`<small class="auto">⚠ auto</small>`:""}<span class="fav${i.fav?" on":""}" data-fav="${i.id}" role="button" aria-label="Favourite">${i.fav?"★":"☆"}</span>${edit?`<span class="x" data-del="${i.id}">×</span>`:""}</button>`;
+  const need=!v.th;let pr;
+  return `<button class="tile${need?" pend":""}${SEL.has(i.id)?" sel":""}"${need?' data-need="1"':""} style="--c:${colr(i.cat)}" data-id="${i.id}"><span class="th" lang="${S.lang}" dir="auto">${need?"…":esc(f.th)}</span>${(pr=S.ro&&!need?toneHTML(f.th,f.ro,"",!f.ro):"")?`<small class="ro">${pr}</small>`:""}${S.en&&f.en?`<small class="en">${esc(f.en)}</small>`:""}${v.auto&&!need?`<small class="auto">⚠ auto</small>`:""}<span class="fav${i.fav?" on":""}" data-fav="${i.id}" role="button" aria-label="Favourite">${i.fav?"★":"☆"}</span>${edit?`<span class="x" data-del="${i.id}">×</span>`:""}</button>`;
 }
 function paintTile(id){
   const el=document.querySelector('.tile[data-id="'+id+'"]');
@@ -1323,7 +1685,7 @@ let BIG={th:"",ro:"",en:"",sub:false,rot:false};
 function showBig(v){BIG.th=v.th;BIG.ro=v.ro||"";BIG.en=v.en||"";BIG.lang=v.lang||S.lang;BIG.tts=v.tts||"";$("big").hidden=false;paintBig()}
 function paintBig(){
   const t=$("bigTxt");t.textContent=BIG.th;t.lang=BIG.lang||S.lang;
-  $("bigSub").innerHTML=BIG.sub?`<div class="bsr">${esc(BIG.ro)}</div><div class="bse">${esc(BIG.en)}</div>`:"";
+  $("bigSub").innerHTML=BIG.sub?`<div class="bsr">${(BIG.lang||S.lang)===S.lang?toneHTML(BIG.th,BIG.ro,"",!BIG.ro):esc(BIG.ro)}</div><div class="bse">${esc(BIG.en)}</div>`:"";
   t.style.transform=BIG.rot?"rotate(180deg)":"";
   $("bigSnd").textContent=BIG.sub?"Thai only":"Sounds";
   fitBig();
@@ -1432,9 +1794,9 @@ async function webTrBoth(q,from,to,toCode,mmFrom){
     const w2=m.status==="rejected"?(QUOTA?"daily free limit reached":why(m.reason)):(mt?"the answer didn't look like "+nm(toCode):"no answer");
     LASTERR="Google: "+w1+" / MyMemory: "+w2;throw new Error(LASTERR);
   }
-  const t=gOK?gt:mt;
-  const other=(gOK&&mOK)?mt:"";
-  const res={t,alt:(other&&other.toLowerCase()!==t.toLowerCase())?other:"",rm:gOK?rm:"",src};
+  let t=gOK?gt:mt,other=(gOK&&mOK)?mt:"",rr=gOK?rm:"";
+  if(toCode==="th"){const c=casualTh(t);if(c!==t){t=c;rr=""}other=casualTh(other)}
+  const res={t,alt:(other&&other.toLowerCase()!==t.toLowerCase())?other:"",rm:rr,src};
   cset(key,res);
   return res;
 }
@@ -1540,7 +1902,7 @@ $("addD").onkeydown=e=>{if(e.key==="Enter"&&e.target.tagName!=="BUTTON"&&e.targe
 $("setBtn").onclick=()=>{
   if(!S.ghRepo&&/github\.io$/.test(location.hostname)){const rp=location.pathname.split("/")[1];if(rp)S.ghRepo=location.hostname.split(".")[0]+"/"+rp}
   $("catExpSel").innerHTML=cats().map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");$("aiKey").value=S.aiKey||"";$("ghToken").value=S.ghToken||"";$("ghRepo").value=S.ghRepo||"";$("ghAuto").checked=!!S.ghAuto;
-  $("mmEmail").value=S.mmEmail||"";$("sLight").checked=!!S.light;$("pol").value=S.pol;$("sRo").checked=S.ro;$("sEn").checked=S.en;$("setD").showModal()};
+  $("mmEmail").value=S.mmEmail||"";$("sLight").checked=!!S.light;$("pol").value=S.pol;$("sRo").checked=S.ro;$("tLeg").innerHTML=S.lang==="th"?"MLHRF".split("").map(t=>`<span>${ticon(t)}${TNAME[t]}</span>`).join(""):"";$("sEn").checked=S.en;$("setD").showModal()};
 $("setClose").onclick=()=>$("setD").close();
 $("pol").onchange=e=>{S.pol=e.target.value;save();render()};
 function applyTheme(){document.documentElement.setAttribute("data-th",S.light?"light":"night")}
