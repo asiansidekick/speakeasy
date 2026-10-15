@@ -411,6 +411,9 @@ html[data-look="glass"] .tile .en{color:#fde68a;font-weight:600;opacity:1}
 html[data-look="glass"] .tile{background:rgba(15,23,60,.38)}
 html[data-look="glass"] .tile .en{color:#fde68a}
 @media (min-width:640px){.grid{grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}}
+/* easy-to-see typing cursor */
+input,textarea{caret-color:var(--accent)}
+html[data-look="glass"] input,html[data-look="glass"] textarea{caret-color:#fde68a}
 #trOut:empty{min-height:0!important;background:none!important}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@500&display=swap" rel="stylesheet">
@@ -442,7 +445,7 @@ html[data-look="glass"] .tile .en{color:#fde68a}
 </div>
 <div class="card board">
 <div class="boardhead"><div class="bhrow"><div class="sec2">Phrase board</div><button class="ib" id="editBtn">Edit</button></div><input id="q" type="search" placeholder="Search phrases">
-  <div class="hint bhint">Hold &amp; drag to move · Hold to edit · ☆ to favourite</div>
+  <div class="hint bhint">Hold to show a Thai speaker · Hold &amp; drag to move · ☆ to favourite</div>
   <button class="ib" id="bldBtn" style="margin-top:10px">Build a sentence</button></div>
 <div class="chips" id="chips"></div>
 <main id="main"></main>
@@ -563,7 +566,7 @@ html[data-look="glass"] .tile .en{color:#fde68a}
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 15 Oct 2026, build 26</div>
+  <div class="hint">Version: 15 Oct 2026, build 28</div>
   <label>Backup (everything on this device)</label>
   <div class="row"><button class="ib" id="exp" style="flex:1">Export backup</button><button class="ib" id="imp" style="flex:1">Import backup</button></div>
   <input type="file" id="file" accept=".json,application/json" hidden>
@@ -1155,14 +1158,20 @@ function loadVoices(){
   if(S.voice)$("voice").value=S.voice;
   render();
 }
-/* the speech engine clips the start of the very first utterance while it wakes up, so prime it with a silent one */
-let ttsWarm=false,warmU=null;
-function warmTTS(lang,v){
-  if(ttsWarm||!("speechSynthesis" in window))return;ttsWarm=true;
-  try{const w=new SpeechSynthesisUtterance("อ อ");w.volume=0;w.rate=1;w.lang=lang||LG().tts;if(v)w.voice=v;w.onend=w.onerror=()=>{warmU=null};warmU=w;setTimeout(()=>{warmU=null},3000);speechSynthesis.speak(w)}catch(e){}
+/* phones put the speaker to sleep when idle and clip the first syllable as it wakes,
+   so keep a silent Web Audio track running around each utterance and give a cold speaker a moment first */
+let AC=null,acSrc=null,acStop=0,lastAudio=0;
+function audioAwake(){
+  try{
+    const C=window.AudioContext||window.webkitAudioContext;if(!C)return;
+    if(!AC)AC=new C();
+    if(AC.state!=="running")AC.resume();
+    clearTimeout(acStop);
+    if(!acSrc){const b=AC.createBuffer(1,AC.sampleRate,AC.sampleRate),g=AC.createGain();g.gain.value=0.0001;acSrc=AC.createBufferSource();acSrc.buffer=b;acSrc.loop=true;acSrc.connect(g).connect(AC.destination);acSrc.start()}
+  }catch(e){}
 }
-function warmOnTouch(){try{const v=pickVoice();warmTTS(v?v.lang:LG().tts,v)}catch(e){}}
-["pointerdown","touchend","keydown"].forEach(ev=>document.addEventListener(ev,warmOnTouch,{once:true,capture:true}));
+function audioSleepSoon(){clearTimeout(acStop);lastAudio=Date.now();acStop=setTimeout(()=>{try{if(acSrc){acSrc.stop();acSrc.disconnect()}}catch(e){}acSrc=null},4000)}
+["pointerdown","touchend","keydown"].forEach(ev=>document.addEventListener(ev,()=>{audioAwake();audioSleepSoon()},{once:true,capture:true}));
 function speak(i,tts){
   const f=full(i);
   if(!("speechSynthesis" in window)){toast("Speech isn't supported in this browser.",true);return}
@@ -1171,9 +1180,12 @@ function speak(i,tts){
   u.lang=tts||LG().tts;u.rate=S.rate||0.9;
   const v=pickVoice(tts);
   if(v){u.voice=v;u.lang=v.lang}
-  u.onerror=e=>{if(e&&e.error&&e.error!=="canceled"&&e.error!=="interrupted")toast("Speech error: "+e.error,true)};
-  const go=()=>{try{ss.resume()}catch(e){}if(!ttsWarm)warmTTS(u.lang,v);ss.speak(u);warmU=null};
-  if(warmU)go();else if(ss.speaking||ss.pending){ss.cancel();setTimeout(go,150)}else go();
+  u.onerror=e=>{audioSleepSoon();if(e&&e.error&&e.error!=="canceled"&&e.error!=="interrupted")toast("Speech error: "+e.error,true)};
+  u.onend=audioSleepSoon;
+  const cold=!acSrc||Date.now()-lastAudio>3000;
+  audioAwake();
+  const go=()=>{try{ss.resume()}catch(e){}ss.speak(u)};
+  if(ss.speaking||ss.pending){ss.cancel();setTimeout(go,150)}else if(cold)setTimeout(go,350);else go();
   if(!v&&voicesLoaded)toast("No "+(tts?"English":LG().n)+" voice found on this phone. Add one in Settings > Accessibility > Spoken Content > Voices.",true);
 }
 
@@ -1306,7 +1318,7 @@ mainEl.addEventListener("pointerdown",e=>{
   const t=e.target.closest(".tile[data-id]");if(!t||edit||e.target.closest("[data-fav]"))return;
   LONG=false;LX=e.clientX;LY=e.clientY;clearTimeout(LPT);
   LPT=setTimeout(()=>{LONG=true;if(navigator.vibrate)navigator.vibrate(15);
-    if(!canDrag()){openEdit(t.dataset.id);return}
+    if(!canDrag()){holdShow(t.dataset.id);return}
     liftTile(t,LX,LY)},450);
 });
 function liftTile(t,x,y){
@@ -1329,7 +1341,7 @@ function dragMove(x,y){
 function dragEnd(){
   clearTimeout(LPT);if(!DRAG)return;
   const {t,g,grid,moved}=DRAG;DRAG=null;clearInterval(DSCROLL);g.remove();t.classList.remove("holder");document.body.classList.remove("dragging");
-  if(!moved){openEdit(t.dataset.id);return}
+  if(!moved){holdShow(t.dataset.id);return}
   const ids=[...grid.querySelectorAll(".tile[data-id]")].map(d=>d.dataset.id);
   const objs=ids.map(id=>S.items.find(i=>i.id===id)),slots=objs.map(o=>S.items.indexOf(o)).sort((a,b)=>a-b);
   slots.forEach((p,k)=>{S.items[p]=objs[k]});
@@ -1862,6 +1874,12 @@ function paintReply(){
   $("bigTalk").innerHTML=mic+(T?"<span>พูดตอบ<small>Speak reply</small></span>":side==="th"?"<span>Speak "+esc(LG().n)+"</span>":"<span>Speak reply</span>");
   $("bigType").innerHTML=T?"<span>⌨︎ พิมพ์ตอบ<small>Type reply</small></span>":"<span>⌨︎ Type reply</span>";
 }
+/* hold a tile (without dragging) = full-screen Show with Thai + phonetics, to turn toward a Thai speaker */
+function holdShow(id){
+  const it=S.items.find(i=>i.id===id);if(!it)return;
+  const v=vw(it),f=full({th:v.th,ro:v.ro,en:v.en,cat:it.cat,np:it.np,lang:S.lang});if(!f.th)return;
+  BIG.sub=true;showBig({th:f.th,ro:f.ro,en:f.en});
+}
 function replyGo(talk){
   const side=replySide();$("big").hidden=true;setDir(side);
   $("tool").scrollIntoView({block:"start"});
@@ -2103,7 +2121,7 @@ $("reset").onclick=()=>{if(confirm("Replace all phrases with the defaults? Your 
 function dragTip(){
   if(S.tipDrag)return;
   const d=document.createElement("div");d.id="tip";d.setAttribute("role","dialog");
-  d.innerHTML=`<div class="tipic" aria-hidden="true">👆</div><div><b>Tip: rearrange your phrases</b><p>Press and hold a phrase until it lifts, then drag it where you want it.<br>Hold and let go without moving to edit it.</p><button class="ib pri" id="tipOk">Got it</button></div>`;
+  d.innerHTML=`<div class="tipic" aria-hidden="true">👆</div><div><b>Tip: rearrange your phrases</b><p>Press and hold a phrase until it lifts, then drag it where you want it.<br>Hold and let go without moving to show it full screen in Thai. Use Edit at the top to change a phrase.</p><button class="ib pri" id="tipOk">Got it</button></div>`;
   document.body.appendChild(d);$("tipOk").onclick=()=>{S.tipDrag=1;save();d.remove()};
 }
 (function(){if(S.tipDrag)return;const b=document.getElementById("chips");if(!b||!("IntersectionObserver" in window)){setTimeout(dragTip,1500);return}
