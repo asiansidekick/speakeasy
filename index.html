@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#14163a">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Phil's Translator">
-<title>Phil's Translator</title>
+<meta name="apple-mobile-web-app-title" content="Phil's Speakeasy">
+<title>Phil's Speakeasy</title>
 <style>
 :root{--bg:#07070f;--card:#16162a;--ink:#ffffff;--mute:#d4d4ee;--line:#3b3b66;--acc:#ffd23f;--accink:#101010;--danger:#ff6b6b;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark}
@@ -355,11 +355,14 @@ header{padding-bottom:10px}
 .seg .ib.on{background:var(--card);color:var(--ink);border-color:var(--accent)}
 
 /* ===== looks: each has its own font (Thai + Latin), colours and button style ===== */
-html[data-look="glass"]{--page:linear-gradient(160deg,#0f766e,#4338ca 60%,#7e22ce);--card:rgba(255,255,255,.12);--pill:rgba(255,255,255,.14);--ink:#ffffff;--mute:#dbe4ff;--accent:#ffffff;--onaccent:#312e81;--line:rgba(255,255,255,.3);--hl:#ffffff26;--mic:#f472b6;--onmic:#ffffff;--r:999px;--cr:26px;--shadow:0 10px 30px rgba(0,0,0,.45);--ill:none;color-scheme:dark;--bf:"Prompt",system-ui,-apple-system,"Noto Sans Thai",sans-serif}
+html[data-look="glass"]{--page:#2563eb;--glassbg:linear-gradient(165deg,#0ea5e9 0%,#2563eb 45%,#3730a3 100%);--card:rgba(255,255,255,.12);--pill:rgba(255,255,255,.14);--ink:#ffffff;--mute:#dbe4ff;--accent:#ffffff;--onaccent:#1e3a8a;--line:rgba(255,255,255,.3);--hl:#ffffff26;--mic:#f472b6;--onmic:#ffffff;--r:999px;--cr:26px;--shadow:0 10px 30px rgba(0,0,0,.45);--ill:none;color-scheme:dark;--bf:"Prompt",system-ui,-apple-system,"Noto Sans Thai",sans-serif}
 html[data-look="glass"] .th,html[data-look="glass"] .rth,html[data-look="glass"] #bigTxt,html[data-look="glass"] textarea,html[data-look="glass"] input,html[data-look="glass"] select{font-family:var(--bf)}
-html[data-look="glass"] body,html[data-look="glass"]{background-attachment:fixed}
+/* iPhone ignores fixed backgrounds, so the gradient sits on a fixed layer behind everything */
+html[data-look="glass"]{background:#2563eb}
+html[data-look="glass"] body{background:transparent}
+html[data-look="glass"] body::before{background:var(--glassbg)}
 html[data-look="glass"] .card,html[data-look="glass"] .tabbar{backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.28)}
-html[data-look="glass"] dialog,html[data-look="glass"] #big{background:#2d2a7a}
+html[data-look="glass"] dialog,html[data-look="glass"] #big{background:#1e3a8a}
 html[data-look="glass"] .ib:not(.dirrow .ib):not(.seg .ib):not(.pri):not(.micbtn):not(.savebtn){background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.45)}
 #sLightRow[hidden]{display:none}
 .spdrow{margin-top:6px}
@@ -370,6 +373,37 @@ html[data-look="glass"] .ib:not(.dirrow .ib):not(.seg .ib):not(.pri):not(.micbtn
 header h1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;font-size:clamp(22px,7.4vw,var(--fs-l))}
 .bhrow{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .bhrow #editBtn{min-height:40px;padding:4px 18px;font-size:var(--fs-s)}
+
+/* compact tiles: three across, less scrolling */
+.grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.tile{min-height:0;padding:10px 8px 9px 13px;border-radius:16px;gap:1px;touch-action:manipulation}
+.tile::before{top:11px;bottom:11px;width:3px}
+.tile .th{font-size:15.5px;line-height:1.25;padding-right:14px}
+#chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding-bottom:4px;margin-right:-18px;padding-right:18px}
+#chips::-webkit-scrollbar{display:none}
+#chips .chip{flex:none}
+.tile .ro{font-size:12.5px;line-height:1.2}
+.tile .en{font-size:15.5px;line-height:1.25;color:var(--ink);font-weight:500;opacity:.92}
+.tile .tn{gap:1px 4px}
+.fav{width:26px;height:26px;font-size:17px;top:2px;right:0}
+.seeall{display:block;width:100%;margin:8px 0 2px;padding:9px 12px;border:1px dashed var(--line);border-radius:var(--r);background:transparent;color:var(--ink);font:inherit;font-size:var(--fs-s);font-weight:600}
+@media (min-width:640px){.grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}}
+/* drag to rearrange */
+.tile.holder{opacity:.25}
+.tile.ghost{position:fixed;z-index:200;margin:0;pointer-events:none;transform:scale(1.08) rotate(-2deg);box-shadow:0 18px 40px rgba(0,0,0,.35);background:var(--card);opacity:.96}
+body.dragging{user-select:none;-webkit-user-select:none}
+body.dragging .grid .tile:not(.holder){animation:jiggle .28s ease-in-out infinite alternate}
+@keyframes jiggle{from{transform:rotate(-1.2deg)}to{transform:rotate(1.2deg)}}
+@media (prefers-reduced-motion:reduce){body.dragging .grid .tile{animation:none}}
+#tip{position:fixed;left:12px;right:12px;bottom:calc(96px + env(safe-area-inset-bottom,0px));z-index:60;display:flex;gap:12px;align-items:flex-start;padding:16px;border-radius:var(--cr,24px);background:var(--card);color:var(--ink);box-shadow:0 18px 50px rgba(0,0,0,.35);border:1px solid var(--line);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+html[data-look="glass"] #tip{background:#1e3a8a}
+#tip .tipic{font-size:30px;line-height:1}
+#tip b{font-size:var(--fs-m)}
+#tip p{margin:4px 0 10px;font-size:var(--fs-s);color:var(--mute);line-height:1.35}
+#tip .ib{min-height:40px;padding:4px 20px}
+.boardhead .bhint{font-size:13px;line-height:1.3;margin:6px 2px 2px;opacity:.85}
+html[data-look="glass"] .tile .en{color:#fde68a;font-weight:600;opacity:1}
+#trOut:empty{min-height:0!important;background:none!important}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@500&display=swap" rel="stylesheet">
 </head>
@@ -377,7 +411,7 @@ header h1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;
 <div class="card top">
 <header>
   <div class="row">
-    <h1><span class="fl">🇹🇭</span> <span class="tt">Phil's Translator</span></h1>
+    <h1><span class="fl">🇹🇭</span> <span class="tt">Phil's Speakeasy</span></h1>
     <button class="ib big" id="setBtn" aria-label="Settings">⚙︎</button>
   </div>
   <div class="hrow toprow">
@@ -400,7 +434,7 @@ header h1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;
 </div>
 <div class="card board">
 <div class="boardhead"><div class="bhrow"><div class="sec2">Phrase board</div><button class="ib" id="editBtn">Edit</button></div><input id="q" type="search" placeholder="Search phrases">
-  <div class="hint">Press and hold a tile to edit, move or delete it. Tap a star to keep it in Favourites.</div>
+  <div class="hint bhint">Hold &amp; drag to move · Hold to edit · ☆ to favourite</div>
   <button class="ib" id="bldBtn" style="margin-top:10px">Build a sentence</button></div>
 <div class="chips" id="chips"></div>
 <main id="main"></main>
@@ -521,7 +555,7 @@ header h1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 15 Oct 2026, build 23</div>
+  <div class="hint">Version: 15 Oct 2026, build 24</div>
   <label>Backup (everything on this device)</label>
   <div class="row"><button class="ib" id="exp" style="flex:1">Export backup</button><button class="ib" id="imp" style="flex:1">Import backup</button></div>
   <input type="file" id="file" accept=".json,application/json" hidden>
@@ -1136,6 +1170,7 @@ function selBarHTML(){
   const opts=cats().map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");
   return`<div class="selbar"><span id="selCnt">${SEL.size} selected</span><select id="selCat">${opts}<option value="__new">＋ New category…</option></select><button class="ib" id="selMove">Move</button><button class="ib" id="selDel">Delete</button><button class="ib" id="selDone">Done</button></div>`;
 }
+const PREVIEW=6;
 function render(){
   const cs=cats();
   const hasR=S.items.some(i=>i.played);
@@ -1162,7 +1197,9 @@ function render(){
       const mv=edit&&!ql?`<span class="catmv"><button data-cm="up" data-c="${esc(c)}" aria-label="Move category up">↑</button><button data-cm="down" data-c="${esc(c)}" aria-label="Move category down">↓</button></span>`:"";
       h+=`<div class="sec" style="--c:${colr(c)}">${esc(c)}${mv}</div>`;
     }
-    h+=`<div class="grid">`+list.map(tileHTML).join("")+`</div>`;
+    const cut=everywhere&&!ql&&!edit&&list.length>PREVIEW;
+    h+=`<div class="grid" data-gc="${esc(c)}">`+(cut?list.slice(0,PREVIEW):list).map(tileHTML).join("")+`</div>`;
+    if(cut)h+=`<button class="seeall" data-see="${esc(c)}">See all ${list.length} ${esc(c)} →</button>`;
   });
   const emptyMsg=cat==="__f"&&!ql?"No favourites yet. Tap the star on any phrase to keep it here.":cat==="__r"&&!ql?"Nothing yet. Phrases you tap will show up here, newest first.":cat==="__t"&&!ql?"Nothing yet. Everything you translate will be kept here so you can replay it and save it to your vocab.":"Nothing here. Tap Add to add a phrase.";
   $("main").className=edit?"edit":"";
@@ -1247,13 +1284,46 @@ function selMoveDo(){
 }
 let LPT=null,LONG=false,LX=0,LY=0;
 const mainEl=$("main");
+let DRAG=null,DSCROLL=0;
+const canDrag=()=>cat!=="__r"&&cat!=="__f"&&cat!=="__t"&&!qs;
 mainEl.addEventListener("pointerdown",e=>{
-  const t=e.target.closest(".tile");if(!t||edit)return;
+  const t=e.target.closest(".tile[data-id]");if(!t||edit||e.target.closest("[data-fav]"))return;
   LONG=false;LX=e.clientX;LY=e.clientY;clearTimeout(LPT);
-  LPT=setTimeout(()=>{LONG=true;if(navigator.vibrate)navigator.vibrate(15);openEdit(t.dataset.id)},550);
+  LPT=setTimeout(()=>{LONG=true;if(navigator.vibrate)navigator.vibrate(15);
+    if(!canDrag()){openEdit(t.dataset.id);return}
+    liftTile(t,LX,LY)},450);
 });
-mainEl.addEventListener("pointermove",e=>{if(Math.abs(e.clientX-LX)>10||Math.abs(e.clientY-LY)>10)clearTimeout(LPT)});
-["pointerup","pointercancel","pointerleave"].forEach(ev=>mainEl.addEventListener(ev,()=>clearTimeout(LPT)));
+function liftTile(t,x,y){
+  const r=t.getBoundingClientRect(),g=t.cloneNode(true);
+  g.className="tile ghost";g.style.cssText=`width:${r.width}px;height:${r.height}px;left:${r.left}px;top:${r.top}px`;
+  document.body.appendChild(g);t.classList.add("holder");document.body.classList.add("dragging");
+  DRAG={t,g,grid:t.parentElement,dx:x-r.left,dy:y-r.top,x0:x,y0:y,moved:false};
+  DSCROLL=setInterval(()=>{if(!DRAG)return;const y=DRAG.y||DRAG.y0;if(y<90)scrollBy(0,-14);else if(y>innerHeight-130)scrollBy(0,14)},30);
+}
+function dragMove(x,y){
+  if(!DRAG)return;DRAG.y=y;
+  if(Math.abs(x-DRAG.x0)>8||Math.abs(y-DRAG.y0)>8)DRAG.moved=true;
+  DRAG.g.style.left=(x-DRAG.dx)+"px";DRAG.g.style.top=(y-DRAG.dy)+"px";
+  DRAG.g.style.visibility="hidden";const el=document.elementFromPoint(x,y);DRAG.g.style.visibility="";
+  const o=el&&el.closest(".tile[data-id]");
+  if(!o||o===DRAG.t||o.parentElement!==DRAG.grid)return;
+  const kids=[...DRAG.grid.children],a=kids.indexOf(DRAG.t),b=kids.indexOf(o);
+  DRAG.grid.insertBefore(DRAG.t,a<b?o.nextSibling:o);
+}
+function dragEnd(){
+  clearTimeout(LPT);if(!DRAG)return;
+  const {t,g,grid,moved}=DRAG;DRAG=null;clearInterval(DSCROLL);g.remove();t.classList.remove("holder");document.body.classList.remove("dragging");
+  if(!moved){openEdit(t.dataset.id);return}
+  const ids=[...grid.querySelectorAll(".tile[data-id]")].map(d=>d.dataset.id);
+  const objs=ids.map(id=>S.items.find(i=>i.id===id)),slots=objs.map(o=>S.items.indexOf(o)).sort((a,b)=>a-b);
+  slots.forEach((p,k)=>{S.items[p]=objs[k]});
+  save();try{markChanged()}catch(x){}render();toast("Moved");
+}
+mainEl.addEventListener("pointermove",e=>{if(DRAG){dragMove(e.clientX,e.clientY);return}if(Math.abs(e.clientX-LX)>10||Math.abs(e.clientY-LY)>10)clearTimeout(LPT)});
+document.addEventListener("touchmove",e=>{if(DRAG){e.preventDefault();const p=e.touches[0];dragMove(p.clientX,p.clientY)}},{passive:false});
+["pointerup","pointercancel"].forEach(ev=>document.addEventListener(ev,()=>{if(DRAG)dragEnd();else clearTimeout(LPT)}));
+document.addEventListener("touchend",()=>{if(DRAG)dragEnd()});
+mainEl.addEventListener("pointerleave",()=>{if(!DRAG)clearTimeout(LPT)});
 mainEl.addEventListener("contextmenu",e=>{if(e.target.closest(".tile"))e.preventDefault()});
 $("main").onclick=async e=>{
   if(LONG){LONG=false;return}
@@ -1263,6 +1333,7 @@ $("main").onclick=async e=>{
   if(e.target.closest("#selDone")){selMode=false;SEL.clear();render();return}
   if(e.target.closest("#selDel")){selDeleteDo();return}
   if(e.target.closest("#selMove")){selMoveDo();return}
+  const sa=e.target.closest("[data-see]");if(sa){cat=sa.dataset.see;render();document.querySelector(".board").scrollIntoView({block:"start"});return}
   const hs=e.target.closest("[data-hsave]");if(hs){histSave(+hs.dataset.hsave);return}
   const hi=e.target.closest("[data-hi]");if(hi){const x=S.hist[+hi.dataset.hi];if(x)speak({th:histClean(x.th),ro:x.ro||"",en:x.en||"",np:1,cat:"",lang:S.lang});return}
   const fv=e.target.closest("[data-fav]");if(fv){toggleFav(fv.dataset.fav);return}
@@ -2013,6 +2084,14 @@ $("sEn").onchange=e=>{S.en=e.target.checked;save();render()};
 $("voice").onchange=e=>{S.voice=e.target.value;save();speak({th:"สวัสดี",cat:"Basics"})};
 $("reset").onclick=()=>{if(confirm("Replace all phrases with the defaults? Your added phrases will be lost.")){S.items=defaults();S.seen=Object.keys(D);S.applied=Object.keys(PATCHES);if(BAKED&&BAKED.items){fromBaked();S.bakedV=BAKED.v}applyPatches2();applyP3();applyP4();applyP5();applyP6();applyP7();applyP8();applyP9();applyP10();applyP11();applyP12();save();cat="All";render();$("setD").close()}};
 
+function dragTip(){
+  if(S.tipDrag)return;
+  const d=document.createElement("div");d.id="tip";d.setAttribute("role","dialog");
+  d.innerHTML=`<div class="tipic" aria-hidden="true">👆</div><div><b>Tip: rearrange your phrases</b><p>Press and hold a phrase until it lifts, then drag it where you want it.<br>Hold and let go without moving to edit it.</p><button class="ib pri" id="tipOk">Got it</button></div>`;
+  document.body.appendChild(d);$("tipOk").onclick=()=>{S.tipDrag=1;save();d.remove()};
+}
+(function(){if(S.tipDrag)return;const b=document.getElementById("chips");if(!b||!("IntersectionObserver" in window)){setTimeout(dragTip,1500);return}
+  const io=new IntersectionObserver(es=>{if(es.some(x=>x.isIntersecting)){io.disconnect();setTimeout(dragTip,600)}},{threshold:[0.6]});io.observe(b)})();
 load();applyTheme();refreshLang();render();loadVoices();renderHist();
 if("speechSynthesis" in window)speechSynthesis.onvoiceschanged=loadVoices;
 $("polT").checked=S.polite;updatePol();
