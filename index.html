@@ -106,7 +106,7 @@ body{background:var(--page);color:var(--ink);font-family:var(--bf);font-size:var
 body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:var(--cur) center/cover no-repeat;margin:0;width:auto;height:auto;left:0}
 h1,.sec,.sec2,.chip,.ib,#toast,.bigbtn,label,.note,.sw,#now,input,select,textarea,.tile small,.tile .en,.ren,.rro,.hint,.spd,.tabbar button,.langbar{font-family:var(--bf);letter-spacing:0;text-transform:none}
 .th,.rth{font-family:system-ui,-apple-system,"Noto Sans Thai","Noto Sans",sans-serif}
-.card{margin:12px 12px 0;background:var(--card);border-radius:28px;box-shadow:var(--shadow)}
+.card{margin:12px 12px 0;background:var(--card);border-radius:var(--cr,28px);box-shadow:var(--shadow)}
 header{position:static;background:transparent;color:var(--ink);border:0;box-shadow:none;padding:16px 18px 6px}
 h1{font-size:var(--fs-l);line-height:1.1;font-weight:700;color:var(--ink)}
 h1::after{content:none}
@@ -151,7 +151,7 @@ header .ib{min-height:44px;border-color:var(--accent);color:var(--ink);backgroun
 .langbar .lb-t{display:flex;flex-direction:column;line-height:1.1;flex:1;min-width:0}
 .langbar .lb-s{font-size:var(--fs-s);color:var(--mute)}
 .langbar .lb-n{font-size:var(--fs-l);font-weight:700;color:var(--ink)}
-.tool .langbar select#lang{position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;padding:0;border:0;font-size:var(--fs-m)}
+.langbar select#lang{position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;padding:0;border:0;font-size:var(--fs-m)}
 .dirrow{display:flex;gap:4px;padding:4px;background:var(--pill);border-radius:var(--r)}
 .dirrow .ib{flex:1;padding:2px 6px;font-size:var(--fs-s);min-height:42px;border:2px solid transparent;background:transparent;color:var(--mute);white-space:nowrap}
 .dirrow .ib.on{background:var(--card);color:var(--ink);border-color:var(--accent)}
@@ -192,11 +192,11 @@ main{padding:4px 18px 22px}
 .tile small{color:var(--ink)}
 .tile .auto{font-size:var(--fs-s);color:var(--mute);text-decoration:underline}
 .x{width:30px;height:30px;top:-8px;right:-6px;border:2px solid var(--card);border-radius:50%;background:var(--danger);color:#fff;font-family:system-ui,sans-serif;font-weight:900;font-size:var(--fs-s);line-height:1}
-.tabbar{position:fixed;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:20;display:flex;background:var(--card);border:0;border-radius:28px;box-shadow:var(--shadow);padding:8px 4px}
+.tabbar{position:fixed;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:20;display:flex;background:var(--card);border:0;border-radius:var(--cr,28px);box-shadow:var(--shadow);padding:8px 4px}
 .tabbar button{flex:1;background:none;border:0;color:var(--mute);font-size:var(--fs-s);font-weight:600;display:flex;flex-direction:column;align-items:center;gap:2px;padding:2px 0;cursor:pointer}
 .tabbar svg{width:28px;height:28px;stroke:var(--accent);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .tabbar button:active{opacity:.6}
-dialog{background:var(--card);color:var(--ink);border:0;border-radius:28px;box-shadow:0 20px 50px rgba(20,24,80,.45);width:min(460px,94vw);padding:20px;max-height:90vh;overflow:auto}
+dialog{background:var(--card);color:var(--ink);border:0;border-radius:var(--cr,28px);box-shadow:0 20px 50px rgba(20,24,80,.45);width:min(460px,94vw);padding:20px;max-height:90vh;overflow:auto}
 dialog::backdrop{background:rgba(18,20,60,.55)}
 label{color:var(--mute);font-size:var(--fs-s);font-weight:600;margin:12px 0 4px}
 label.ck{color:var(--ink);font-size:var(--fs-m);font-weight:400}
@@ -314,6 +314,62 @@ html,body{overflow-x:hidden;max-width:100%}
 .ts svg .tg,.tlg svg .tg{stroke-width:1;opacity:.3}
 .tlg{display:flex;flex-wrap:wrap;gap:4px 14px;margin:2px 0 10px 28px;font-size:13px;color:var(--mute)}
 .tlg span{display:inline-flex;align-items:center;gap:4px}
+
+/* ===== looks (Settings > Look), the mic and Show buttons ===== */
+:root{--mic:#f0566a;--onmic:#ffffff}
+.micbtn,.micbtn:active{width:auto;min-width:118px;min-height:58px;padding:0 20px 0 16px;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--mic);color:var(--onmic);border:0;border-radius:var(--r);box-shadow:0 0 0 4px var(--hl);font-weight:700;font-size:var(--fs-m)}
+.micbtn svg{width:28px;height:28px}
+#trMic.rec{background:var(--danger);color:#fff;animation:none;box-shadow:0 0 0 0 var(--danger);animation:micpulse 1.2s ease-out infinite}
+@keyframes micpulse{0%{box-shadow:0 0 0 0 rgba(240,86,106,.55)}100%{box-shadow:0 0 0 16px rgba(240,86,106,0)}}
+@media (max-height:900px){.micbtn,.micbtn:active{min-height:48px;min-width:108px}.micbtn svg{width:24px;height:24px}}
+.showbtn{display:inline-flex;align-items:center;gap:6px}
+.showbtn .hand{width:1.2em;height:1.2em;flex:none}
+.actrow .speakbtn,.actrow .showbtn{flex:1 1 0;min-width:0;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding-left:10px;padding-right:10px;white-space:nowrap}
+.actrow [data-a=more]{flex:none;padding-left:16px;padding-right:16px}
+
+/* two-way: who is talking, Thai side, reply from the Show window */
+.dirrow.who{gap:6px;padding:5px}
+.dirrow.who .ib{display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15;min-height:64px;white-space:normal;padding:6px 8px}
+.dirrow.who .ib b{font-size:var(--fs-m)}
+.dirrow.who .ib small{font-size:15px;font-weight:500;color:var(--mute)}
+.dirrow.who #dirTh.on{border-color:var(--mic)}
+.tool.thside #trIn{border:2px solid var(--mic)}
+.setq{margin:10px 0 14px;display:flex;flex-wrap:wrap;gap:10px 18px}
+#setD .langbar{margin:12px 0 4px}
+header{padding-bottom:10px}
+#bigReply{display:flex;gap:10px;padding:10px 12px 0;justify-content:center;flex-wrap:wrap}
+#bigReply .ib{flex:1 1 0;min-width:0;min-height:64px;display:inline-flex;align-items:center;justify-content:center;gap:10px;font-size:var(--fs-m);font-weight:700}
+#bigReply span{display:flex;flex-direction:column;line-height:1.1}
+#bigReply small{font-size:14px;font-weight:500;opacity:.85}
+#bigReply svg{width:28px;height:28px;flex:none}
+@media (max-height:900px){.dirrow.who .ib{min-height:54px}.dirrow.who .ib small{font-size:13px}#bigReply .ib{min-height:54px}}
+
+.sw[hidden]{display:none!important}
+.toprow .seg{flex:1 1 auto}
+.toprow .seg .ib{flex:1 1 0}
+.toprow{display:flex;align-items:center;gap:10px;flex-wrap:nowrap;margin-top:8px}
+.toprow .sw{flex:none;width:auto;margin:0}
+.toprow .seg{flex:none;margin:0}
+.seg{display:flex;gap:2px;padding:3px;background:var(--pill);border-radius:var(--r)}
+.seg .ib{min-height:36px;padding:2px 10px;border:2px solid transparent;background:transparent;color:var(--mute);font-size:var(--fs-s)}
+.seg .ib.on{background:var(--card);color:var(--ink);border-color:var(--accent)}
+
+/* ===== looks: each has its own font (Thai + Latin), colours and button style ===== */
+html[data-look="glass"]{--page:linear-gradient(160deg,#0f766e,#4338ca 60%,#7e22ce);--card:rgba(255,255,255,.12);--pill:rgba(255,255,255,.14);--ink:#ffffff;--mute:#dbe4ff;--accent:#ffffff;--onaccent:#312e81;--line:rgba(255,255,255,.3);--hl:#ffffff26;--mic:#f472b6;--onmic:#ffffff;--r:999px;--cr:26px;--shadow:0 10px 30px rgba(0,0,0,.45);--ill:none;color-scheme:dark;--bf:"Prompt",system-ui,-apple-system,"Noto Sans Thai",sans-serif}
+html[data-look="glass"] .th,html[data-look="glass"] .rth,html[data-look="glass"] #bigTxt,html[data-look="glass"] textarea,html[data-look="glass"] input,html[data-look="glass"] select{font-family:var(--bf)}
+html[data-look="glass"] body,html[data-look="glass"]{background-attachment:fixed}
+html[data-look="glass"] .card,html[data-look="glass"] .tabbar{backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.28)}
+html[data-look="glass"] dialog,html[data-look="glass"] #big{background:#2d2a7a}
+html[data-look="glass"] .ib:not(.dirrow .ib):not(.seg .ib):not(.pri):not(.micbtn):not(.savebtn){background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.45)}
+#sLightRow[hidden]{display:none}
+.spdrow{margin-top:6px}
+.spdrow .spd{flex:1 1 auto}
+.htile{cursor:pointer;padding-bottom:52px!important}
+.hsave{position:absolute;left:12px;right:12px;bottom:10px;min-height:36px;border:0;border-radius:var(--r);background:var(--accent);color:var(--onaccent);font:inherit;font-size:var(--fs-s);font-weight:600}
+.hsave.done{background:var(--pill);color:var(--mute)}
+header h1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;font-size:clamp(22px,7.4vw,var(--fs-l))}
+.bhrow{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.bhrow #editBtn{min-height:40px;padding:4px 18px;font-size:var(--fs-s)}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@500&display=swap" rel="stylesheet">
 </head>
@@ -323,31 +379,27 @@ html,body{overflow-x:hidden;max-width:100%}
   <div class="row">
     <h1><span class="fl">🇹🇭</span> <span class="tt">Phil's Translator</span></h1>
     <button class="ib big" id="setBtn" aria-label="Settings">⚙︎</button>
-    <button class="ib" id="editBtn">Edit</button>
   </div>
-  <div class="hrow">
-    <label class="sw" aria-label="Polite ending"><input type="checkbox" id="polT"><span class="trk"></span><span id="polTxt">Polite: off</span></label>
+  <div class="hrow toprow">
+    <label class="sw" aria-label="Polite ending" hidden><input type="checkbox" id="polT"><span class="trk"></span><span id="polTxt">Polite: off</span></label>
+    <div class="seg" id="regSeg" role="group" aria-label="How to speak"><button class="ib" data-r="friends">Friends</button><button class="ib" data-r="polite">Polite</button><button class="ib" data-r="formal">Formal</button></div>
+  </div>
+  <div class="hrow spdrow">
     <label class="spd" for="spd"><span>Speed</span><span aria-hidden="true">🐢</span><input type="range" id="spd" min="0.4" max="1.2" step="0.05" value="0.9"></label>
   </div>
   <div id="now"></div>
 </header>
 <section class="tool" id="tool">
   <div id="offBar" hidden>Offline: saved phrases still work. New translations need internet.</div>
-  <label class="langbar" for="lang">
-    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/></svg>
-    <span class="lb-t"><span class="lb-s">Choose language<span id="lbCount" hidden>19</span></span><span id="lbName" class="lb-n">Thai</span></span>
-    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
-    <select id="lang" aria-label="Language"></select>
-  </label>
-  <div class="dirrow"><button class="ib on" id="dirEn">English → Thai</button><button class="ib" id="dirTh">Thai → English</button></div>
+  <div class="dirrow who"><button class="ib on" id="dirEn"></button><button class="ib" id="dirTh"></button></div>
   <textarea id="trIn" rows="2" maxlength="400" placeholder="Type English, or tap the mic…"></textarea>
-  <div class="trbtns"><button class="ib pri bigbtn" id="trGo" style="flex:1">Translate</button><button class="ib micbtn" id="trMic" style="display:none" aria-label="Speak your phrase"><svg viewBox="0 0 24 24" width="36" height="36" aria-hidden="true"><rect x="8.5" y="2" width="7" height="13" rx="3.5" fill="currentColor"/><path d="M5 11.5a7 7 0 0 0 14 0M12 18.5V22M8 22h8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div>
+  <div class="trbtns"><button class="ib pri bigbtn" id="trGo" style="flex:1">Translate</button><button class="ib micbtn" id="trMic" style="display:none" aria-label="Speak your phrase"><svg viewBox="0 0 24 24" width="36" height="36" aria-hidden="true"><rect x="8.5" y="2" width="7" height="13" rx="3.5" fill="currentColor"/><path d="M5 11.5a7 7 0 0 0 14 0M12 18.5V22M8 22h8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="mlab">Talk</span></button></div>
   <div id="trOut"></div>
   <div id="hist"></div>
 </section>
 </div>
 <div class="card board">
-<div class="boardhead"><div class="sec2">Phrase board</div><input id="q" type="search" placeholder="Search phrases">
+<div class="boardhead"><div class="bhrow"><div class="sec2">Phrase board</div><button class="ib" id="editBtn">Edit</button></div><input id="q" type="search" placeholder="Search phrases">
   <div class="hint">Press and hold a tile to edit, move or delete it. Tap a star to keep it in Favourites.</div>
   <button class="ib" id="bldBtn" style="margin-top:10px">Build a sentence</button></div>
 <div class="chips" id="chips"></div>
@@ -364,6 +416,7 @@ html,body{overflow-x:hidden;max-width:100%}
 <div id="undoBar" hidden><span id="undoMsg"></span><button class="ib" id="undoBtn">Undo</button></div>
 <div id="big" hidden>
   <div id="bigBox"><div id="bigTxt" dir="auto"></div><div id="bigSub"></div></div>
+  <div id="bigReply"><button class="ib micbtn" id="bigTalk"></button><button class="ib" id="bigType"></button></div>
   <div id="bigBar"><button class="ib" id="bigMinus" aria-label="Smaller text">A−</button><button class="ib" id="bigPlus" aria-label="Bigger text">A+</button><button class="ib" id="bigSnd">Sounds</button><button class="ib" id="bigSpk">🔊</button><button class="ib" id="bigRot">Rotate</button><button class="ib" id="bigX">Close</button></div>
 </div>
 
@@ -398,7 +451,7 @@ html,body{overflow-x:hidden;max-width:100%}
   <input id="ecatNew" placeholder="New category name" style="display:none;margin-top:8px">
   <button class="ib savebtn" id="edSave2" style="margin-top:12px">💾 Save changes</button>
   <button class="ib" id="edVerify" style="width:100%;margin-top:10px">✓ Mark as checked by a native speaker</button>
-  <div class="row" style="gap:8px;margin-top:10px;flex-wrap:wrap"><button class="ib" id="edUp">↑ Up</button><button class="ib" id="edDown">↓ Down</button><button class="ib" id="edTop">Top</button><button class="ib" id="edShow">Show</button></div>
+  <div class="row" style="gap:8px;margin-top:10px;flex-wrap:wrap"><button class="ib" id="edUp">↑ Up</button><button class="ib" id="edDown">↓ Down</button><button class="ib" id="edTop">Top</button><button class="ib showbtn" id="edShow"><svg class="hand" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="1.5" width="11" height="17" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M11.5 4.5h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M8 11.5H6.6A1.8 1.8 0 0 0 4.8 13.3v3.4c0 3 2.4 5.8 5.6 5.8H14c1.6 0 3-1 3.5-2.5l.6-1.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 15h2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Show</button></div>
   <label for="ecopy">Copy to another category</label>
   <div class="row" style="gap:8px"><select id="ecopy" style="flex:1;min-width:0"></select><button class="ib" id="edCopy">Copy</button></div>
   <button class="ib" id="edDel" style="margin-top:10px;width:100%;color:#ef8f8a;border-color:#ef8f8a">🗑 Delete this phrase</button>
@@ -420,20 +473,29 @@ html,body{overflow-x:hidden;max-width:100%}
   <select id="bldT" aria-label="Sentence type" style="width:100%;margin-top:12px"></select>
   <div id="bldSlots"></div>
   <div id="bldOut" style="margin-top:12px"></div>
-  <div class="row actrow"><button class="ib speakbtn" id="bldSpk">🔊 Speak</button><button class="ib" id="bldShow">Show</button></div>
+  <div class="row actrow"><button class="ib speakbtn" id="bldSpk">🔊 Speak</button><button class="ib showbtn" id="bldShow" aria-label="Show full screen to the other person"><svg class="hand" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="1.5" width="11" height="17" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M11.5 4.5h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M8 11.5H6.6A1.8 1.8 0 0 0 4.8 13.3v3.4c0 3 2.4 5.8 5.6 5.8H14c1.6 0 3-1 3.5-2.5l.6-1.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 15h2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Show</button></div>
   <div class="row actrow"><select id="bldCat" aria-label="Save to category" style="flex:1;min-width:0"></select><button class="ib savebtn sm" id="bldSave">💾 Save</button></div>
 </dialog>
 
 <dialog id="setD">
   <h3 style="margin:0">Settings</h3>
-  <label for="pol">Speaker (sets which polite ending to use; turn it on or off with the Polite switch at the top)</label>
+  <label class="langbar" for="lang">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/></svg>
+    <span class="lb-t"><span class="lb-s">Choose language<span id="lbCount" hidden>19</span></span><span id="lbName" class="lb-n">Thai</span></span>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+    <select id="lang" aria-label="Language"></select>
+  </label>
+  <div class="hrow setq">
+  </div>
+  <label for="pol">Speaker (sets which polite ending, ครับ or ค่ะ, the Polite and Formal settings use)</label>
   <select id="pol">
     <option value="m">ครับ khrap: male speaker</option>
     <option value="f">ค่ะ / คะ kha: female speaker</option>
   </select>
   <label for="voice">Thai voice</label>
   <select id="voice"></select>
-  <label class="ck"><input type="checkbox" id="sLight"> Light theme. Off = dark theme</label>
+  <label>Look <select id="sLook"><option value="">Lavender (classic)</option><option value="glass">Glass</option></select></label>
+  <label class="ck" id="sLightRow"><input type="checkbox" id="sLight"> Light theme. Off = dark theme</label>
   <label class="ck"><input type="checkbox" id="sRo"> Show phonetics (how it sounds)</label>
   <div class="tlg" id="tLeg"></div>
   <label class="ck"><input type="checkbox" id="sEn"> Show English</label>
@@ -459,7 +521,7 @@ html,body{overflow-x:hidden;max-width:100%}
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 15 Oct 2026, build 17</div>
+  <div class="hint">Version: 15 Oct 2026, build 23</div>
   <label>Backup (everything on this device)</label>
   <div class="row"><button class="ib" id="exp" style="flex:1">Export backup</button><button class="ib" id="imp" style="flex:1">Import backup</button></div>
   <input type="file" id="file" accept=".json,application/json" hidden>
@@ -872,7 +934,7 @@ const LANGS=[
 {c:"zt",n:"Chinese (Traditional)",tts:"zh-TW",mm:"zh-TW"},{c:"my",n:"Burmese",tts:"my-MM",mm:"my"},{c:"ta",n:"Tamil",tts:"ta-IN",mm:"ta"},{c:"bn",n:"Bengali",tts:"bn-BD",mm:"bn"},{c:"ur",n:"Urdu",tts:"ur-PK",mm:"ur"},{c:"fa",n:"Persian",tts:"fa-IR",mm:"fa"},{c:"tr",n:"Turkish",tts:"tr-TR",mm:"tr"},{c:"pl",n:"Polish",tts:"pl-PL",mm:"pl"},{c:"nl",n:"Dutch",tts:"nl-NL",mm:"nl"},{c:"sv",n:"Swedish",tts:"sv-SE",mm:"sv"},{c:"el",n:"Greek",tts:"el-GR",mm:"el"},{c:"he",n:"Hebrew",tts:"he-IL",mm:"he"},{c:"uk",n:"Ukrainian",tts:"uk-UA",mm:"uk"},{c:"ne",n:"Nepali",tts:"ne-NP",mm:"ne"},{c:"si",n:"Sinhala",tts:"si-LK",mm:"si"},{c:"mn",n:"Mongolian",tts:"mn-MN",mm:"mn"},{c:"kk",n:"Kazakh",tts:"kk-KZ",mm:"kk"},{c:"sw",n:"Swahili",tts:"sw-KE",mm:"sw"},{c:"cs",n:"Czech",tts:"cs-CZ",mm:"cs"},{c:"ro",n:"Romanian",tts:"ro-RO",mm:"ro"},{c:"hu",n:"Hungarian",tts:"hu-HU",mm:"hu"}];
 const NAT={th:"ไทย",vi:"Tiếng Việt",lo:"ລາວ",km:"ខ្មែរ",zh:"中文",ja:"日本語",ko:"한국어",id:"Bahasa Indonesia",ms:"Bahasa Melayu",tl:"Filipino",hi:"हिन्दी",es:"Español",fr:"Français",de:"Deutsch",it:"Italiano",pt:"Português",ru:"Русский",ar:"العربية",uz:"Oʻzbekcha",zt:"繁體中文",my:"မြန်မာ",ta:"தமிழ்",bn:"বাংলা",ur:"اردو",fa:"فارسی",tr:"Türkçe",pl:"Polski",nl:"Nederlands",sv:"Svenska",el:"Ελληνικά",he:"עברית",uk:"Українська",ne:"नेपाली",si:"සිංහල",mn:"Монгол",kk:"Қазақша",sw:"Kiswahili",cs:"Čeština",ro:"Română",hu:"Magyar"};
 function LG(){return LANGS.find(l=>l.c===S.lang)||LANGS[0]}
-const ORDER=["SFX","On set","Schedule & meals","Film production","Technical","Basics","Eating","Getting around","Shopping","Numbers","Social","Emergency"];
+const ORDER=["My vocab","SFX","On set","Schedule & meals","Film production","Technical","Basics","Eating","Getting around","Shopping","Numbers","Social","Emergency"];
 const cats=()=>{const a=[...new Set(S.items.map(i=>i.cat))];const co=S.catOrder||[];const r=c=>{let k=co.indexOf(c);if(k>=0)return k;k=ORDER.indexOf(c);return k<0?999:100+k};return a.map((c,n)=>[c,n]).sort((x,y)=>r(x[0])-r(y[0])||x[1]-y[1]).map(x=>x[0])};
 
 // Polite particle: ครับ (male) / ค่ะ statements, คะ questions (female)
@@ -1077,10 +1139,9 @@ function selBarHTML(){
 function render(){
   const cs=cats();
   const hasR=S.items.some(i=>i.played);
-  if(cat!=="All"&&cat!=="__r"&&cat!=="__f"&&!cs.includes(cat))cat="All";
-  if(cat==="__r"&&!hasR)cat="All";
-  const chipLabel=c=>c==="__f"?"★ Favourites":c==="__r"?"Recently played":esc(c);
-  $("chips").innerHTML=["All","__f",...(hasR?["__r"]:[]),...cs].map(c=>`<button class="chip${c===cat?" on":""}" style="--c:${colr(c)}" data-c="${esc(c)}">${chipLabel(c)}</button>`).join("");
+  if(cat!=="All"&&cat!=="__r"&&cat!=="__t"&&cat!=="__f"&&!cs.includes(cat))cat="All";
+    const chipLabel=c=>c==="__f"?"★ Favourites":c==="__r"?"🕘 Recent":c==="__t"?"🔤 Translated":esc(c);
+  $("chips").innerHTML=["All","__r","__t","__f",...cs].map(c=>`<button class="chip${c===cat?" on":""}" style="--c:${colr(c)}" data-c="${esc(c)}">${chipLabel(c)}</button>`).join("");
   $("cats").innerHTML=cs.map(c=>`<option value="${esc(c)}">`).join("");
   const ql=qs.toLowerCase();
   const hit=i=>{if(!ql)return true;const v=vw(i);return (v.th+" "+v.ro+" "+v.en).toLowerCase().includes(ql)};
@@ -1089,9 +1150,13 @@ function render(){
   if(voicesLoaded&&!pickVoice())h+=`<div class="note">No ${LG().n} voice found on this device, so phrases may sound wrong. Add one in your device's text-to-speech or accessibility settings.</div>`;
   {const miss=missingCount();if(miss>0)h+=`<div class="note"><span id="trLeft">${miss}</span> phrases still to translate. They load as you scroll and need internet, then work offline. Tiles marked auto are machine translated. <button class="ib" id="trAll">Save all for offline</button></div>`}
   if(edit)h+=`<div class="note">Edit mode: tap a phrase to edit, move or delete it. Use the arrows to reorder categories.</div>`+selBarHTML();
+  if(cat==="__t"){
+    const th=(S.hist||[]).map((x,n)=>[x,n]).filter(([x])=>(x.lang||"th")===S.lang&&(!ql||(x.th+" "+x.en).toLowerCase().includes(ql)));
+    if(th.length)h+=`<div class="note">Your translations, newest first. Tap one to hear it. Tap ＋ Save to keep it in My vocab.</div><div class="grid">`+th.map(([x,n])=>histTileHTML(x,n)).join("")+`</div>`;
+  }
   const everywhere=cat==="All"||!!ql;
-  (everywhere?cs:[cat]).forEach(c=>{
-    const list=c==="__r"?S.items.filter(i=>i.played&&hit(i)).sort((a,b)=>b.played-a.played).slice(0,20):c==="__f"?S.items.filter(i=>i.fav&&hit(i)).sort((a,b)=>(a.fo||0)-(b.fo||0)):S.items.filter(i=>i.cat===c&&hit(i));
+  (everywhere?cs:cat==="__t"?[]:[cat]).forEach(c=>{
+    const list=c==="__r"?S.items.filter(i=>i.played&&hit(i)).sort((a,b)=>b.played-a.played).slice(0,24):c==="__f"?S.items.filter(i=>i.fav&&hit(i)).sort((a,b)=>(a.fo||0)-(b.fo||0)):S.items.filter(i=>i.cat===c&&hit(i));
     if(!list.length)return;
     if(everywhere){
       const mv=edit&&!ql?`<span class="catmv"><button data-cm="up" data-c="${esc(c)}" aria-label="Move category up">↑</button><button data-cm="down" data-c="${esc(c)}" aria-label="Move category down">↓</button></span>`:"";
@@ -1099,7 +1164,7 @@ function render(){
     }
     h+=`<div class="grid">`+list.map(tileHTML).join("")+`</div>`;
   });
-  const emptyMsg=cat==="__f"&&!ql?"No favourites yet. Tap the star on any phrase to keep it here.":cat==="__r"&&!ql?"Phrases you play will appear here.":"Nothing here. Tap Add to add a phrase.";
+  const emptyMsg=cat==="__f"&&!ql?"No favourites yet. Tap the star on any phrase to keep it here.":cat==="__r"&&!ql?"Nothing yet. Phrases you tap will show up here, newest first.":cat==="__t"&&!ql?"Nothing yet. Everything you translate will be kept here so you can replay it and save it to your vocab.":"Nothing here. Tap Add to add a phrase.";
   $("main").className=edit?"edit":"";
   $("main").innerHTML=h+(/class="grid"/.test(h)?"":`<div class="empty">${emptyMsg}</div>`);
   $("editBtn").classList.toggle("on",edit);
@@ -1198,6 +1263,8 @@ $("main").onclick=async e=>{
   if(e.target.closest("#selDone")){selMode=false;SEL.clear();render();return}
   if(e.target.closest("#selDel")){selDeleteDo();return}
   if(e.target.closest("#selMove")){selMoveDo();return}
+  const hs=e.target.closest("[data-hsave]");if(hs){histSave(+hs.dataset.hsave);return}
+  const hi=e.target.closest("[data-hi]");if(hi){const x=S.hist[+hi.dataset.hi];if(x)speak({th:histClean(x.th),ro:x.ro||"",en:x.en||"",np:1,cat:"",lang:S.lang});return}
   const fv=e.target.closest("[data-fav]");if(fv){toggleFav(fv.dataset.fav);return}
   const d=e.target.closest("[data-del]");
   if(d){e.stopPropagation();deleteMany([d.dataset.del]);return}
@@ -1216,7 +1283,7 @@ $("main").onclick=async e=>{
     try{if(!(await translateItem(it,S.lang)))throw 0;save();paintTile(it.id)}
     catch(err){toast("Couldn't translate: "+why(err),true);return}
   }
-  it.played=Date.now();saveSoon();if(!document.querySelector('.chip[data-c="__r"]'))render();
+  it.played=Date.now();save();if(cat==="__r")render();
   speak({...it,...vw(it)});
 };
 $("editBtn").onclick=()=>{edit=!edit;if(!edit){selMode=false;SEL.clear()}render()};
@@ -1235,9 +1302,16 @@ async function translate(){
   return false;
 }
 let DIR="en",RES=null;
+function whoLabels(){
+  const th=DIR==="th",L=LG(),T=L.c==="th";
+  $("trIn").placeholder=!th?"Type English, or tap Talk…":T?"พิมพ์ภาษาไทยที่นี่ หรือกด พูด":"Type or speak "+L.n+"…";
+  $("trGo").textContent=th&&T?"แปล":"Translate";
+  const ml=$("trMic").querySelector(".mlab");if(ml&&!RECON)ml.textContent=th&&T?"พูด":"Talk";
+  $("tool").classList.toggle("thside",th);
+}
 function setDir(d){
   DIR=d;$("dirEn").classList.toggle("on",d==="en");$("dirTh").classList.toggle("on",d==="th");
-  $("trIn").placeholder=d==="en"?"Type English…":"Type or paste "+LG().n+"…";
+  whoLabels();
   $("trIn").lang=d==="th"?S.lang:"en";$("trIn").value="";$("trOut").innerHTML="";
 }
 async function mm(q,pair){
@@ -1252,7 +1326,7 @@ async function mm(q,pair){
     return String(t).trim();
   }finally{clearTimeout(to)}
 }
-function updatePol(){$("polTxt").textContent="Polite: "+(S.polite?"on":"off")}
+function updatePol(){updReg();$("polTxt").textContent="Polite: "+(S.polite?"on":"off")}
 function shown(r){return r.dir==="en"?full({th:r.th,ro:sx(r),en:r.en,cat:"x"}):{th:r.th,ro:sx(r),en:r.en}}
 function reshow(){if(RES)showRes(RES.th,RES.ro,RES.en,RES.note,RES.auto,true,RES.ph,RES.alts)}
 const SUG=[["Emergency",/\b(help|police|ambulance|hospital|doctor|emergency|danger|lost|sick|medic)/i],["Eating",/\b(eat|food|drink|menu|water|coffee|tea|beer|rice|noodle|chicken|egg|fish|crab|shrimp|squid|lobster|spicy|sweet|the bill|hungry|thirsty|vegetarian|allerg)/i],["Getting around",/\b(where|toilet|bathroom|airport|hotel|taxi|bus|train|station|turn left|turn right|straight|stop here|how far|road|street|direction)/i],["Shopping",/\b(price|how much|cost|expensive|cheap|discount|buy|pay|card|cash|size|receipt)/i],["Schedule & meals",/\b(what time|when|call time|wrap|schedule|lunch|breakfast|tomorrow|today|yesterday|early|late)/i],["SFX",/\b(smoke|fog|rain|flame|spark|safe|safety|hide|clear the frame|get out of shot|extinguisher|glove|glasses|lighter|stand back)/i],["Technical",/\b(camera|lens|lighting|light|mic|microphone|battery|cable|generator|tripod|dolly|crane|focus|frame rate|iso|aperture|monitor|sound|audio)/i],["Film production",/\b(director|producer|crew|department|actor|script|editor|gaffer|grip|assistant)/i],["On set",/\b(scene|take|shot|rehears|quiet|set up|standing by|moving on|reset)/i],["Numbers",/^\s*\d+([.,]\d+)?\s*$|\b(one|two|three|four|five|six|seven|eight|nine|ten|hundred|thousand)\b/i],["Social",/\b(hello|hi there|goodbye|thank|sorry|please|nice to meet|how are you|good morning|good night|welcome)/i]];
@@ -1270,7 +1344,7 @@ function showRes(th,ro,en,note,auto,nohist,ph,alts,tn){
   const opts=cs.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");
   const rev=DIR!=="en";let rp;
   $("trOut").innerHTML=`<div class="bub"><div class="rth" lang="${rev?"en":S.lang}" dir="auto">${esc(rev?en:f.th)}</div>${(!rev&&f.ro)?`<div class="rro">${toneHTML(f.th,f.ro,RES.tn,true)}</div>`:""}<div class="ren" lang="${rev?S.lang:"en"}" dir="auto">${esc(rev?th:en)}</div>${rev&&S.lang==="th"&&(rp=toneHTML(th,"","",true))?`<div class="rro">${rp}</div>`:""}</div>`+
-   `<div class="row actrow"><button class="ib speakbtn" data-a="sp">🔊 Speak</button><button class="ib" data-a="show">Show</button><button class="ib" data-a="more" aria-label="More options">⋯</button></div>`+
+   `<div class="row actrow"><button class="ib speakbtn" data-a="sp">🔊 Speak</button><button class="ib showbtn" data-a="show" aria-label="Show full screen to the other person"><svg class="hand" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="1.5" width="11" height="17" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M11.5 4.5h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M8 11.5H6.6A1.8 1.8 0 0 0 4.8 13.3v3.4c0 3 2.4 5.8 5.6 5.8H14c1.6 0 3-1 3.5-2.5l.6-1.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 15h2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Show</button><button class="ib" data-a="more" aria-label="More options">⋯</button></div>`+
    `<div class="row actrow"><select id="rcat" aria-label="Save to category" style="flex:1;min-width:0">${opts}<option value="__new">＋ New category…</option></select><button class="ib savebtn sm" data-a="save">💾 Save</button></div><input id="rcatNew" placeholder="New category name" style="display:none;margin-top:8px">`+
    (note?`<div style="margin-top:10px;font-size:var(--fs-s)">${esc(note)}</div>`:"");
   const sg=suggestCat(en);
@@ -1281,11 +1355,11 @@ function showRes(th,ro,en,note,auto,nohist,ph,alts,tn){
 function addHist(h){
   S.hist=(S.hist||[]).filter(x=>!(x.th===h.th&&x.en===h.en));
   S.hist.unshift({th:h.th,ro:h.ro||"",en:h.en,ph:h.ph||"",lang:S.lang,dir:DIR});
-  S.hist=S.hist.slice(0,12);save();renderHist();
+  S.hist=S.hist.slice(0,60);save();renderHist();if(cat==="__t")render();
 }
 function renderHist(){
   const h=(S.hist||[]).map((x,i)=>[x,i]).filter(([x])=>(x.lang||"th")===S.lang);
-  $("hist").innerHTML=h.length?`<div class="sec2" style="margin-top:16px">Recent translations</div><div class="chips" style="padding:8px 0 0">${h.map(([x,i])=>`<button class="chip" data-h="${i}" style="--c:#8a8ab5">${esc(x.en.length>28?x.en.slice(0,26)+"…":x.en)}</button>`).join("")}<button class="chip" data-h="clear" style="--c:#ff6b6b">Clear</button></div>`:"";
+  const hh=h.slice(0,12);$("hist").innerHTML=hh.length?`<div class="sec2" style="margin-top:16px">Recent translations</div><div class="chips" style="padding:8px 0 0">${hh.map(([x,i])=>`<button class="chip" data-h="${i}" style="--c:#8a8ab5">${esc(x.en.length>28?x.en.slice(0,26)+"…":x.en)}</button>`).join("")}<button class="chip" data-h="clear" style="--c:#ff6b6b">Clear</button></div>`:"";
 }
 $("hist").onclick=e=>{
   const b=e.target.closest("[data-h]");if(!b)return;
@@ -1363,7 +1437,7 @@ function startMic(){
   REC=r;
   r.lang=DIR==="th"?LG().tts:"en-US";r.interimResults=true;r.continuous=false;r.maxAlternatives=1;
   let got=false,err=null;const t0=Date.now();
-  r.onstart=()=>{RECON=true;$("trMic").classList.add("rec");micMsg("Listening… speak now",false)};
+  r.onstart=()=>{RECON=true;$("trMic").classList.add("rec");$("trMic").querySelector(".mlab").textContent=DIR==="th"&&LG().c==="th"?"กำลังฟัง":"Listening";micMsg("Listening… speak now",false)};
   r.onresult=ev=>{
     let txt="";for(let i=0;i<ev.results.length;i++)txt+=ev.results[i][0].transcript;
     $("trIn").value=txt;
@@ -1371,7 +1445,7 @@ function startMic(){
   };
   r.onerror=ev=>{err=ev&&ev.error?ev.error:"unknown"};
   r.onend=()=>{
-    RECON=false;$("trMic").classList.remove("rec");
+    RECON=false;$("trMic").classList.remove("rec");whoLabels();
     const txt=$("trIn").value.trim();
     if(txt&&(got||!err)){doTr();return}
     if(err==="not-allowed"||err==="service-not-allowed")micMsg("Voice input is blocked ("+err+"). On iPhone check Settings > Privacy & Security > Speech Recognition, Settings > General > Keyboard > Enable Dictation, and Safari's microphone permission (aA > Website Settings). The keyboard's microphone key also works.",true);
@@ -1391,11 +1465,11 @@ function refreshLang(){
   const ordered=LANGS.slice().sort((a,b)=>a.c==="th"?-1:b.c==="th"?1:a.n.localeCompare(b.n));
   $("lang").innerHTML=ordered.map(l=>`<option value="${l.c}">${l.n} · ${NAT[l.c]||""}</option>`).join("");$("lang").value=S.lang;
   $("lbName").textContent=L.n+" · "+(NAT[L.c]||"");$("lbCount").textContent=LANGS.length;
-  $("dirEn").textContent="English → "+L.n;$("dirTh").textContent=L.n+" → English";
+  $("dirEn").innerHTML=`<b>🇬🇧 I speak</b><small>English → ${esc(L.n)}</small>`;$("dirTh").innerHTML=L.c==="th"?`<b>🇹🇭 ภาษาไทย</b><small>Thai speaker</small>`:`<b>${esc(NAT[L.c]||L.n)}</b><small>${esc(L.n)} → English</small>`;
   $("thLbl").textContent=L.n+" text (leave empty to translate automatically)";
   $("edLbl").textContent=L.n+" text (spoken aloud)";
   $("th").placeholder=S.lang==="th"?"เช่น ขอกาแฟหน่อย":"";
-  $("trIn").placeholder=DIR==="en"?"Type English…":"Type or paste "+L.n+"…";
+  whoLabels();
   const sw=$("polT").parentElement;if(sw)sw.style.display=S.lang==="th"?"":"none";
 }
 $("lang").onchange=e=>{S.lang=e.target.value;save();cat="All";qs="";$("q").value="";setDir("en");refreshLang();render();renderHist()};
@@ -1474,9 +1548,9 @@ async function gtx(q,from,to){
 // Spoken Thai: machine translators write textbook Thai, so turn the common written forms into what people actually say.
 const CASUAL=[[/^กรุณา\s*(.+?)(ด้วย|หน่อย)?$/,"$1หน่อย"],[/สักครู่/g,"แป๊บนึง"],[/ขณะนี้/g,"ตอนนี้"],[/ไม่ทราบ/g,"ไม่รู้"],[/ทราบ/g,"รู้"],[/รับประทาน/g,"กิน"],
  [/เป็นอย่างไรบ้าง/g,"เป็นไงบ้าง"],[/อย่างไร/g,"ยังไง"],[/เท่าไร(?!่)/g,"เท่าไหร่"],[/เมื่อไร(?!่)/g,"เมื่อไหร่"],[/อย่างนี้/g,"แบบนี้"],[/อย่างนั้น/g,"แบบนั้น"],
- [/ใช่หรือไม่/g,"ใช่ไหม"],[/หรือไม่\s*\??$/,"ไหม"],[/หรือไม่(?=\s|$)/g,"รึเปล่า"],[/ดิฉัน/g,"ฉัน"],[/(?<=[ก-๎])(?<!ที่)หนึ่ง(?![ก-๎])/g,"นึง"],[/ทำอะไรอยู่/g,"ทำไรอยู่"],[/แป๊บนึงหน่อย$/,"แป๊บนึงนะ"]];
+ [/ใช่หรือไม่/g,"ใช่ไหม"],[/หรือไม่\s*\??$/,"ไหม"],[/หรือไม่(?=\s|$)/g,"รึเปล่า"],[/ดิฉัน/g,"ฉัน"],[/(?<=[ก-๎])(?<!ที่)หนึ่ง(?![ก-๎])/g,"นึง"],[/ทำอะไรอยู่/g,"ทำไรอยู่"],[/แป๊บนึงหน่อย$/,"แป๊บนึงนะ"],[/(\s)กรุณา\s*/g,"$1"]];
 function casualTh(t){
-  if(!t||!/[฀-๿]/.test(t))return t;
+  if(!t||!/[฀-๿]/.test(t)||S.reg==="formal")return t;
   let r=t.trim();CASUAL.forEach(([a,b])=>{r=r.replace(a,b)});
   if(S.pol!=="f")r=r.replace(/^ฉัน/,"ผม").replace(/(\s)ฉัน/g,"$1ผม");
   return r;
@@ -1490,7 +1564,7 @@ async function webTr(q,from,to){
   throw new Error(LASTERR);
 }
 async function aiTr(q,from,to){
-  const prompt=`Translate this ${to==="en"?"text (probably "+nm(from)+", but detect the language if it is different)":nm(from)+" text"} into ${nm(to)} the way a native speaker would actually say it out loud on a film set or while travelling: everyday spoken register, not textbook or word-for-word. Drop pronouns when obvious, use the loanwords crews really use (in Thai: เทค, ซีน, คอลไทม์), and add softeners (in Thai: หน่อย, ด้วย, นะ) where natural. For Thai, write it the way Thais really talk, not how they write: use spoken forms like ไร for อะไร, ยังไง/ไง for อย่างไร, นึง for หนึ่ง after a classifier, มั้ย for ไหม, ป่ะ or รึเปล่า for หรือไม่, เท่าไหร่, เดี๋ยว, แป๊บนึง, and casual endings like อ่ะ, ดิ, เนอะ, ละ when they fit. Use ผม for a male speaker and ฉัน or เรา for a female one, or drop it. No politeness particle at the end. Reply with ONLY JSON: {"t":"the translation","ro":"standard romanization if the translation is not written in Latin letters, with syllables separated by hyphens or spaces, otherwise an empty string","tn":"only for Thai: the spoken tone of each syllable in ro, one letter per syllable in order (M mid, L low, F falling, H high, R rising); otherwise an empty string","ph":"how an English speaker should say the translation, written with plain English letters and spaces only: no symbols, no accents, no hyphens, no tone marks, no IPA. Empty string if the translation is English","alts":[{"label":"Formal or Casual or similar","t":"another natural way to say it","ro":"","ph":""}]}\nGive 0 to 2 alternatives: usually one labelled "Slang" with how Thai friends would say it among themselves (current slang is fine if it fits), and one labelled "Polite" for strangers or elders, and an empty alts array if there is no useful alternative.\nText: ${q}`;
+  const prompt=`Translate this ${to==="en"?"text (probably "+nm(from)+", but detect the language if it is different)":nm(from)+" text"} into ${nm(to)} the way a native speaker would actually say it out loud on a film set or while travelling: everyday spoken register, not textbook or word-for-word. Drop pronouns when obvious, use the loanwords crews really use (in Thai: เทค, ซีน, คอลไทม์), and add softeners (in Thai: หน่อย, ด้วย, นะ) where natural.${S.reg==="formal"?" For Thai, use polite, respectful spoken Thai for strangers, elders, officials and clients: full forms like อะไร, ไหม, อย่างไร or ยังไง, no slang, and ผม for a male speaker or ดิฉัน/ฉัน for a female one. Keep it natural, not stiff written Thai.":` For Thai, write it the way Thais really talk, not how they write: use spoken forms like ไร for อะไร, ยังไง/ไง for อย่างไร, นึง for หนึ่ง after a classifier, มั้ย for ไหม, ป่ะ or รึเปล่า for หรือไม่, เท่าไหร่, เดี๋ยว, แป๊บนึง, and casual endings like อ่ะ, ดิ, เนอะ, ละ when they fit. Use ผม for a male speaker and ฉัน or เรา for a female one, or drop it.`} No politeness particle at the end. Reply with ONLY JSON: {"t":"the translation","ro":"standard romanization if the translation is not written in Latin letters, with syllables separated by hyphens or spaces, otherwise an empty string","tn":"only for Thai: the spoken tone of each syllable in ro, one letter per syllable in order (M mid, L low, F falling, H high, R rising); otherwise an empty string","ph":"how an English speaker should say the translation, written with plain English letters and spaces only: no symbols, no accents, no hyphens, no tone marks, no IPA. Empty string if the translation is English","alts":[{"label":"Formal or Casual or similar","t":"another natural way to say it","ro":"","ph":""}]}\nGive 0 to 2 alternatives: usually one labelled "Slang" with how Thai friends would say it among themselves (current slang is fine if it fits), and one labelled "Polite" for strangers or elders, and an empty alts array if there is no useful alternative.\nText: ${q}`;
   let r=null;
   if(SM){r=await SM.json(prompt)}
   else if(S.aiKey){
@@ -1539,6 +1613,18 @@ async function pumpTr(){
     await sleep(250);
   }
   PUMP=false;if(DIRTY){save();DIRTY=0}
+}
+const VOCAB="My vocab";
+const histClean=t=>String(t||"").replace(/\s*(ครับ|ค่ะ|คะ)\s*$/,"").trim();
+function histSaved(x){const t=histClean(x.th);return S.items.some(i=>(i.th===t||(i.tr&&i.tr[S.lang]&&i.tr[S.lang].th===t)))}
+function histTileHTML(x,n){
+  const t=histClean(x.th),pr=S.ro?toneHTML(t,x.ro||"","",!x.ro):"",sv=histSaved(x);
+  return `<div class="tile htile" data-hi="${n}" role="button" tabindex="0"><span class="th" lang="${S.lang}" dir="auto">${esc(t)}</span>${pr?`<small class="ro">${pr}</small>`:""}${x.en?`<small class="en">${esc(x.en)}</small>`:""}<button class="hsave${sv?" done":""}" data-hsave="${n}"${sv?" disabled":""}>${sv?"✓ Saved":"＋ Save"}</button></div>`;
+}
+function histSave(n){
+  const x=S.hist[n];if(!x||histSaved(x))return;
+  S.items.push({id:uid(),th:histClean(x.th),ro:x.ro||"",en:x.en||"",cat:VOCAB,np:0,t:Date.now()});
+  save();render();toast("Saved to My vocab");
 }
 function tileHTML(i){
   const v=vw(i),f=full({th:v.th,ro:v.ro,en:v.en,cat:i.cat,np:i.np,lang:S.lang});
@@ -1682,7 +1768,20 @@ $("moreAlts").onclick=e=>{
 };
 
 let BIG={th:"",ro:"",en:"",sub:false,rot:false};
-function showBig(v){BIG.th=v.th;BIG.ro=v.ro||"";BIG.en=v.en||"";BIG.lang=v.lang||S.lang;BIG.tts=v.tts||"";$("big").hidden=false;paintBig()}
+function replySide(){return (BIG.lang||S.lang)==="en"?"en":"th"}
+function paintReply(){
+  const side=replySide(),T=LG().c==="th"&&side==="th";
+  const mic='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2" width="7" height="13" rx="3.5" fill="currentColor"/><path d="M5 11.5a7 7 0 0 0 14 0M12 18.5V22M8 22h8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+  $("bigTalk").innerHTML=mic+(T?"<span>พูดตอบ<small>Speak reply</small></span>":side==="th"?"<span>Speak "+esc(LG().n)+"</span>":"<span>Speak reply</span>");
+  $("bigType").innerHTML=T?"<span>⌨︎ พิมพ์ตอบ<small>Type reply</small></span>":"<span>⌨︎ Type reply</span>";
+}
+function replyGo(talk){
+  const side=replySide();$("big").hidden=true;setDir(side);
+  $("tool").scrollIntoView({block:"start"});
+  if(talk)startMic();else $("trIn").focus();
+}
+$("bigTalk").onclick=()=>replyGo(true);$("bigType").onclick=()=>replyGo(false);
+function showBig(v){BIG.th=v.th;BIG.ro=v.ro||"";BIG.en=v.en||"";BIG.lang=v.lang||S.lang;BIG.tts=v.tts||"";$("big").hidden=false;paintReply();paintBig()}
 function paintBig(){
   const t=$("bigTxt");t.textContent=BIG.th;t.lang=BIG.lang||S.lang;
   $("bigSub").innerHTML=BIG.sub?`<div class="bsr">${(BIG.lang||S.lang)===S.lang?toneHTML(BIG.th,BIG.ro,"",!BIG.ro):esc(BIG.ro)}</div><div class="bse">${esc(BIG.en)}</div>`:"";
@@ -1781,7 +1880,7 @@ function normQ(x){return String(x||"").toLowerCase().replace(/[^\p{L}\p{N}\s]/gu
 function savedFor(q){const n=normQ(q);if(!n)return null;return S.items.find(i=>normQ(i.en)===n&&getText(i,S.lang).t)||null}
 function savedRev(q){const n=normQ(q);if(!n)return null;return S.items.find(i=>{const x=getText(i,S.lang);return i.en&&x.t&&normQ(x.t)===n})||null}
 async function webTrBoth(q,from,to,toCode,mmFrom){
-  const key=from+"|"+to+"|"+q;
+  const key=from+"|"+to+"|"+q+(toCode==="th"&&S.reg==="formal"?"|formal":"");
   if(!SKIPSAVED){const c=cget(key);if(c){LASTSRC=c.src||"";return c}}
   LASTRM="";LASTSRC="";
   const [g,m]=await Promise.allSettled([tryTwice(()=>gtx(q,from,to)),tryTwice(()=>mm(q,(mmFrom||from)+"|"+to))]);
@@ -1902,10 +2001,12 @@ $("addD").onkeydown=e=>{if(e.key==="Enter"&&e.target.tagName!=="BUTTON"&&e.targe
 $("setBtn").onclick=()=>{
   if(!S.ghRepo&&/github\.io$/.test(location.hostname)){const rp=location.pathname.split("/")[1];if(rp)S.ghRepo=location.hostname.split(".")[0]+"/"+rp}
   $("catExpSel").innerHTML=cats().map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");$("aiKey").value=S.aiKey||"";$("ghToken").value=S.ghToken||"";$("ghRepo").value=S.ghRepo||"";$("ghAuto").checked=!!S.ghAuto;
-  $("mmEmail").value=S.mmEmail||"";$("sLight").checked=!!S.light;$("pol").value=S.pol;$("sRo").checked=S.ro;$("tLeg").innerHTML=S.lang==="th"?"MLHRF".split("").map(t=>`<span>${ticon(t)}${TNAME[t]}</span>`).join(""):"";$("sEn").checked=S.en;$("setD").showModal()};
+  $("mmEmail").value=S.mmEmail||"";$("sLight").checked=!!S.light;$("sLook").value=S.look||"";$("pol").value=S.pol;$("sRo").checked=S.ro;$("tLeg").innerHTML=S.lang==="th"?"MLHRF".split("").map(t=>`<span>${ticon(t)}${TNAME[t]}</span>`).join(""):"";$("sEn").checked=S.en;$("setD").showModal()};
 $("setClose").onclick=()=>$("setD").close();
 $("pol").onchange=e=>{S.pol=e.target.value;save();render()};
-function applyTheme(){document.documentElement.setAttribute("data-th",S.light?"light":"night")}
+const LOOKFONT={"glass":"Prompt:wght@400;500"};
+function applyTheme(){const h=document.documentElement;if(!S.regV){S.regV=1;if(S.reg!=="formal")S.polite=true;save()}if(!S.lookV){S.look="glass";S.lookV=1;save()}if(S.look&&!LOOKFONT[S.look])S.look="";if(S.look){let l=$("lookFont");if(!l){l=document.createElement("link");l.id="lookFont";l.rel="stylesheet";document.head.appendChild(l)}const u="https://fonts.googleapis.com/css2?family="+LOOKFONT[S.look]+"&display=swap";if(l.href!==u)l.href=u}h.setAttribute("data-th",S.light?"light":"night");if(S.look)h.setAttribute("data-look",S.look);else h.removeAttribute("data-look");const r=$("sLightRow");if(r)r.hidden=!!S.look}
+$("sLook").onchange=e=>{S.look=e.target.value;save();applyTheme()};
 $("sLight").onchange=e=>{S.light=e.target.checked;save();applyTheme()};
 $("sRo").onchange=e=>{S.ro=e.target.checked;save();render()};
 $("sEn").onchange=e=>{S.en=e.target.checked;save();render()};
@@ -1915,6 +2016,14 @@ $("reset").onclick=()=>{if(confirm("Replace all phrases with the defaults? Your 
 load();applyTheme();refreshLang();render();loadVoices();renderHist();
 if("speechSynthesis" in window)speechSynthesis.onvoiceschanged=loadVoices;
 $("polT").checked=S.polite;updatePol();
+function regNow(){return S.reg==="formal"?"formal":S.polite?"polite":"friends"}
+function updReg(){const n=regNow();document.querySelectorAll("#regSeg [data-r]").forEach(b=>b.classList.toggle("on",n===b.dataset.r))}
+const REGTIP={friends:"Friends: casual, no ครับ/ค่ะ",polite:"Polite: everyday Thai with ครับ/ค่ะ",formal:"Formal: full wording with ครับ/ค่ะ"};
+document.querySelectorAll("#regSeg [data-r]").forEach(b=>b.onclick=()=>{
+  const r=b.dataset.r;S.reg=r==="formal"?"formal":"casual";S.polite=r!=="friends";$("polT").checked=S.polite;
+  save();updatePol();render();reshow();toast(REGTIP[r]);
+  if($("trIn").value.trim()&&$("trOut").innerHTML)doTr();
+});
 $("polT").onchange=e=>{S.polite=e.target.checked;save();updatePol();render();reshow()};
 $("spd").value=S.rate||0.9;
 $("spd").oninput=e=>{S.rate=+e.target.value;save()};
