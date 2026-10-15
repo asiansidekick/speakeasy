@@ -325,7 +325,9 @@ html,body{overflow-x:hidden;max-width:100%}
 .showbtn{display:inline-flex;align-items:center;gap:6px}
 .showbtn .hand{width:1.2em;height:1.2em;flex:none}
 .actrow .speakbtn,.actrow .showbtn{flex:1 1 0;min-width:0;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding-left:10px;padding-right:10px;white-space:nowrap}
-.actrow [data-a=more]{flex:none;padding-left:16px;padding-right:16px}
+.actrow .speakbtn,.actrow .showbtn{min-height:56px!important;height:56px;font-size:var(--fs-m)!important;font-weight:600;padding-top:0!important;padding-bottom:0!important;box-sizing:border-box}
+.moreline{display:block;width:100%;margin-top:10px;min-height:46px;font-size:17px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-left:10px!important;padding-right:10px!important}
+.bldrow .ib{font-size:17px!important;white-space:nowrap;min-height:46px;padding-left:8px!important;padding-right:8px!important}
 
 /* two-way: who is talking, Thai side, reply from the Show window */
 .dirrow.who{gap:6px;padding:5px}
@@ -400,6 +402,41 @@ html[data-look="glass"] #tip{background:#1e3a8a}
 #tip .tipic{font-size:30px;line-height:1}
 #tip b{font-size:var(--fs-m)}
 #tip p{margin:4px 0 10px;font-size:var(--fs-s);color:var(--mute);line-height:1.35}
+#tip>div{width:100%}
+#tip b{display:block;font-size:22px;margin-bottom:8px}
+#tip ul{list-style:none;margin:0 0 14px;padding:0}
+#tip li{display:flex;gap:12px;align-items:flex-start;font-size:20px;line-height:1.35;margin:10px 0}
+#tip li span{flex:none;width:28px;text-align:center}
+#tip .ib{min-height:52px;width:100%;font-size:20px}
+.bldrow{display:flex;gap:8px;margin-top:10px}
+.bldrow .ib{flex:1 1 0;min-width:0}
+#numD{width:min(440px,94vw);text-align:center;padding:18px 16px}
+#nmVal{font-size:40px;font-weight:700;line-height:1.15;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+#nmTh{font-size:32px;line-height:1.35;font-weight:600;min-height:44px;margin-top:4px;overflow-wrap:anywhere}
+#nmRo{font-size:20px;min-height:30px;display:flex;justify-content:center;flex-wrap:wrap;margin-bottom:10px}
+#nmRo .nmhint{color:var(--mute);font-size:17px}
+html[data-look="glass"] #nmTh{color:#fde68a}
+.nmkeys{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.nmkeys .ib{min-height:58px;font-size:28px;font-weight:600}
+.nmbtns{display:flex;gap:8px;margin-top:8px}
+.nmbtns .ib{flex:1 1 0;min-height:50px;font-size:18px;white-space:nowrap}
+/* compact pill phrase board (look D) */
+.grid[data-gc]{display:flex!important;flex-wrap:wrap;gap:7px!important}
+.grid[data-gc] .tile{width:auto;max-width:100%;min-height:0!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;text-align:left;padding:7px 13px!important;border:0!important;border-radius:999px!important;box-shadow:none!important;gap:5px}
+.grid[data-gc] .tile::before{display:none!important}
+.grid[data-gc] .tile .en{font-size:17px;line-height:1.3;padding:0!important;white-space:normal}
+.grid[data-gc] .tile .fav{display:none}
+.grid[data-gc] .tile .fav.on{display:inline;position:static;order:-1;width:auto;height:auto;font-size:15px;color:#fde68a}
+.grid[data-gc] .tile .auto{display:none}
+.grid[data-gc] .tile.holder{opacity:.25}
+.edit .grid[data-gc] .tile{padding-right:30px!important}
+.edit .grid[data-gc] .tile .x{top:50%;transform:translateY(-50%);right:4px;width:24px;height:24px}
+html[data-look="glass"] .grid[data-gc] .tile{background:rgba(15,23,60,.42)!important}
+html[data-look="glass"] .grid[data-gc] .tile.sel{box-shadow:inset 0 0 0 2px #fde68a!important}
+.board .sec{font-size:16px!important;margin:14px 0 6px!important}
+.seeall{display:inline-block;width:auto;border:0;padding:4px 0;margin:4px 0 6px;text-align:left;font-size:15px;background:none}
+html[data-look="glass"] .seeall{color:#bae6fd}
+#nmBaht.on{background:var(--accent);color:var(--onaccent,#fff)}
 #tip .ib{min-height:40px;padding:4px 20px}
 .boardhead .bhint{font-size:13px;line-height:1.3;margin:6px 2px 2px;opacity:.85}
 html[data-look="glass"] .tile .en{color:#fde68a;font-weight:600;opacity:1}
@@ -445,8 +482,7 @@ html[data-look="glass"] input,html[data-look="glass"] textarea{caret-color:#fde6
 </div>
 <div class="card board">
 <div class="boardhead"><div class="bhrow"><div class="sec2">Phrase board</div><button class="ib" id="editBtn">Edit</button></div><input id="q" type="search" placeholder="Search phrases">
-  <div class="hint bhint">Hold to show a Thai speaker · Hold &amp; drag to move · ☆ to favourite</div>
-  <button class="ib" id="bldBtn" style="margin-top:10px">Build a sentence</button></div>
+  <div class="bldrow"><button class="ib" id="bldBtn">Build a sentence</button><button class="ib" id="numBtn">🔢 Numbers</button></div></div>
 <div class="chips" id="chips"></div>
 <main id="main"></main>
 </div>
@@ -462,8 +498,22 @@ html[data-look="glass"] input,html[data-look="glass"] textarea{caret-color:#fde6
 <div id="big" hidden>
   <div id="bigBox"><div id="bigTxt" dir="auto"></div><div id="bigSub"></div></div>
   <div id="bigReply"><button class="ib micbtn" id="bigTalk"></button><button class="ib" id="bigType"></button></div>
-  <div id="bigBar"><button class="ib" id="bigMinus" aria-label="Smaller text">A−</button><button class="ib" id="bigPlus" aria-label="Bigger text">A+</button><button class="ib" id="bigSnd">Sounds</button><button class="ib" id="bigSpk">🔊</button><button class="ib" id="bigRot">Rotate</button><button class="ib" id="bigX">Close</button></div>
+  <div id="bigBar"><button class="ib" id="bigMinus" aria-label="Smaller text">A−</button><button class="ib" id="bigPlus" aria-label="Bigger text">A+</button><button class="ib" id="bigSnd">Sounds</button><button class="ib" id="bigFav" hidden>☆ Fav</button><button class="ib" id="bigSpk">🔊</button><button class="ib" id="bigRot">Rotate</button><button class="ib" id="bigX">Close</button></div>
 </div>
+
+<dialog id="numD" aria-label="Number keypad">
+  <div id="nmVal" aria-live="polite">0</div>
+  <div id="nmTh" dir="auto" lang="th"></div>
+  <div id="nmRo"></div>
+  <div class="nmkeys">
+    <button class="ib" data-k="1">1</button><button class="ib" data-k="2">2</button><button class="ib" data-k="3">3</button>
+    <button class="ib" data-k="4">4</button><button class="ib" data-k="5">5</button><button class="ib" data-k="6">6</button>
+    <button class="ib" data-k="7">7</button><button class="ib" data-k="8">8</button><button class="ib" data-k="9">9</button>
+    <button class="ib" data-k=".">.</button><button class="ib" data-k="0">0</button><button class="ib" data-k="back" aria-label="Delete">⌫</button>
+  </div>
+  <div class="nmbtns"><button class="ib" id="nmBaht" aria-pressed="false">฿ Baht</button><button class="ib" id="nmClr">Clear</button></div>
+  <div class="nmbtns"><button class="ib pri" id="nmPlay">🔊 Play</button><button class="ib" id="nmShow">Show</button><button class="ib" id="nmX">Close</button></div>
+</dialog>
 
 <dialog id="addD">
   <div class="row" style="justify-content:space-between;gap:10px"><h3 style="margin:0">Add a phrase</h3><div class="row"><button class="ib" id="addCancel">Close</button><button class="ib savebtn sm" id="addGo">Save</button></div></div>
@@ -504,7 +554,7 @@ html[data-look="glass"] input,html[data-look="glass"] textarea{caret-color:#fde6
 </dialog>
 
 <dialog id="moreD">
-  <div class="row" style="justify-content:space-between;gap:10px"><h3 style="margin:0;font-size:var(--fs-l)">More</h3><button class="ib" id="moreClose">Close</button></div>
+  <div class="row" style="justify-content:space-between;gap:10px"><h3 style="margin:0;font-size:var(--fs-l)">Options</h3><button class="ib" id="moreClose">Close</button></div>
   <button class="ib" id="moreCopy" style="width:100%;margin-top:12px">Copy text</button>
   <button class="ib" id="moreEdit" style="width:100%;margin-top:10px">Edit before saving</button>
   <button class="ib" id="moreBack" style="width:100%;margin-top:10px">Check the meaning (translate back)</button>
@@ -566,7 +616,7 @@ html[data-look="glass"] input,html[data-look="glass"] textarea{caret-color:#fde6
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 15 Oct 2026, build 28</div>
+  <div class="hint">Version: 15 Oct 2026, build 31</div>
   <label>Backup (everything on this device)</label>
   <div class="row"><button class="ib" id="exp" style="flex:1">Export backup</button><button class="ib" id="imp" style="flex:1">Import backup</button></div>
   <input type="file" id="file" accept=".json,application/json" hidden>
@@ -1198,7 +1248,7 @@ function selBarHTML(){
   const opts=cats().map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");
   return`<div class="selbar"><span id="selCnt">${SEL.size} selected</span><select id="selCat">${opts}<option value="__new">＋ New category…</option></select><button class="ib" id="selMove">Move</button><button class="ib" id="selDel">Delete</button><button class="ib" id="selDone">Done</button></div>`;
 }
-const PREVIEW=6;
+const PREVIEW=12;
 function render(){
   const cs=cats();
   const hasR=S.items.some(i=>i.played);
@@ -1443,8 +1493,8 @@ function showRes(th,ro,en,note,auto,nohist,ph,alts,tn){
   const opts=cs.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");
   const rev=DIR!=="en";let rp;
   $("trOut").innerHTML=`<div class="bub"><div class="rth" lang="${rev?"en":S.lang}" dir="auto">${esc(rev?en:f.th)}</div>${(!rev&&f.ro)?`<div class="rro">${toneHTML(f.th,f.ro,RES.tn,true)}</div>`:""}<div class="ren" lang="${rev?S.lang:"en"}" dir="auto">${esc(rev?th:en)}</div>${rev&&S.lang==="th"&&(rp=toneHTML(th,"","",true))?`<div class="rro">${rp}</div>`:""}</div>`+
-   `<div class="row actrow"><button class="ib speakbtn" data-a="sp">🔊 Speak</button><button class="ib showbtn" data-a="show" aria-label="Show full screen to the other person"><svg class="hand" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="1.5" width="11" height="17" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M11.5 4.5h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M8 11.5H6.6A1.8 1.8 0 0 0 4.8 13.3v3.4c0 3 2.4 5.8 5.6 5.8H14c1.6 0 3-1 3.5-2.5l.6-1.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 15h2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Show</button><button class="ib" data-a="more" aria-label="More options">⋯</button></div>`+
-   `<div class="row actrow"><select id="rcat" aria-label="Save to category" style="flex:1;min-width:0">${opts}<option value="__new">＋ New category…</option></select><button class="ib savebtn sm" data-a="save">💾 Save</button></div><input id="rcatNew" placeholder="New category name" style="display:none;margin-top:8px">`+
+   `<div class="row actrow"><button class="ib speakbtn" data-a="sp">🔊 Speak</button><button class="ib showbtn" data-a="show" aria-label="Show full screen to the other person"><svg class="hand" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="1.5" width="11" height="17" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M11.5 4.5h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M8 11.5H6.6A1.8 1.8 0 0 0 4.8 13.3v3.4c0 3 2.4 5.8 5.6 5.8H14c1.6 0 3-1 3.5-2.5l.6-1.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 15h2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Show</button></div>`+
+   `<div class="row actrow"><select id="rcat" aria-label="Save to category" style="flex:1;min-width:0">${opts}<option value="__new">＋ New category…</option></select><button class="ib savebtn sm" data-a="save">💾 Save</button></div><input id="rcatNew" placeholder="New category name" style="display:none;margin-top:8px"><button class="ib moreline" data-a="more">✏️ Copy · Edit · Check meaning</button>`+
    (note?`<div style="margin-top:10px;font-size:var(--fs-s)">${esc(note)}</div>`:"");
   const sg=suggestCat(en);
   $("rcat").value=cs.includes(sg)?sg:(cs.includes(cat)?cat:cs[0]);
@@ -1468,6 +1518,7 @@ $("hist").onclick=e=>{
 async function doTr(depth){
   const q=$("trIn").value.trim();
   if(!q)return;
+  if(DIR==="en"&&S.lang==="th"&&/^[\d,]+(\.\d+)?$/.test(q)&&q.replace(/\D/g,"").length<=12){openNum(q.replace(/,/g,""));return}
   if(!SKIPSAVED){
     if(DIR==="en"){
       const m=savedFor(q);
@@ -1575,7 +1626,7 @@ $("lang").onchange=e=>{S.lang=e.target.value;save();cat="All";qs="";$("q").value
 $("tabbar").onclick=e=>{
   const b=e.target.closest("[data-go]");if(!b)return;
   const g=b.dataset.go;
-  if(g==="tr"){$("tool").scrollIntoView({behavior:"smooth",block:"start"});$("trIn").focus({preventScroll:true})}
+  if(g==="tr"){window.scrollTo({top:0,behavior:"smooth"});$("trIn").focus({preventScroll:true})}
   else if(g==="board"){document.querySelector(".boardhead").scrollIntoView({behavior:"smooth",block:"start"})}
   else if(g==="add")$("fab").click();
   else if(g==="set")$("setBtn").click();
@@ -1878,15 +1929,15 @@ function paintReply(){
 function holdShow(id){
   const it=S.items.find(i=>i.id===id);if(!it)return;
   const v=vw(it),f=full({th:v.th,ro:v.ro,en:v.en,cat:it.cat,np:it.np,lang:S.lang});if(!f.th)return;
-  BIG.sub=true;showBig({th:f.th,ro:f.ro,en:f.en});
+  BIG.sub=true;showBig({th:f.th,ro:f.ro,en:f.en,id});
 }
 function replyGo(talk){
   const side=replySide();$("big").hidden=true;setDir(side);
-  $("tool").scrollIntoView({block:"start"});
+  window.scrollTo(0,0);
   if(talk)startMic();else $("trIn").focus();
 }
 $("bigTalk").onclick=()=>replyGo(true);$("bigType").onclick=()=>replyGo(false);
-function showBig(v){BIG.th=v.th;BIG.ro=v.ro||"";BIG.en=v.en||"";BIG.lang=v.lang||S.lang;BIG.tts=v.tts||"";$("big").hidden=false;paintReply();paintBig()}
+function showBig(v){BIG.id=v.id||"";$("bigFav").hidden=!BIG.id;paintFav();BIG.th=v.th;BIG.ro=v.ro||"";BIG.en=v.en||"";BIG.lang=v.lang||S.lang;BIG.tts=v.tts||"";$("big").hidden=false;paintReply();paintBig()}
 function paintBig(){
   const t=$("bigTxt");t.textContent=BIG.th;t.lang=BIG.lang||S.lang;
   $("bigSub").innerHTML=BIG.sub?`<div class="bsr">${(BIG.lang||S.lang)===S.lang?toneHTML(BIG.th,BIG.ro,"",!BIG.ro):esc(BIG.ro)}</div><div class="bse">${esc(BIG.en)}</div>`:"";
@@ -1902,6 +1953,8 @@ function fitBig(){
   while(lo<=hi){const mid=(lo+hi)>>1;el.style.fontSize=mid+"px";if(el.scrollWidth<=maxW&&el.offsetHeight<=maxH){best=mid;lo=mid+1}else hi=mid-1}
   el.style.fontSize=Math.max(20,Math.round(best*sc))+"px";
 }
+function paintFav(){const it=BIG.id&&S.items.find(i=>i.id===BIG.id);$("bigFav").textContent=it&&it.fav?"★ Fav":"☆ Fav"}
+$("bigFav").onclick=()=>{if(!BIG.id)return;toggleFav(BIG.id);paintFav()};
 $("bigX").onclick=()=>{$("big").hidden=true};
 $("bigPlus").onclick=()=>{S.bigScale=Math.min(1,(S.bigScale||0.85)+0.1);save();fitBig()};
 $("bigMinus").onclick=()=>{S.bigScale=Math.max(0.3,(S.bigScale||0.85)-0.1);save();fitBig()};
@@ -2118,15 +2171,71 @@ $("sEn").onchange=e=>{S.en=e.target.checked;save();render()};
 $("voice").onchange=e=>{S.voice=e.target.value;save();speak({th:"สวัสดี",cat:"Basics"})};
 $("reset").onclick=()=>{if(confirm("Replace all phrases with the defaults? Your added phrases will be lost.")){S.items=defaults();S.seen=Object.keys(D);S.applied=Object.keys(PATCHES);if(BAKED&&BAKED.items){fromBaked();S.bakedV=BAKED.v}applyPatches2();applyP3();applyP4();applyP5();applyP6();applyP7();applyP8();applyP9();applyP10();applyP11();applyP12();save();cat="All";render();$("setD").close()}};
 
-function dragTip(){
-  if(S.tipDrag)return;
-  const d=document.createElement("div");d.id="tip";d.setAttribute("role","dialog");
-  d.innerHTML=`<div class="tipic" aria-hidden="true">👆</div><div><b>Tip: rearrange your phrases</b><p>Press and hold a phrase until it lifts, then drag it where you want it.<br>Hold and let go without moving to show it full screen in Thai. Use Edit at the top to change a phrase.</p><button class="ib pri" id="tipOk">Got it</button></div>`;
-  document.body.appendChild(d);$("tipOk").onclick=()=>{S.tipDrag=1;save();d.remove()};
+
+/* number keypad: digits -> Thai words, worked out on the phone (no internet needed) */
+const NW={0:["ศูนย์","R","suun"],1:["หนึ่ง","L","neung"],2:["สอง","R","song"],3:["สาม","R","saam"],4:["สี่","L","sii"],5:["ห้า","F","haa"],6:["หก","L","hok"],7:["เจ็ด","L","jet"],8:["แปด","L","paet"],9:["เก้า","F","gao"]};
+const NX={sip:["สิบ","L","sip"],yii:["ยี่","F","yii"],et:["เอ็ด","L","et"],jut:["จุด","L","jut"],baat:["บาท","L","baat"],laan:["ล้าน","H","laan"]};
+const NP=[null,NX.sip,["ร้อย","H","roi"],["พัน","M","phan"],["หมื่น","L","muen"],["แสน","R","saen"]];
+function thNumWords(ds){/* ds: digit string without leading zeros, under a million */
+  const out=[],n=ds.length;
+  for(let k=0;k<n;k++){
+    const d=+ds[k],p=n-1-k;if(!d)continue;
+    if(p===1){if(d===2)out.push(NX.yii);else if(d!==1)out.push(NW[d]);out.push(NX.sip)}
+    else if(p===0){out.push(d===1&&n>1&&/[1-9]/.test(ds.slice(0,-1))?NX.et:NW[d])}
+    else out.push(NW[d],NP[p]);
+  }
+  return out;
 }
-(function(){if(S.tipDrag)return;const b=document.getElementById("chips");if(!b||!("IntersectionObserver" in window)){setTimeout(dragTip,1500);return}
-  const io=new IntersectionObserver(es=>{if(es.some(x=>x.isIntersecting)){io.disconnect();setTimeout(dragTip,600)}},{threshold:[0.6]});io.observe(b)})();
-load();applyTheme();refreshLang();render();loadVoices();renderHist();
+function thNum(str,baht){
+  let [ip,fp]=String(str).split(".");ip=(ip||"").replace(/^0+(?=\d)/,"");
+  let w=[];
+  if(!ip||/^0+$/.test(ip))w=[NW[0]];
+  else{const parts=[];let x=ip;while(x.length>6){parts.unshift(x.slice(-6));x=x.slice(0,-6)}parts.unshift(x);
+    parts.forEach((pt,i)=>{const t=pt.replace(/^0+/,"");if(t){const ww=thNumWords(t);if(i>0&&t==="1"&&w.length)ww[0]=NX.et;w.push(...ww)}if(i<parts.length-1&&(t||w.length))w.push(NX.laan)});
+    while(w.length>1&&w[w.length-1]===NX.laan&&w[w.length-2]===NX.laan)w.pop()}
+  if(fp!==undefined&&fp!==""){w.push(NX.jut);for(const c of fp)w.push(NW[+c])}
+  if(baht)w.push(NX.baat);
+  return{th:w.map(x=>x[0]).join(""),tn:w.map(x=>x[1]).join(""),ro:w.map(x=>phonFromRo(x[2])||x[2]).join(" ")};
+}
+let NKV="",NKB=!!S.numBaht;
+function numFmt(v){if(!v)return"0";const [a,b]=v.split(".");return a.replace(/\B(?=(\d{3})+(?!\d))/g,",")+(b!==undefined?"."+b:"")}
+function numPaint(){
+  $("nmVal").textContent=numFmt(NKV)+(NKB?" ฿":"");
+  $("nmBaht").classList.toggle("on",NKB);$("nmBaht").setAttribute("aria-pressed",NKB);
+  if(!NKV){$("nmTh").textContent="";$("nmRo").innerHTML="<span class='nmhint'>Tap the numbers below</span>";return}
+  const r=thNum(NKV,NKB);$("nmTh").textContent=r.th;$("nmRo").innerHTML=toneHTML(r.th,r.ro,r.tn);
+}
+function numKey(k){
+  if(k==="back")NKV=NKV.slice(0,-1);
+  else if(k==="."){if(!NKV.includes(".")&&NKV.replace(".","").length<12)NKV=(NKV||"0")+"."}
+  else{const [a,b]=NKV.split(".");if(b!==undefined?b.length<4:(a||"").length<12)NKV=(NKV==="0"?"":NKV)+k}
+  numPaint();
+}
+function openNum(v){NKV=v||"";NKB=!!S.numBaht;numPaint();if(!$("numD").open)$("numD").showModal()}
+$("numBtn").onclick=()=>openNum("");
+document.querySelectorAll("#numD [data-k]").forEach(b=>b.onclick=()=>numKey(b.dataset.k));
+$("numD").addEventListener("keydown",e=>{if(/^[0-9.]$/.test(e.key)){numKey(e.key);e.preventDefault()}else if(e.key==="Backspace"){numKey("back");e.preventDefault()}});
+$("nmBaht").onclick=()=>{NKB=!NKB;S.numBaht=NKB;save();numPaint()};
+$("nmClr").onclick=()=>{NKV="";numPaint()};
+$("nmPlay").onclick=()=>{if(NKV){const r=thNum(NKV,NKB);speak({th:r.th,ro:r.ro,en:numFmt(NKV),cat:"x",np:1,lang:"th"},"th-TH")}};
+$("nmShow").onclick=()=>{if(!NKV)return;const r=thNum(NKV,NKB);$("numD").close();BIG.sub=true;showBig({th:r.th,ro:r.ro,en:numFmt(NKV)+(NKB?" baht":""),tts:"th-TH"})};
+$("nmX").onclick=()=>$("numD").close();
+function dragTip(){
+  if(S.tipHold2||$("tip"))return;
+  const d=document.createElement("div");d.id="tip";d.setAttribute("role","dialog");
+  d.innerHTML=`<div><b>Using the phrases</b><ul><li><span aria-hidden="true">👆</span>Hold a phrase to show it full screen to a Thai speaker</li><li><span aria-hidden="true">✋</span>Hold and drag a phrase to move it</li><li><span aria-hidden="true">☆</span>To keep one in Favourites, hold it, then tap ☆ Fav</li><li><span aria-hidden="true">🔢</span>Tap 🔢 Numbers for a keypad that says any number in Thai</li></ul><button class="ib pri" id="tipOk">Got it</button></div>`;
+  document.body.appendChild(d);$("tipOk").onclick=()=>{S.tipHold2=1;S.tipHold=1;S.tipDrag=1;save();d.remove()};
+}
+/* show the tips once, the first time the tiles scroll into view */
+(function(){if(S.tipHold2)return;const m=document.getElementById("main");if(!m||!("IntersectionObserver" in window)){setTimeout(dragTip,1500);return}
+  const io=new IntersectionObserver(es=>{if(es.some(x=>x.isIntersecting)){io.disconnect();setTimeout(dragTip,400)}},{rootMargin:"0px 0px -45% 0px",threshold:0});io.observe(m)})();
+/* always open at the very top (phones otherwise restore an old scroll position) */
+try{if("scrollRestoration" in history)history.scrollRestoration="manual"}catch(e){}
+const toTop=()=>window.scrollTo(0,0);toTop();addEventListener("load",toTop);addEventListener("pageshow",toTop);
+load();
+/* one time: Numbers category first */
+if(!S.numFirst){try{const c=cats();S.catOrder=["Numbers",...c.filter(x=>x!=="Numbers")];S.numFirst=1;save()}catch(e){}}
+applyTheme();refreshLang();render();loadVoices();renderHist();
 if("speechSynthesis" in window)speechSynthesis.onvoiceschanged=loadVoices;
 $("polT").checked=S.polite;updatePol();
 function regNow(){return S.reg==="formal"?"formal":S.polite?"polite":"friends"}
