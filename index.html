@@ -470,7 +470,7 @@ html[data-look="glass"] .grid[data-gc] .tile.sel{box-shadow:inset 0 0 0 2px #fde
 .board .sec{font-size:16px!important;margin:14px 0 6px!important}
 .seeall{display:inline-block;width:auto;border:0;padding:4px 0;margin:4px 0 6px;text-align:left;font-size:15px;background:none}
 html[data-look="glass"] .seeall{color:#bae6fd}
-#nmBaht.on{background:var(--accent);color:var(--onaccent,#fff)}
+.nmunits .ib.on{background:var(--accent);color:var(--onaccent,#fff)}
 #tip .ib{min-height:40px;padding:4px 20px}
 .boardhead .bhint{font-size:13px;line-height:1.3;margin:6px 2px 2px;opacity:.85}
 html[data-look="glass"] .tile .en{color:#fde68a;font-weight:600;opacity:1}
@@ -486,6 +486,18 @@ html[data-look="glass"] .tile .en{color:#fde68a}
 input,textarea{caret-color:var(--accent)}
 html[data-look="glass"] input,html[data-look="glass"] textarea{caret-color:#fde68a}
 #trOut:empty{min-height:0!important;background:none!important}
+html{touch-action:manipulation}
+button,.ib,dialog,.nmkeys{touch-action:manipulation}
+.toplang{flex:1;min-width:0;margin:0!important;padding:4px 16px!important}
+.toplang .lb-n{font-size:var(--fs-m)}
+.bi{display:inline-flex;flex-direction:column;align-items:center;line-height:1.05;gap:1px}
+.bi .bth{font-size:1.15em;font-weight:700}
+.bi .ben{font-size:.62em;font-weight:500;opacity:.85}
+.spk{width:1.35em;height:1.35em;flex:none}
+#bigSpk,#nmPlay{display:inline-flex;align-items:center;justify-content:center;gap:6px}
+#nmShow .hand{width:1.3em;height:1.3em}
+.nmbtns .ib{min-width:0;padding-left:6px;padding-right:6px}
+html .nmunits .ib.on,html[data-look] .nmunits .ib.on{background:#fde68a!important;color:#1e3a8a!important;border-color:#fde68a!important;font-weight:700}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@500&display=swap" rel="stylesheet">
 </head>
@@ -493,7 +505,12 @@ html[data-look="glass"] input,html[data-look="glass"] textarea{caret-color:#fde6
 <div class="card top">
 <header>
   <div class="row">
-    <h1><span class="fl">🇹🇭</span> <span class="tt">Phil's Speakeasy</span></h1>
+    <label class="langbar toplang" for="lang">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/></svg>
+      <span class="lb-t"><span class="lb-s">Language<span id="lbCount" hidden>19</span></span><span id="lbName" class="lb-n">Thai</span></span>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+      <select id="lang" aria-label="Language"></select>
+  </label>
     <button class="ib big" id="setBtn" aria-label="Settings">⚙︎</button>
   </div>
   <div class="hrow toprow">
@@ -533,7 +550,7 @@ html[data-look="glass"] input,html[data-look="glass"] textarea{caret-color:#fde6
 <div id="big" hidden>
   <div id="bigBox"><div id="bigTxt" dir="auto"></div><div id="bigSub"></div></div>
   <div id="bigReply"><button class="ib micbtn" id="bigTalk"></button><button class="ib" id="bigType"></button></div>
-  <div id="bigBar"><button class="ib" id="bigMinus" aria-label="Smaller text">A−</button><button class="ib" id="bigPlus" aria-label="Bigger text">A+</button><button class="ib" id="bigSnd">Sounds</button><button class="ib" id="bigFav" hidden>☆ Fav</button><button class="ib" id="bigSpk">🔊</button><button class="ib" id="bigRot">Rotate</button><button class="ib" id="bigX">Close</button></div>
+  <div id="bigBar"><button class="ib" id="bigMinus" aria-label="Smaller text">A−</button><button class="ib" id="bigPlus" aria-label="Bigger text">A+</button><button class="ib" id="bigSnd">Sounds</button><button class="ib" id="bigFav" hidden>☆ Fav</button><button class="ib" id="bigSpk" aria-label="Play"><svg class="spk" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9.5h4l5-4.5v14l-5-4.5H3z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>Play</button><button class="ib" id="bigRot">Rotate</button><button class="ib" id="bigX">Close</button></div>
 </div>
 
 <dialog id="numD" aria-label="Number keypad">
@@ -546,8 +563,9 @@ html[data-look="glass"] input,html[data-look="glass"] textarea{caret-color:#fde6
     <button class="ib" data-k="7">7</button><button class="ib" data-k="8">8</button><button class="ib" data-k="9">9</button>
     <button class="ib" data-k=".">.</button><button class="ib" data-k="0">0</button><button class="ib" data-k="back" aria-label="Delete">⌫</button>
   </div>
-  <div class="nmbtns"><button class="ib" id="nmBaht" aria-pressed="false">฿ Baht</button><button class="ib" id="nmClr">Clear</button></div>
-  <div class="nmbtns"><button class="ib pri" id="nmPlay">🔊 Play</button><button class="ib" id="nmShow">Show</button><button class="ib" id="nmX">Close</button></div>
+  <div class="nmbtns nmunits"><button class="ib" data-u="baht" aria-pressed="false">฿ Baht</button><button class="ib" data-u="beer" aria-pressed="false">🍺 Beer</button><button class="ib" data-u="coffee" aria-pressed="false">☕ Coffee</button></div>
+  <div class="nmbtns"><button class="ib" id="nmClr">Clear</button></div>
+  <div class="nmbtns"><button class="ib pri" id="nmPlay"><svg class="spk" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9.5h4l5-4.5v14l-5-4.5H3z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>Play</button><button class="ib showbtn" id="nmShow"><svg class="hand" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="10.5" y="1" width="10" height="15" rx="2"/><path d="M14 3.5h3"/><path d="M10.5 6H8.7a1.35 1.35 0 0 0 0 2.7h1.8"/><path d="M10.5 8.7H8.4a1.35 1.35 0 0 0 0 2.7h2.1"/><path d="M10.5 11.4H8.7a1.35 1.35 0 0 0 0 2.7h1.8"/><path d="M7.6 6.6C6 7.6 5.2 9.5 5.3 12.2l.4 3.6"/><path d="M10.5 16l-.6 2"/><path d="M5.7 15.8L1.6 22.6"/><path d="M9.9 18L6.2 23.6"/></svg>Show</button><button class="ib" id="nmX">Close</button></div>
 </dialog>
 
 <dialog id="addD">
@@ -581,7 +599,7 @@ html[data-look="glass"] input,html[data-look="glass"] textarea{caret-color:#fde6
   <input id="ecatNew" placeholder="New category name" style="display:none;margin-top:8px">
   <button class="ib savebtn" id="edSave2" style="margin-top:12px">💾 Save changes</button>
   <button class="ib" id="edVerify" style="width:100%;margin-top:10px">✓ Mark as checked by a native speaker</button>
-  <div class="row" style="gap:8px;margin-top:10px;flex-wrap:wrap"><button class="ib" id="edUp">↑ Up</button><button class="ib" id="edDown">↓ Down</button><button class="ib" id="edTop">Top</button><button class="ib showbtn" id="edShow"><svg class="hand" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="1.5" width="11" height="17" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M11.5 4.5h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M8 11.5H6.6A1.8 1.8 0 0 0 4.8 13.3v3.4c0 3 2.4 5.8 5.6 5.8H14c1.6 0 3-1 3.5-2.5l.6-1.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 15h2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Show</button></div>
+  <div class="row" style="gap:8px;margin-top:10px;flex-wrap:wrap"><button class="ib" id="edUp">↑ Up</button><button class="ib" id="edDown">↓ Down</button><button class="ib" id="edTop">Top</button><button class="ib showbtn" id="edShow"><svg class="hand" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="10.5" y="1" width="10" height="15" rx="2"/><path d="M14 3.5h3"/><path d="M10.5 6H8.7a1.35 1.35 0 0 0 0 2.7h1.8"/><path d="M10.5 8.7H8.4a1.35 1.35 0 0 0 0 2.7h2.1"/><path d="M10.5 11.4H8.7a1.35 1.35 0 0 0 0 2.7h1.8"/><path d="M7.6 6.6C6 7.6 5.2 9.5 5.3 12.2l.4 3.6"/><path d="M10.5 16l-.6 2"/><path d="M5.7 15.8L1.6 22.6"/><path d="M9.9 18L6.2 23.6"/></svg>Show</button></div>
   <label for="ecopy">Copy to another category</label>
   <div class="row" style="gap:8px"><select id="ecopy" style="flex:1;min-width:0"></select><button class="ib" id="edCopy">Copy</button></div>
   <button class="ib" id="edDel" style="margin-top:10px;width:100%;color:#ef8f8a;border-color:#ef8f8a">🗑 Delete this phrase</button>
@@ -603,18 +621,12 @@ html[data-look="glass"] input,html[data-look="glass"] textarea{caret-color:#fde6
   <select id="bldT" aria-label="Sentence type" style="width:100%;margin-top:12px"></select>
   <div id="bldSlots"></div>
   <div id="bldOut" style="margin-top:12px"></div>
-  <div class="row actrow"><button class="ib speakbtn" id="bldSpk">🔊 Speak</button><button class="ib showbtn" id="bldShow" aria-label="Show full screen to the other person"><svg class="hand" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="1.5" width="11" height="17" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M11.5 4.5h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M8 11.5H6.6A1.8 1.8 0 0 0 4.8 13.3v3.4c0 3 2.4 5.8 5.6 5.8H14c1.6 0 3-1 3.5-2.5l.6-1.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 15h2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Show</button></div>
+  <div class="row actrow"><button class="ib speakbtn" id="bldSpk"><svg class="spk" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9.5h4l5-4.5v14l-5-4.5H3z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>Play</button><button class="ib showbtn" id="bldShow" aria-label="Show full screen to the other person"><svg class="hand" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="10.5" y="1" width="10" height="15" rx="2"/><path d="M14 3.5h3"/><path d="M10.5 6H8.7a1.35 1.35 0 0 0 0 2.7h1.8"/><path d="M10.5 8.7H8.4a1.35 1.35 0 0 0 0 2.7h2.1"/><path d="M10.5 11.4H8.7a1.35 1.35 0 0 0 0 2.7h1.8"/><path d="M7.6 6.6C6 7.6 5.2 9.5 5.3 12.2l.4 3.6"/><path d="M10.5 16l-.6 2"/><path d="M5.7 15.8L1.6 22.6"/><path d="M9.9 18L6.2 23.6"/></svg>Show</button></div>
   <div class="row actrow"><select id="bldCat" aria-label="Save to category" style="flex:1;min-width:0"></select><button class="ib savebtn sm" id="bldSave">💾 Save</button></div>
 </dialog>
 
 <dialog id="setD">
   <h3 style="margin:0">Settings</h3>
-  <label class="langbar" for="lang">
-    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/></svg>
-    <span class="lb-t"><span class="lb-s">Choose language<span id="lbCount" hidden>19</span></span><span id="lbName" class="lb-n">Thai</span></span>
-    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
-    <select id="lang" aria-label="Language"></select>
-  </label>
   <div class="hrow setq">
   </div>
   <label for="pol">Speaker (sets which polite ending, ครับ or ค่ะ, the Polite and Formal settings use)</label>
@@ -651,7 +663,7 @@ html[data-look="glass"] input,html[data-look="glass"] textarea{caret-color:#fde6
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 15 Oct 2026, build 38</div>
+  <div class="hint">Version: 15 Oct 2026, build 39</div>
   <label>Backup (everything on this device)</label>
   <div class="row"><button class="ib" id="exp" style="flex:1">Export backup</button><button class="ib" id="imp" style="flex:1">Import backup</button></div>
   <input type="file" id="file" accept=".json,application/json" hidden>
@@ -1247,6 +1259,7 @@ function loadVoices(){
    so keep a silent Web Audio track running around each utterance and give a cold speaker a moment first */
 let AC=null,acSrc=null,acStop=0,lastAudio=0;
 function audioAwake(){
+  if(RECON)return;
   try{
     const C=window.AudioContext||window.webkitAudioContext;if(!C)return;
     if(!AC)AC=new C();
@@ -1255,8 +1268,9 @@ function audioAwake(){
     if(!acSrc){const b=AC.createBuffer(1,AC.sampleRate,AC.sampleRate),g=AC.createGain();g.gain.value=0.0001;acSrc=AC.createBufferSource();acSrc.buffer=b;acSrc.loop=true;acSrc.connect(g).connect(AC.destination);acSrc.start()}
   }catch(e){}
 }
+function audioOff(){clearTimeout(acStop);try{if(acSrc){acSrc.stop();acSrc.disconnect()}}catch(e){}acSrc=null;try{if(AC){AC.close()}}catch(e){}AC=null}
 function audioSleepSoon(){clearTimeout(acStop);lastAudio=Date.now();acStop=setTimeout(()=>{try{if(acSrc){acSrc.stop();acSrc.disconnect()}}catch(e){}acSrc=null},4000)}
-["pointerdown","touchend","keydown"].forEach(ev=>document.addEventListener(ev,()=>{audioAwake();audioSleepSoon()},{once:true,capture:true}));
+["pointerdown","touchend","keydown"].forEach(ev=>document.addEventListener(ev,e=>{if(e.target&&e.target.closest&&e.target.closest("#trMic,#bigTalk"))return;audioAwake();audioSleepSoon()},{capture:true,once:true}));
 function speak(i,tts){
   const f=full(i);
   if(!("speechSynthesis" in window)){toast("Speech isn't supported in this browser.",true);return}
@@ -1497,8 +1511,8 @@ let DIR="en",RES=null;
 function whoLabels(){
   const th=DIR==="th",L=LG(),T=L.c==="th";
   $("trIn").placeholder=!th?"Type English, or tap Talk…":T?"พิมพ์ภาษาไทยที่นี่ หรือกด พูด":"Type or speak "+L.n+"…";
-  $("trGo").textContent=th&&T?"แปล":"Translate";
-  const ml=$("trMic").querySelector(".mlab");if(ml&&!RECON)ml.textContent=th&&T?"พูด":"Talk";
+  $("trGo").innerHTML=bi("แปล","Translate");
+  const ml=$("trMic").querySelector(".mlab");if(ml&&!RECON)ml.innerHTML=bi("พูด","Talk");
   $("tool").classList.toggle("thside",th);
 }
 function setDir(d){
@@ -1522,6 +1536,10 @@ function updatePol(){updReg();$("polTxt").textContent="Polite: "+(S.polite?"on":
 function shown(r){return r.dir==="en"?full({th:r.th,ro:sx(r),en:r.en,cat:"x"}):{th:r.th,ro:sx(r),en:r.en}}
 function reshow(){if(RES)showRes(RES.th,RES.ro,RES.en,RES.note,RES.auto,true,RES.ph,RES.alts)}
 const SUG=[["Emergency",/\b(help|police|ambulance|hospital|doctor|emergency|danger|lost|sick|medic)/i],["Eating",/\b(eat|food|drink|menu|water|coffee|tea|beer|rice|noodle|chicken|egg|fish|crab|shrimp|squid|lobster|spicy|sweet|the bill|hungry|thirsty|vegetarian|allerg)/i],["Getting around",/\b(where|toilet|bathroom|airport|hotel|taxi|bus|train|station|turn left|turn right|straight|stop here|how far|road|street|direction)/i],["Shopping",/\b(price|how much|cost|expensive|cheap|discount|buy|pay|card|cash|size|receipt)/i],["Schedule & meals",/\b(what time|when|call time|wrap|schedule|lunch|breakfast|tomorrow|today|yesterday|early|late)/i],["SFX",/\b(smoke|fog|rain|flame|spark|safe|safety|hide|clear the frame|get out of shot|extinguisher|glove|glasses|lighter|stand back)/i],["Technical",/\b(camera|lens|lighting|light|mic|microphone|battery|cable|generator|tripod|dolly|crane|focus|frame rate|iso|aperture|monitor|sound|audio)/i],["Film production",/\b(director|producer|crew|department|actor|script|editor|gaffer|grip|assistant)/i],["On set",/\b(scene|take|shot|rehears|quiet|set up|standing by|moving on|reset)/i],["Numbers",/^\s*\d+([.,]\d+)?\s*$|\b(one|two|three|four|five|six|seven|eight|nine|ten|hundred|thousand)\b/i],["Social",/\b(hello|hi there|goodbye|thank|sorry|please|nice to meet|how are you|good morning|good night|welcome)/i]];
+const SPK='<svg class="spk" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9.5h4l5-4.5v14l-5-4.5H3z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',HANDI='<svg class="hand" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="10.5" y="1" width="10" height="15" rx="2"/><path d="M14 3.5h3"/><path d="M10.5 6H8.7a1.35 1.35 0 0 0 0 2.7h1.8"/><path d="M10.5 8.7H8.4a1.35 1.35 0 0 0 0 2.7h2.1"/><path d="M10.5 11.4H8.7a1.35 1.35 0 0 0 0 2.7h1.8"/><path d="M7.6 6.6C6 7.6 5.2 9.5 5.3 12.2l.4 3.6"/><path d="M10.5 16l-.6 2"/><path d="M5.7 15.8L1.6 22.6"/><path d="M9.9 18L6.2 23.6"/></svg>';
+/* in Thai mode buttons show Thai large with English small underneath */
+function thMode(){return DIR==="th"&&LG().c==="th"}
+function bi(th,en){return thMode()?`<span class="bi"><span class="bth" lang="th">${th}</span><span class="ben">${en}</span></span>`:en}
 function suggestCat(en){for(const [c,re] of SUG)if(re.test(en||""))return c;return""}
 function showRes(th,ro,en,note,auto,nohist,ph,alts,tn){
   if(DIR==="en"&&S.lang==="th"){
@@ -1536,9 +1554,8 @@ function showRes(th,ro,en,note,auto,nohist,ph,alts,tn){
   const opts=cs.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");
   const rev=DIR!=="en";let rp;
   $("trOut").innerHTML=`<div class="bub"><div class="rth" lang="${rev?"en":S.lang}" dir="auto">${esc(rev?en:f.th)}</div>${(!rev&&f.ro)?`<div class="rro">${toneHTML(f.th,f.ro,RES.tn,true)}</div>`:""}<div class="ren" lang="${rev?S.lang:"en"}" dir="auto">${esc(rev?th:en)}</div>${rev&&S.lang==="th"&&(rp=toneHTML(th,"","",true))?`<div class="rro">${rp}</div>`:""}</div>`+
-   `<div class="row actrow"><button class="ib speakbtn" data-a="sp">🔊 Speak</button><button class="ib showbtn" data-a="show" aria-label="Show full screen to the other person"><svg class="hand" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="1.5" width="11" height="17" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M11.5 4.5h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M8 11.5H6.6A1.8 1.8 0 0 0 4.8 13.3v3.4c0 3 2.4 5.8 5.6 5.8H14c1.6 0 3-1 3.5-2.5l.6-1.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 15h2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Show</button></div>`+
-   `<div class="row actrow"><select id="rcat" aria-label="Save to category" style="flex:1;min-width:0">${opts}<option value="__new">＋ New category…</option></select><button class="ib savebtn sm" data-a="save">💾 Save</button></div><input id="rcatNew" placeholder="New category name" style="display:none;margin-top:8px"><button class="ib moreline" data-a="more">✏️ Copy · Edit · Check meaning</button>`+
-   (!rev&&S.lang==="th"?waysHTML(f.th):"")+
+   `<div class="row actrow"><button class="ib speakbtn" data-a="sp">${SPK}${bi("ฟัง","Play")}</button><button class="ib showbtn" data-a="show" aria-label="Show full screen to the other person">${HANDI}${bi("แสดง","Show")}</button></div>`+
+   `<div class="row actrow"><select id="rcat" aria-label="Save to category" style="flex:1;min-width:0">${opts}<option value="__new">＋ New category…</option></select><button class="ib savebtn sm" data-a="save">💾 ${bi("บันทึก","Save")}</button></div><input id="rcatNew" placeholder="New category name" style="display:none;margin-top:8px"><button class="ib moreline" data-a="more">✏️ Copy · Edit · Check meaning</button>`+
    (note?`<div style="margin-top:10px;font-size:var(--fs-s)">${esc(note)}</div>`:"");
   const sg=suggestCat(en);
   $("rcat").value=cs.includes(sg)?sg:(cs.includes(cat)?cat:(cs.find(c=>c!=="Numbers")||cs[0]));
@@ -1627,12 +1644,13 @@ function startMic(){
   if(RECON){try{REC.stop()}catch(e){}return}
   if(!SR){micMsg("Voice input isn't supported in this browser. Tap the microphone key on your keyboard to dictate instead.",false);$("trIn").focus();return}
   try{if(window.speechSynthesis)speechSynthesis.cancel()}catch(e){}
+  audioOff();
   let r;
   try{r=new SR()}catch(e){micMsg("Couldn't start voice input. Use the microphone key on your keyboard instead.",true);$("trIn").focus();return}
   REC=r;
   r.lang=DIR==="th"?LG().tts:"en-US";r.interimResults=true;r.continuous=false;r.maxAlternatives=1;
   let got=false,err=null;const t0=Date.now();
-  r.onstart=()=>{RECON=true;$("trMic").classList.add("rec");$("trMic").querySelector(".mlab").textContent=DIR==="th"&&LG().c==="th"?"กำลังฟัง":"Listening";micMsg("Listening… speak now",false)};
+  r.onstart=()=>{RECON=true;$("trMic").classList.add("rec");$("trMic").querySelector(".mlab").innerHTML=bi("กำลังฟัง","Listening");micMsg("Listening… speak now",false)};
   r.onresult=ev=>{
     let txt="";for(let i=0;i<ev.results.length;i++)txt+=ev.results[i][0].transcript;
     $("trIn").value=txt;
@@ -1660,7 +1678,7 @@ function refreshLang(){
   const ordered=LANGS.slice().sort((a,b)=>a.c==="th"?-1:b.c==="th"?1:a.n.localeCompare(b.n));
   $("lang").innerHTML=ordered.map(l=>`<option value="${l.c}">${l.n} · ${NAT[l.c]||""}</option>`).join("");$("lang").value=S.lang;
   $("lbName").textContent=L.n+" · "+(NAT[L.c]||"");$("lbCount").textContent=LANGS.length;
-  $("dirEn").innerHTML=`<b>🇬🇧 I speak</b><small>English → ${esc(L.n)}</small>`;$("dirTh").innerHTML=L.c==="th"?`<b>🇹🇭 ภาษาไทย</b><small>Thai speaker</small>`:`<b>${esc(NAT[L.c]||L.n)}</b><small>${esc(L.n)} → English</small>`;
+  $("dirEn").innerHTML=`<b>🇬🇧 English</b><small>English → ${esc(L.n)}</small>`;$("dirTh").innerHTML=L.c==="th"?`<b>🇹🇭 ภาษาไทย</b><small>Thai speaker</small>`:`<b>${esc(NAT[L.c]||L.n)}</b><small>${esc(L.n)} → English</small>`;
   $("thLbl").textContent=L.n+" text (leave empty to translate automatically)";
   $("edLbl").textContent=L.n+" text (spoken aloud)";
   $("th").placeholder=S.lang==="th"?"เช่น ขอกาแฟหน่อย":"";
@@ -2219,7 +2237,7 @@ $("reset").onclick=()=>{if(confirm("Replace all phrases with the defaults? Your 
 
 /* number keypad: digits -> Thai words, worked out on the phone (no internet needed) */
 const NW={0:["ศูนย์","R","suun"],1:["หนึ่ง","L","neung"],2:["สอง","R","song"],3:["สาม","R","saam"],4:["สี่","L","sii"],5:["ห้า","F","haa"],6:["หก","L","hok"],7:["เจ็ด","L","jet"],8:["แปด","L","paet"],9:["เก้า","F","gao"]};
-const NX={sip:["สิบ","L","sip"],yii:["ยี่","F","yii"],et:["เอ็ด","L","et"],jut:["จุด","L","jut"],baat:["บาท","L","baat"],laan:["ล้าน","H","laan"]};
+const NX={sip:["สิบ","L","sip"],yii:["ยี่","F","yii"],et:["เอ็ด","L","et"],jut:["จุด","L","jut"],baat:["บาท","L","baat"],bia:["เบียร์","M","bia"],kuat:["ขวด","L","kuat"],gaa:["กา","M","gaa"],fae:["แฟ","M","fae"],gaeo:["แก้ว","F","gaeo"],laan:["ล้าน","H","laan"]};
 const NP=[null,NX.sip,["ร้อย","H","roi"],["พัน","M","phan"],["หมื่น","L","muen"],["แสน","R","saen"]];
 function thNumWords(ds){/* ds: digit string without leading zeros, under a million */
   const out=[],n=ds.length;
@@ -2239,14 +2257,18 @@ function thNum(str,baht){
     parts.forEach((pt,i)=>{const t=pt.replace(/^0+/,"");if(t){const ww=thNumWords(t);if(i>0&&t==="1"&&w.length)ww[0]=NX.et;w.push(...ww)}if(i<parts.length-1&&(t||w.length))w.push(NX.laan)});
     while(w.length>1&&w[w.length-1]===NX.laan&&w[w.length-2]===NX.laan)w.pop()}
   if(fp!==undefined&&fp!==""){w.push(NX.jut);for(const c of fp)w.push(NW[+c])}
-  if(baht)w.push(NX.baat);
+  if(baht===true||baht==="baht")w.push(NX.baat);
+  else if(baht==="beer"){w.unshift(NX.bia);w.push(NX.kuat)}
+  else if(baht==="coffee"){w.unshift(NX.gaa,NX.fae);w.push(NX.gaeo)}
   return{th:w.map(x=>x[0]).join(""),tn:w.map(x=>x[1]).join(""),ro:w.map(x=>phonFromRo(x[2])||x[2]).join(" ")};
 }
-let NKV="",NKB=!!S.numBaht;
+const NUNIT={baht:[" ฿"," baht"],beer:[" 🍺"," beers"],coffee:[" ☕"," coffees"]};
+let NKV="",NKB="";
+function nkU(){return S.numUnit!==undefined?S.numUnit:(S.numBaht?"baht":"")}
 function numFmt(v){if(!v)return"0";const [a,b]=v.split(".");return a.replace(/\B(?=(\d{3})+(?!\d))/g,",")+(b!==undefined?"."+b:"")}
 function numPaint(){
-  $("nmVal").textContent=numFmt(NKV)+(NKB?" ฿":"");
-  $("nmBaht").classList.toggle("on",NKB);$("nmBaht").setAttribute("aria-pressed",NKB);
+  $("nmVal").textContent=numFmt(NKV)+(NKB?NUNIT[NKB][0]:"");
+  document.querySelectorAll("#numD [data-u]").forEach(b=>{const on=b.dataset.u===NKB;b.classList.toggle("on",on);b.setAttribute("aria-pressed",on)});
   if(!NKV){$("nmTh").textContent="";$("nmRo").innerHTML="<span class='nmhint'>Tap the numbers below</span>";return}
   const r=thNum(NKV,NKB);$("nmTh").textContent=r.th;$("nmRo").innerHTML=toneHTML(r.th,r.ro,r.tn);
 }
@@ -2256,14 +2278,14 @@ function numKey(k){
   else{const [a,b]=NKV.split(".");if(b!==undefined?b.length<4:(a||"").length<12)NKV=(NKV==="0"?"":NKV)+k}
   numPaint();
 }
-function openNum(v){NKV=v||"";NKB=!!S.numBaht;numPaint();if(!$("numD").open)$("numD").showModal()}
+function openNum(v){NKV=v||"";NKB=nkU();numPaint();if(!$("numD").open)$("numD").showModal()}
 $("numBtn").onclick=()=>openNum("");
 document.querySelectorAll("#numD [data-k]").forEach(b=>b.onclick=()=>numKey(b.dataset.k));
 $("numD").addEventListener("keydown",e=>{if(/^[0-9.]$/.test(e.key)){numKey(e.key);e.preventDefault()}else if(e.key==="Backspace"){numKey("back");e.preventDefault()}});
-$("nmBaht").onclick=()=>{NKB=!NKB;S.numBaht=NKB;save();numPaint()};
+document.querySelectorAll("#numD [data-u]").forEach(b=>b.onclick=()=>{NKB=NKB===b.dataset.u?"":b.dataset.u;S.numUnit=NKB;save();numPaint()});
 $("nmClr").onclick=()=>{NKV="";numPaint()};
 $("nmPlay").onclick=()=>{if(NKV){const r=thNum(NKV,NKB);speak({th:r.th,ro:r.ro,en:numFmt(NKV),cat:"x",np:1,lang:"th"},"th-TH")}};
-$("nmShow").onclick=()=>{if(!NKV)return;const r=thNum(NKV,NKB);$("numD").close();BIG.sub=true;showBig({th:r.th,ro:r.ro,en:numFmt(NKV)+(NKB?" baht":""),tts:"th-TH"})};
+$("nmShow").onclick=()=>{if(!NKV)return;const r=thNum(NKV,NKB);$("numD").close();BIG.sub=true;showBig({th:r.th,ro:r.ro,en:numFmt(NKV)+(NKB?(NKV==="1"?NUNIT[NKB][1].replace(/s$/,""):NUNIT[NKB][1]):""),tts:"th-TH"})};
 $("nmX").onclick=()=>$("numD").close();
 
 /* "Ways to say it" under a translation: how words are really said (B) and casual/polite/formal word swaps (D) */
@@ -2339,6 +2361,7 @@ if(!S.num2){try{const add=[["สองร้อย","song roi","200"],["สา�
   const its=add.map(([th,ro,en])=>({id:uid(),th,ro,en,cat:"Numbers",np:1}));
   if(at<0)S.items.push(...its);else S.items.splice(at+1,0,...its);S.num2=1;save()}catch(e){}}
 if(!S.numFirst){try{const c=cats();S.catOrder=["Numbers",...c.filter(x=>x!=="Numbers")];S.numFirst=1;save()}catch(e){}}
+if(!S.fr1){S.regV=1;S.reg="casual";S.polite=false;S.fr1=1;save()}
 applyTheme();refreshLang();render();loadVoices();renderHist();
 if("speechSynthesis" in window)speechSynthesis.onvoiceschanged=loadVoices;
 $("polT").checked=S.polite;updatePol();
