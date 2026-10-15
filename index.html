@@ -292,6 +292,17 @@ header{padding:6px 16px 0}
 #bigSub .bse{font-size:var(--fs-m);color:var(--mute)}
 #bigBar{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px))}
 #bigBar .ib{min-height:46px;padding:2px 16px;font-size:var(--fs-s)}
+#bigBar #bigX,html[data-look] #bigBar #bigX{background:#fde68a!important;color:#1e3a8a!important;border:0!important;font-weight:700;padding-left:22px;padding-right:22px}
+.npic{font-size:30px;line-height:1;margin-right:8px;vertical-align:middle;display:inline-block}
+#numBtn .npic{font-size:26px}
+.grid[data-gc] .tile.numpill .en{display:inline-flex;align-items:center;color:#172554!important;font-weight:800;text-shadow:none}
+/* every Close button looks the same: gold */
+#bigX,#nmX,#addCancel,#edCancel,#moreClose,#bldClose,html[data-look] #bigX,html[data-look] #nmX,html[data-look] #addCancel,html[data-look] #edCancel,html[data-look] #moreClose,html[data-look] #bldClose{background:#fde68a!important;color:#172554!important;border:0!important;font-weight:700}
+#undoBar{position:fixed;left:12px;right:12px;bottom:calc(96px + env(safe-area-inset-bottom,0px));z-index:55;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px 10px 18px;border-radius:999px;background:#172554;color:#fff;font-size:18px;font-weight:600;box-shadow:0 12px 30px rgba(0,0,0,.35)}
+#undoBar[hidden]{display:none}
+#undoBar .ib,html[data-look] #undoBar .ib{background:#fde68a!important;color:#172554!important;border:0!important;min-height:44px;padding:0 18px;font-size:18px;font-weight:700}
+.bhint2 b{color:var(--ink);font-weight:600}
+.bhint2{font-size:14px;line-height:1.3;color:var(--mute);margin:-2px 2px 8px;opacity:.9}
 #moreAlts .ib small{font-size:var(--fs-s)}
 #bldSlots select,#bldT{width:100%}
 @media (max-height:900px){.sec{margin:10px 0 6px}}
@@ -326,8 +337,9 @@ html,body{overflow-x:hidden;max-width:100%}
 .showbtn .hand{width:1.2em;height:1.2em;flex:none}
 .actrow .speakbtn,.actrow .showbtn{flex:1 1 0;min-width:0;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding-left:10px;padding-right:10px;white-space:nowrap}
 .actrow .speakbtn,.actrow .showbtn{min-height:56px!important;height:56px;font-size:var(--fs-m)!important;font-weight:600;padding-top:0!important;padding-bottom:0!important;box-sizing:border-box}
-.grid[data-gc] .tile.numpill{background:#fde68a!important}
-.grid[data-gc] .tile.numpill .en{color:#1e3a8a!important;font-weight:700}
+.grid[data-gc] .tile.numpill,html[data-look] .grid[data-gc] .tile.numpill{background:#fde68a!important}
+.grid[data-gc] .tile.numpill .en{color:#1e3a8a!important;font-weight:700;font-size:22px!important}
+.grid[data-gc] .tile.numpill{flex:1 1 100%;width:100%;justify-content:center!important;min-height:60px!important;margin-bottom:4px}
 .ways{margin-top:14px;padding:12px;border-radius:18px;background:rgba(15,23,60,.32)}
 .wayh{font-weight:700;font-size:18px;margin-bottom:4px}
 .waysub{font-size:13px;color:var(--mute);text-transform:uppercase;letter-spacing:.05em;margin:10px 0 4px}
@@ -503,8 +515,8 @@ html[data-look="glass"] input,html[data-look="glass"] textarea{caret-color:#fde6
 </section>
 </div>
 <div class="card board">
-<div class="boardhead"><div class="bhrow"><div class="sec2">Phrase board</div><button class="ib" id="editBtn">Edit</button></div><input id="q" type="search" placeholder="Search phrases">
-  <div class="bldrow"><button class="ib" id="bldBtn">Build a sentence</button><button class="ib" id="numBtn">🔢 Numbers</button></div></div>
+<div class="boardhead"><div class="bhrow"><div class="sec2">Phrase board</div><button class="ib" id="editBtn">Edit</button></div><div class="bhint2"><b>Tap</b> a phrase to hear it · <b>Hold ½ second, then let go</b> to show it full screen · <b>Hold, then slide</b> to move it</div><input id="q" type="search" placeholder="Search phrases">
+  <div class="bldrow"><button class="ib" id="bldBtn">Build a sentence</button><button class="ib" id="numBtn"><span class="npic" aria-hidden="true">🔢</span>Numbers</button></div></div>
 <div class="chips" id="chips"></div>
 <main id="main"></main>
 </div>
@@ -516,6 +528,7 @@ html[data-look="glass"] input,html[data-look="glass"] textarea{caret-color:#fde6
   <button data-go="set"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>Settings</button>
 </nav>
 <div id="toast" role="status" aria-live="polite"></div>
+<div id="undoBar" hidden><span id="undoMsg">Moved</span><button class="ib" id="undoBtn" type="button">↶ Undo</button></div>
 <div id="undoBar" hidden><span id="undoMsg"></span><button class="ib" id="undoBtn">Undo</button></div>
 <div id="big" hidden>
   <div id="bigBox"><div id="bigTxt" dir="auto"></div><div id="bigSub"></div></div>
@@ -638,7 +651,7 @@ html[data-look="glass"] input,html[data-look="glass"] textarea{caret-color:#fde6
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 15 Oct 2026, build 32</div>
+  <div class="hint">Version: 15 Oct 2026, build 38</div>
   <label>Backup (everything on this device)</label>
   <div class="row"><button class="ib" id="exp" style="flex:1">Export backup</button><button class="ib" id="imp" style="flex:1">Import backup</button></div>
   <input type="file" id="file" accept=".json,application/json" hidden>
@@ -1051,7 +1064,7 @@ const LANGS=[
 {c:"zt",n:"Chinese (Traditional)",tts:"zh-TW",mm:"zh-TW"},{c:"my",n:"Burmese",tts:"my-MM",mm:"my"},{c:"ta",n:"Tamil",tts:"ta-IN",mm:"ta"},{c:"bn",n:"Bengali",tts:"bn-BD",mm:"bn"},{c:"ur",n:"Urdu",tts:"ur-PK",mm:"ur"},{c:"fa",n:"Persian",tts:"fa-IR",mm:"fa"},{c:"tr",n:"Turkish",tts:"tr-TR",mm:"tr"},{c:"pl",n:"Polish",tts:"pl-PL",mm:"pl"},{c:"nl",n:"Dutch",tts:"nl-NL",mm:"nl"},{c:"sv",n:"Swedish",tts:"sv-SE",mm:"sv"},{c:"el",n:"Greek",tts:"el-GR",mm:"el"},{c:"he",n:"Hebrew",tts:"he-IL",mm:"he"},{c:"uk",n:"Ukrainian",tts:"uk-UA",mm:"uk"},{c:"ne",n:"Nepali",tts:"ne-NP",mm:"ne"},{c:"si",n:"Sinhala",tts:"si-LK",mm:"si"},{c:"mn",n:"Mongolian",tts:"mn-MN",mm:"mn"},{c:"kk",n:"Kazakh",tts:"kk-KZ",mm:"kk"},{c:"sw",n:"Swahili",tts:"sw-KE",mm:"sw"},{c:"cs",n:"Czech",tts:"cs-CZ",mm:"cs"},{c:"ro",n:"Romanian",tts:"ro-RO",mm:"ro"},{c:"hu",n:"Hungarian",tts:"hu-HU",mm:"hu"}];
 const NAT={th:"ไทย",vi:"Tiếng Việt",lo:"ລາວ",km:"ខ្មែរ",zh:"中文",ja:"日本語",ko:"한국어",id:"Bahasa Indonesia",ms:"Bahasa Melayu",tl:"Filipino",hi:"हिन्दी",es:"Español",fr:"Français",de:"Deutsch",it:"Italiano",pt:"Português",ru:"Русский",ar:"العربية",uz:"Oʻzbekcha",zt:"繁體中文",my:"မြန်မာ",ta:"தமிழ்",bn:"বাংলা",ur:"اردو",fa:"فارسی",tr:"Türkçe",pl:"Polski",nl:"Nederlands",sv:"Svenska",el:"Ελληνικά",he:"עברית",uk:"Українська",ne:"नेपाली",si:"සිංහල",mn:"Монгол",kk:"Қазақша",sw:"Kiswahili",cs:"Čeština",ro:"Română",hu:"Magyar"};
 function LG(){return LANGS.find(l=>l.c===S.lang)||LANGS[0]}
-const ORDER=["My vocab","SFX","On set","Schedule & meals","Film production","Technical","Basics","Eating","Getting around","Shopping","Numbers","Social","Emergency"];
+const ORDER=["My vocab","SFX","Prosthetics & makeup","On set","Schedule & meals","Film production","Technical","Basics","Eating","Getting around","Shopping","Numbers","Social","Emergency"];
 const cats=()=>{const a=[...new Set(S.items.map(i=>i.cat))];const co=S.catOrder||[];const r=c=>{let k=co.indexOf(c);if(k>=0)return k;k=ORDER.indexOf(c);return k<0?999:100+k};return a.map((c,n)=>[c,n]).sort((x,y)=>r(x[0])-r(y[0])||x[1]-y[1]).map(x=>x[0])};
 
 // Polite particle: ครับ (male) / ค่ะ statements, คะ questions (female)
@@ -1104,7 +1117,7 @@ const TLEX={
 "กว้าง":"F gwaang","แพน":"M phaen","ซูม":"M suum","เข้า":"F khao","ออก":"L ok","โฟกัส":"ML foh-gat","หลุด":"L lut","ปิด":"L pit",
 "มือถือ":"MR meu-thue","ห้าม":"F haam","ข้าว":"F khaao","คราฟต์":"F khraap","เซอร์วิส":"MH soe-wit","โต๊ะ":"H to","ขนม":"LR kha-nom","คอลไทม์":"MM khon-thaim",
 "เวลา":"MM we-laa","เตรียม":"M triam","ต้อง":"F tong","ใบ":"M bai","อนุญาต":"LHF a-nu-yaat","ทุก":"H thuk","เลนส์":"M len","ขา":"R khaa",
-"ดอลลี่":"MF don-lii","สเตดิแคม":"LMMM sa-te-dii-khaem","แอลอีดี":"MMM ael-ii-dii","ฟิลเตอร์":"MM fin-ter","ปั่น":"L pan","สาย":"R saai","ปลั๊ก":"H plak","พ่วง":"F phuang",
+"ดอลลี่":"MF don-lii","สเตดิแคม":"LMMM sa-te-dii-khaem","แอลอีดี":"MMM ael-ii-dii","ฟิลเตอร์":"MM fin-ter","ปั่น":"L pan","สาย":"R saai","ปลั๊ก":"H plak","หัวแปลงปลั๊ก":"RMH hua-plaeng-plak","อะแดปเตอร์":"LLM a-daep-ter","ปลั๊กพ่วง":"HF plak-puang","อ่างล้างมือ":"LHM aang-laang-meu","สายยาง":"RM saai-yaang","พ่วง":"F puang","แปลง":"M plaeng","พ่วง":"F phuang",
 "แบตเตอรี่":"LMF baet-toe-rii","การ์ด":"M gaat","จำ":"M jam","หู":"R huu","ฟัง":"M fang","วอล์กกี้":"HF wok-gii","ทอล์กกี้":"HF thok-gii","ไร้สาย":"HR rai-saai",
 "ปก":"L pok","รู":"M ruu","รับ":"H rap","แสง":"R saeng","ไว":"M wai","เร็ว":"M reo","ชัตเตอร์":"HM chat-toe","เฟรม":"M frem",
 "เรต":"H ret","ไวต์":"M wai","บาลานซ์":"MM baa-laan","ชัด":"H chat","ลึก":"H leuk","ระดับ":"HL ra-dap","ใช้":"H chai","แบต":"L baet",
@@ -1261,7 +1274,7 @@ function speak(i,tts){
   if(!v&&voicesLoaded)toast("No "+(tts?"English":LG().n)+" voice found on this phone. Add one in Settings > Accessibility > Spoken Content > Voices.",true);
 }
 
-const CMAP={"On set":"#f0d58c","SFX":"#f2a99b","Film production":"#8db4e6","Technical":"#9fcfae","Schedule & meals":"#f4c7a1","Basics":"#d8cdea","Eating":"#f0a8c0","Getting around":"#7cc7c4","Shopping":"#b9a7e0","Numbers":"#c9dc9a","Social":"#f4b8a0","Emergency":"#ef8f8a"};
+const CMAP={"On set":"#f0d58c","SFX":"#f2a99b","Prosthetics & makeup":"#e9a8d8","Film production":"#8db4e6","Technical":"#9fcfae","Schedule & meals":"#f4c7a1","Basics":"#d8cdea","Eating":"#f0a8c0","Getting around":"#7cc7c4","Shopping":"#b9a7e0","Numbers":"#c9dc9a","Social":"#f4b8a0","Emergency":"#ef8f8a"};
 const PAL=["#f0d58c","#8db4e6","#9fcfae","#b9a7e0","#f0a8c0","#7cc7c4","#c9dc9a","#f4b8a0"];
 function colr(c){if(c==="All")return"#e9e5f4";if(c==="__r")return"#f3d27a";if(c==="__f")return"#f2c14e";if(CMAP[c])return CMAP[c];let h=0;for(const ch of c)h=(h*31+ch.charCodeAt(0))>>>0;return PAL[h%PAL.length]}
 function selBarHTML(){
@@ -1298,7 +1311,7 @@ function render(){
       h+=`<div class="sec" style="--c:${colr(c)}">${esc(c)}${mv}</div>`;
     }
     const cut=everywhere&&!ql&&!edit&&c!=="Numbers"&&list.length>PREVIEW;
-    h+=`<div class="grid" data-gc="${esc(c)}">`+(c==="Numbers"&&!edit?`<button class="tile numpill" data-numpad="1" type="button"><span class="en">🔢 Type any number</span></button>`:"")+(cut?list.slice(0,PREVIEW):list).map(tileHTML).join("")+`</div>`;
+    h+=`<div class="grid" data-gc="${esc(c)}">`+(c==="Numbers"&&!edit?`<button class="tile numpill" data-numpad="1" type="button"><span class="en"><span class="npic" aria-hidden="true">🔢</span>Type any number</span></button>`:"")+(cut?list.slice(0,PREVIEW):list).map(tileHTML).join("")+`</div>`;
     if(cut)h+=`<button class="seeall" data-see="${esc(c)}">See all ${list.length} ${esc(c)} →</button>`;
   });
   const emptyMsg=cat==="__f"&&!ql?"No favourites yet. Tap the star on any phrase to keep it here.":cat==="__r"&&!ql?"Nothing yet. Phrases you tap will show up here, newest first.":cat==="__t"&&!ql?"Nothing yet. Everything you translate will be kept here so you can replay it and save it to your vocab.":"Nothing here. Tap Add to add a phrase.";
@@ -1344,10 +1357,16 @@ function retag(it,c){
   it.cat=c;
   if(it.orig){const o=it.orig;it.edited=(it.th!==o.th||it.en!==o.en||it.cat!==o.cat||(it.ro||"")!==(o.ro||"")||(it.ph||"")!==(o.ph||""))?1:0}
 }
+/* undo for the last move */
+let UNDO=null,undoT=0;
+function offerUndo(msg,fn){UNDO=fn;$("undoMsg").textContent=msg;$("undoBar").hidden=false;clearTimeout(undoT);undoT=setTimeout(()=>{$("undoBar").hidden=true;UNDO=null},7000)}
+$("undoBtn").onclick=()=>{if(!UNDO)return;UNDO();UNDO=null;save();try{markChanged()}catch(x){}render();$("undoBar").hidden=true;toast("Undone")};
 function moveCat(c,dir){
   const o=cats();const k=o.indexOf(c),j=k+(dir==="up"?-1:1);
   if(k<0||j<0||j>=o.length)return;
+  const before=S.catOrder?S.catOrder.slice():null;
   [o[k],o[j]]=[o[j],o[k]];S.catOrder=o;save();render();markChanged();
+  offerUndo("Category moved",()=>{S.catOrder=before});
 }
 function moveItem(id,dir){
   const it=S.items.find(i=>i.id===id);if(!it)return;
@@ -1416,8 +1435,9 @@ function dragEnd(){
   if(!moved){holdShow(t.dataset.id);return}
   const ids=[...grid.querySelectorAll(".tile[data-id]")].map(d=>d.dataset.id);
   const objs=ids.map(id=>S.items.find(i=>i.id===id)),slots=objs.map(o=>S.items.indexOf(o)).sort((a,b)=>a-b);
+  const before=S.items.slice();
   slots.forEach((p,k)=>{S.items[p]=objs[k]});
-  save();try{markChanged()}catch(x){}render();toast("Moved");
+  save();try{markChanged()}catch(x){}render();offerUndo("Phrase moved",()=>{S.items=before});
 }
 mainEl.addEventListener("pointermove",e=>{if(DRAG){dragMove(e.clientX,e.clientY);return}if(Math.abs(e.clientX-LX)>10||Math.abs(e.clientY-LY)>10)clearTimeout(LPT)});
 document.addEventListener("touchmove",e=>{if(DRAG){e.preventDefault();const p=e.touches[0];dragMove(p.clientX,p.clientY)}},{passive:false});
@@ -2287,14 +2307,32 @@ function dragTip(){
   d.innerHTML=`<div><b>Using the phrases</b><ul><li><span aria-hidden="true">👆</span>Hold a phrase to show it full screen to a Thai speaker</li><li><span aria-hidden="true">✋</span>Hold and drag a phrase to move it</li><li><span aria-hidden="true">☆</span>To keep one in Favourites, hold it, then tap ☆ Fav</li><li><span aria-hidden="true">🔢</span>Tap 🔢 Numbers for a keypad that says any number in Thai</li></ul><button class="ib pri" id="tipOk">Got it</button></div>`;
   document.body.appendChild(d);$("tipOk").onclick=()=>{S.tipHold2=1;S.tipHold=1;S.tipDrag=1;save();d.remove()};
 }
-/* show the tips once, the first time the tiles scroll into view */
-(function(){if(S.tipHold2)return;const m=document.getElementById("main");if(!m||!("IntersectionObserver" in window)){setTimeout(dragTip,1500);return}
-  const io=new IntersectionObserver(es=>{if(es.some(x=>x.isIntersecting)){io.disconnect();setTimeout(dragTip,400)}},{rootMargin:"0px 0px -45% 0px",threshold:0});io.observe(m)})();
 /* always open at the very top (phones otherwise restore an old scroll position) */
 try{if("scrollRestoration" in history)history.scrollRestoration="manual"}catch(e){}
 const toTop=()=>window.scrollTo(0,0);toTop();addEventListener("load",toTop);addEventListener("pageshow",toTop);
 load();
 /* one time: Numbers category first */
+/* one time: power adapters in Technical */
+if(!S.tech1){try{[["Technical",[["หัวแปลงปลั๊ก","hua plaeng plak","Adapter (plug)"],["อะแดปเตอร์","a-daep-ter","Power adapter"],["ปลั๊กพ่วง","plak puang","Powerboard"]]]].forEach(([cat,list])=>{
+    const add=list.filter(([t])=>!S.items.some(i=>i.th===t&&i.cat===cat));
+    let at=-1;S.items.forEach((x,n)=>{if(x.cat===cat)at=n});
+    const its=add.map(([th,ro,en])=>({id:uid(),th,ro,en,cat,np:1}));
+    if(at<0)S.items.push(...its);else S.items.splice(at+1,0,...its)});
+  S.tech1=1;save()}catch(e){}}
+/* one time: Prosthetics & makeup category, placed right after SFX */
+if(!S.pros1){try{const PC="Prosthetics & makeup";
+  [["ขอเติมเมคอัพหน่อย", "khor term mek-ap noi", "Makeup touch-up, please", 0], ["ถึงเวลาแต่งหน้าแล้ว", "teung we-la taeng naa laeo", "Time for makeup", 0], ["อยู่นิ่งๆ นะ", "yoo ning ning na", "Hold still, please", 0], ["หลับตา", "lap taa", "Close your eyes", 0], ["ลืมตา", "leum taa", "Open your eyes", 0], ["มองขึ้น", "mong keun", "Look up", 0], ["มองลง", "mong long", "Look down", 0], ["ทำหน้าเฉยๆ", "tam naa choei choei", "Relax your face", 0], ["เจ็บไหม", "jep mai", "Does it hurt?", 0], ["คันไหม", "kan mai", "Is it itchy?", 0], ["ร้อนไหม", "ron mai", "Is it too hot?", 0], ["ถ้าเจ็บบอกนะ", "taa jep bok na", "Tell me if it hurts", 0], ["แพ้อะไรไหม", "phae a-rai mai", "Any allergies?", 0], ["อย่าจับหน้า", "yaa jap naa", "Don't touch your face", 0], ["อย่าขยี้", "yaa ka-yee", "Don't rub it", 0], ["อย่าเพิ่งกินหรือดื่มอะไร", "yaa perng gin reu deum a-rai", "Don't eat or drink yet", 0], ["ใช้หลอดนะ", "chai lot na", "Use a straw", 0], ["ต้องถอดชิ้นงานออก", "dtong tot chin ngaan ork", "We need to take the prosthetic off", 0], ["ใช้เวลาประมาณหนึ่งชั่วโมง", "chai we-la bpra-maan neung chua-mong", "It takes about an hour", 0], ["เลือดปลอม", "leuat bplom", "Fake blood", 1], ["กาว", "gaao", "Glue / adhesive", 1], ["น้ำยาล้าง", "nam-yaa laang", "Remover", 1], ["ชิ้นซิลิโคน", "chin si-li-kon", "Silicone piece", 1], ["วิก", "wik", "Wig", 1], ["กระจก", "gra-jok", "Mirror", 1], ["ฟองน้ำ", "fong nam", "Sponge", 1], ["แปรง", "bpraeng", "Brush", 1], ["ทิชชู่", "tit-choo", "Tissue", 1], ["เหงื่อ", "ngeua", "Sweat", 1], ["อ่างล้างมือ", "aang laang mue", "Sink", 1], ["น้ำ", "nam", "Water", 1], ["ล้าง", "laang", "Wash", 1], ["ทำความสะอาด", "tam kwaam sa-aat", "Clean", 1], ["สายยาง", "saai yaang", "Hose", 1], ["ผ้าขนหนู", "phaa kon noo", "Towel", 1]].forEach(([th,ro,en,np])=>{if(!S.items.some(i=>i.th===th&&i.cat===PC))S.items.push({id:uid(),th,ro,en,cat:PC,np})});
+  const o=cats().filter(c=>c!==PC),k=o.indexOf("SFX");o.splice(k<0?o.length:k+1,0,PC);S.catOrder=o;
+  const ex=S.items.find(i=>i.th==="ปลั๊กพ่วง"&&i.en==="Extension cord");if(ex)ex.en="Powerboard / extension cord";
+  S.pros1=1;save()}catch(e){}}
+/* one time: your / my call time, next to "Call time" */
+if(!S.call1){try{const base=S.items.find(i=>i.th==="คอลไทม์")||S.items.find(i=>/call time/i.test(i.en||""));const cat=base?base.cat:"Schedule & meals";
+  const add=[["คอลไทม์ของคุณ","khon-thaim khong khun","Your call time",1],["คอลไทม์ของผม","khon-thaim khong phom","My call time",1],["คุณคอลไทม์กี่โมง","khun khon-thaim gii mohng","What's your call time?",0]].filter(([t])=>!S.items.some(i=>i.th===t));
+  const its=add.map(([th,ro,en,np])=>({id:uid(),th,ro,en,cat,np}));
+  const at=base?S.items.indexOf(base):-1;if(at<0)S.items.push(...its);else S.items.splice(at+1,0,...its);S.call1=1;save()}catch(e){}}
+/* one time: the word "Coffee", next to the other coffee phrases */
+if(!S.cof1){try{if(!S.items.some(i=>i.th==="กาแฟ")){const base=S.items.find(i=>/coffee/i.test(i.en||""));const it={id:uid(),th:"กาแฟ",ro:"gaa-fae",en:"Coffee",cat:base?base.cat:"Schedule & meals",np:1};
+  const at=base?S.items.indexOf(base):-1;if(at<0)S.items.push(it);else S.items.splice(at,0,it)}S.cof1=1;save()}catch(e){}}
 /* one time: 200-500 in Numbers, right after 100 */
 if(!S.num2){try{const add=[["สองร้อย","song roi","200"],["สามร้อย","saam roi","300"],["สี่ร้อย","sii roi","400"],["ห้าร้อย","haa roi","500"]].filter(([t])=>!S.items.some(i=>i.th===t));
   let at=S.items.findIndex(i=>i.cat==="Numbers"&&i.en==="100");if(at<0){S.items.forEach((x,n)=>{if(x.cat==="Numbers")at=n})}
