@@ -286,7 +286,7 @@ header{padding:6px 16px 0}
 #big{position:fixed;inset:0;z-index:100;background:var(--card);color:var(--ink);display:flex;flex-direction:column}
 #big[hidden]{display:none}
 #bigBox{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:16px;overflow:hidden;text-align:center;min-height:0}
-#bigTxt{line-height:1.2;max-width:100%;word-break:break-word;font-family:system-ui,-apple-system,"Noto Sans Thai","Noto Sans",sans-serif}
+#bigTxt{line-height:1.2;max-width:100%;word-break:normal;overflow-wrap:normal;font-family:system-ui,-apple-system,"Noto Sans Thai","Noto Sans",sans-serif}
 #bigSub{margin-top:10px}
 #bigSub .bsr{font-size:var(--fs-l);color:var(--accent)}
 #bigSub .bse{font-size:var(--fs-m);color:var(--mute)}
@@ -569,7 +569,7 @@ html .nmunits .ib.on,html[data-look] .nmunits .ib.on{background:#fde68a!importan
 </dialog>
 
 <dialog id="addD">
-  <div class="row" style="justify-content:space-between;gap:10px"><h3 style="margin:0">Add a phrase</h3><div class="row"><button class="ib" id="addCancel">Close</button><button class="ib savebtn sm" id="addGo">Save</button></div></div>
+  <div class="row" style="justify-content:space-between;gap:10px;flex-wrap:wrap"><h3 style="margin:0">Add a phrase</h3><div class="row"><button class="ib" id="addCancel">Close</button><button class="ib savebtn sm" id="addGo">Save</button></div></div>
   <label for="en">English (type this, then tap Save)</label>
   <input id="en" placeholder="Coffee, please">
   <button class="ib savebtn" id="addGo2" style="margin-top:12px">💾 Save phrase</button>
@@ -585,7 +585,7 @@ html .nmunits .ib.on,html[data-look] .nmunits .ib.on{background:#fde68a!importan
 </dialog>
 
 <dialog id="edD">
-  <div class="row" style="justify-content:space-between;gap:10px"><h3 style="margin:0">Edit phrase</h3><div class="row"><button class="ib" id="edCancel">Close</button><button class="ib savebtn sm" id="edSave">Save</button></div></div>
+  <div class="row" style="justify-content:space-between;gap:10px;flex-wrap:wrap"><h3 style="margin:0">Edit phrase</h3><div class="row"><button class="ib" id="edCancel">Close</button><button class="ib savebtn sm" id="edSave">Save</button></div></div>
   <label for="eth" id="edLbl">Thai text (spoken aloud)</label>
   <input id="eth" lang="th">
   <label for="ero">Romanization</label>
@@ -607,7 +607,7 @@ html .nmunits .ib.on,html[data-look] .nmunits .ib.on{background:#fde68a!importan
 </dialog>
 
 <dialog id="moreD">
-  <div class="row" style="justify-content:space-between;gap:10px"><h3 style="margin:0;font-size:var(--fs-l)">Options</h3><button class="ib" id="moreClose">Close</button></div>
+  <div class="row" style="justify-content:space-between;gap:10px;flex-wrap:wrap"><h3 style="margin:0;font-size:var(--fs-l)">Options</h3><button class="ib" id="moreClose">Close</button></div>
   <button class="ib" id="moreCopy" style="width:100%;margin-top:12px">Copy text</button>
   <button class="ib" id="moreEdit" style="width:100%;margin-top:10px">Edit before saving</button>
   <button class="ib" id="moreBack" style="width:100%;margin-top:10px">Check the meaning (translate back)</button>
@@ -617,7 +617,7 @@ html .nmunits .ib.on,html[data-look] .nmunits .ib.on{background:#fde68a!importan
 </dialog>
 
 <dialog id="bldD">
-  <div class="row" style="justify-content:space-between;gap:10px"><h3 style="margin:0;font-size:var(--fs-l)">Build a sentence</h3><button class="ib" id="bldClose">Close</button></div>
+  <div class="row" style="justify-content:space-between;gap:10px;flex-wrap:wrap"><h3 style="margin:0;font-size:var(--fs-l)">Build a sentence</h3><button class="ib" id="bldClose">Close</button></div>
   <select id="bldT" aria-label="Sentence type" style="width:100%;margin-top:12px"></select>
   <div id="bldSlots"></div>
   <div id="bldOut" style="margin-top:12px"></div>
@@ -663,7 +663,7 @@ html .nmunits .ib.on,html[data-look] .nmunits .ib.on{background:#fde68a!importan
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 15 Oct 2026, build 39</div>
+  <div class="hint">Version: 15 Oct 2026, build 40</div>
   <label>Backup (everything on this device)</label>
   <div class="row"><button class="ib" id="exp" style="flex:1">Export backup</button><button class="ib" id="imp" style="flex:1">Import backup</button></div>
   <input type="file" id="file" accept=".json,application/json" hidden>
@@ -1328,7 +1328,7 @@ function render(){
     h+=`<div class="grid" data-gc="${esc(c)}">`+(c==="Numbers"&&!edit?`<button class="tile numpill" data-numpad="1" type="button"><span class="en"><span class="npic" aria-hidden="true">🔢</span>Type any number</span></button>`:"")+(cut?list.slice(0,PREVIEW):list).map(tileHTML).join("")+`</div>`;
     if(cut)h+=`<button class="seeall" data-see="${esc(c)}">See all ${list.length} ${esc(c)} →</button>`;
   });
-  const emptyMsg=cat==="__f"&&!ql?"No favourites yet. Tap the star on any phrase to keep it here.":cat==="__r"&&!ql?"Nothing yet. Phrases you tap will show up here, newest first.":cat==="__t"&&!ql?"Nothing yet. Everything you translate will be kept here so you can replay it and save it to your vocab.":"Nothing here. Tap Add to add a phrase.";
+  const emptyMsg=cat==="__f"&&!ql?"No favourites yet. Hold a phrase, then tap ☆ Fav to keep it here.":cat==="__r"&&!ql?"Nothing yet. Phrases you tap will show up here, newest first.":cat==="__t"&&!ql?"Nothing yet. Everything you translate will be kept here so you can replay it and save it to your vocab.":"Nothing here. Tap Add to add a phrase.";
   $("main").className=edit?"edit":"";
   $("main").innerHTML=h+(/class="grid"/.test(h)?"":`<div class="empty">${emptyMsg}</div>`);
   $("editBtn").classList.toggle("on",edit);
@@ -1540,6 +1540,7 @@ const SPK='<svg class="spk" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9
 /* in Thai mode buttons show Thai large with English small underneath */
 function thMode(){return DIR==="th"&&LG().c==="th"}
 function bi(th,en){return thMode()?`<span class="bi"><span class="bth" lang="th">${th}</span><span class="ben">${en}</span></span>`:en}
+const norm=t=>String(t||"").trim().toLowerCase().replace(/[\s.?!,]+/g," ").trim();
 function suggestCat(en){for(const [c,re] of SUG)if(re.test(en||""))return c;return""}
 function showRes(th,ro,en,note,auto,nohist,ph,alts,tn){
   if(DIR==="en"&&S.lang==="th"){
@@ -1553,7 +1554,7 @@ function showRes(th,ro,en,note,auto,nohist,ph,alts,tn){
   const cs=cats();
   const opts=cs.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");
   const rev=DIR!=="en";let rp;
-  $("trOut").innerHTML=`<div class="bub"><div class="rth" lang="${rev?"en":S.lang}" dir="auto">${esc(rev?en:f.th)}</div>${(!rev&&f.ro)?`<div class="rro">${toneHTML(f.th,f.ro,RES.tn,true)}</div>`:""}<div class="ren" lang="${rev?S.lang:"en"}" dir="auto">${esc(rev?th:en)}</div>${rev&&S.lang==="th"&&(rp=toneHTML(th,"","",true))?`<div class="rro">${rp}</div>`:""}</div>`+
+  $("trOut").innerHTML=`<div class="bub"><div class="rth" lang="${rev?"en":S.lang}" dir="auto">${esc(rev?en:f.th)}</div>${(!rev&&f.ro)?`<div class="rro">${toneHTML(f.th,f.ro,RES.tn,true)}</div>`:""}${(rev||norm(en)!==norm($("trIn").value))?`<div class="ren" lang="${rev?S.lang:"en"}" dir="auto">${esc(rev?th:en)}</div>`:""}${rev&&S.lang==="th"&&(rp=toneHTML(th,"","",true))?`<div class="rro">${rp}</div>`:""}</div>`+
    `<div class="row actrow"><button class="ib speakbtn" data-a="sp">${SPK}${bi("ฟัง","Play")}</button><button class="ib showbtn" data-a="show" aria-label="Show full screen to the other person">${HANDI}${bi("แสดง","Show")}</button></div>`+
    `<div class="row actrow"><select id="rcat" aria-label="Save to category" style="flex:1;min-width:0">${opts}<option value="__new">＋ New category…</option></select><button class="ib savebtn sm" data-a="save">💾 ${bi("บันทึก","Save")}</button></div><input id="rcatNew" placeholder="New category name" style="display:none;margin-top:8px"><button class="ib moreline" data-a="more">✏️ Copy · Edit · Check meaning</button>`+
    (note?`<div style="margin-top:10px;font-size:var(--fs-s)">${esc(note)}</div>`:"");
@@ -1627,7 +1628,7 @@ $("trOut").onclick=e=>{
   if(b.dataset.a==="show"){showBig(RES.dir==="en"?shown(RES):{th:RES.en,ro:"",en:RES.th,lang:"en",tts:"en-US"});return}
   if(b.dataset.a==="more"){openMore();return}
   if(b.dataset.a==="sp"){if(RES.dir==="en")speak({th:RES.th,ro:RES.ro,en:RES.en,cat:"x",np:0});else speak({th:RES.en,ro:"",en:RES.th,cat:"x",np:1,lang:"en"},"en-US")}
-  else if(b.dataset.a==="cp"){navigator.clipboard.writeText(RES.dir==="en"?shown(RES).th:RES.en).then(()=>toast("✓ Copied")).catch(()=>toast("Couldn't copy",true))}
+  else if(b.dataset.a==="cp"){copyText(RES.dir==="en"?shown(RES).th:RES.en).then(()=>toast("✓ Copied")).catch(()=>toast("Couldn't copy",true))}
   else if(b.dataset.a==="save"){
     let c=$("rcat").value;
     if(c==="__new"){c=$("rcatNew").value.trim();if(!c){$("rcatNew").focus();toast("Type a category name",true);return}}
@@ -1878,7 +1879,7 @@ $("expChg").onclick=async()=>{
   catch(e){$("bs").textContent="Couldn't save the file. Try Copy instead."}
 };
 $("expCopy").onclick=async()=>{
-  try{await navigator.clipboard.writeText(JSON.stringify(changesData()));$("bs").textContent="Changes copied. Paste them into a message to me."}
+  try{await copyText(JSON.stringify(changesData()));$("bs").textContent="Changes copied. Paste them into a message to me."}
   catch(e){$("bs").textContent="Couldn't copy."}
 };
 $("mmEmail").onchange=e=>{S.mmEmail=e.target.value.trim();save()};
@@ -1964,7 +1965,7 @@ function openMore(){
   $("moreD").showModal();
 }
 $("moreClose").onclick=()=>$("moreD").close();
-$("moreCopy").onclick=()=>{navigator.clipboard.writeText(RES.dir==="en"?shown(RES).th:RES.en).then(()=>toast("✓ Copied")).catch(()=>toast("Couldn't copy",true));$("moreD").close()};
+$("moreCopy").onclick=()=>{copyText(RES.dir==="en"?shown(RES).th:RES.en).then(()=>toast("✓ Copied")).catch(()=>toast("Couldn't copy",true));$("moreD").close()};
 $("moreEdit").onclick=()=>{
   $("moreD").close();
   ["th","ro","en"].forEach(k=>$(k).value="");$("trs").textContent="";$("catNew").value="";fillCat($("rcat")?$("rcat").value:undefined);
@@ -2008,13 +2009,18 @@ function paintBig(){
   $("bigSnd").textContent=BIG.sub?"Thai only":"Sounds";
   fitBig();
 }
+function copyText(t){
+  if(navigator.clipboard&&navigator.clipboard.writeText)return navigator.clipboard.writeText(t);
+  return new Promise((ok,no)=>{try{const a=document.createElement("textarea");a.value=t;a.setAttribute("readonly","");a.style.cssText="position:fixed;top:0;left:0;opacity:0";document.body.appendChild(a);a.select();a.setSelectionRange(0,t.length);const r=document.execCommand("copy");a.remove();r?ok():no()}catch(e){no(e)}});
+}
 function fitBig(){
   const box=$("bigBox"),el=$("bigTxt");if(!box.clientWidth)return;
   const sc=S.bigScale||0.85;
   const maxW=box.clientWidth-32,maxH=box.clientHeight-(BIG.sub?150:32);
-  let lo=20,hi=320,best=20;
+  el.style.overflowWrap="";let lo=20,hi=320,best=20;
   while(lo<=hi){const mid=(lo+hi)>>1;el.style.fontSize=mid+"px";if(el.scrollWidth<=maxW&&el.offsetHeight<=maxH){best=mid;lo=mid+1}else hi=mid-1}
   el.style.fontSize=Math.max(20,Math.round(best*sc))+"px";
+  if(best<=20)el.style.overflowWrap="anywhere";
 }
 function paintFav(){const it=BIG.id&&S.items.find(i=>i.id===BIG.id);$("bigFav").textContent=it&&it.fav?"★ Fav":"☆ Fav"}
 $("bigFav").onclick=()=>{if(!BIG.id)return;toggleFav(BIG.id);paintFav()};
@@ -2185,7 +2191,7 @@ $("edDel").onclick=()=>{if(confirm("Delete this phrase?")){const id=EID;$("edD")
 $("edD").onkeydown=e=>{if(e.key==="Enter"&&e.target.tagName==="INPUT"){e.preventDefault();$("edSave").click()}};
 function fillCat(sel){
   const cs=cats();
-  const pick=sel||((cat!=="All"&&cat!=="__r"&&cs.includes(cat))?cat:(cs[0]||"__new"));
+  const pick=sel||((cat!=="All"&&cat!=="__r"&&cs.includes(cat))?cat:(cs.find(c=>c!=="Numbers")||cs[0]||"__new"));
   $("cat").innerHTML=cs.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("")+`<option value="__new">＋ New category…</option>`;
   $("cat").value=pick;
   $("catNew").style.display=$("cat").value==="__new"?"":"none";
