@@ -403,6 +403,14 @@ html[data-look="glass"] #tip{background:#1e3a8a}
 #tip .ib{min-height:40px;padding:4px 20px}
 .boardhead .bhint{font-size:13px;line-height:1.3;margin:6px 2px 2px;opacity:.85}
 html[data-look="glass"] .tile .en{color:#fde68a;font-weight:600;opacity:1}
+/* English-only tiles, sized for easy reading */
+.tile.enonly .th,.tile.enonly .ro{display:none}
+.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.tile.enonly{min-height:76px;justify-content:center;padding:12px 30px 12px 16px}
+.tile.enonly .en{font-size:20px;line-height:1.25;font-weight:700;padding-right:0;overflow-wrap:anywhere}
+html[data-look="glass"] .tile{background:rgba(15,23,60,.38)}
+html[data-look="glass"] .tile .en{color:#fde68a}
+@media (min-width:640px){.grid{grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}}
 #trOut:empty{min-height:0!important;background:none!important}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@500&display=swap" rel="stylesheet">
@@ -555,7 +563,7 @@ html[data-look="glass"] .tile .en{color:#fde68a;font-weight:600;opacity:1}
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 15 Oct 2026, build 24</div>
+  <div class="hint">Version: 15 Oct 2026, build 26</div>
   <label>Backup (everything on this device)</label>
   <div class="row"><button class="ib" id="exp" style="flex:1">Export backup</button><button class="ib" id="imp" style="flex:1">Import backup</button></div>
   <input type="file" id="file" accept=".json,application/json" hidden>
@@ -1147,6 +1155,14 @@ function loadVoices(){
   if(S.voice)$("voice").value=S.voice;
   render();
 }
+/* the speech engine clips the start of the very first utterance while it wakes up, so prime it with a silent one */
+let ttsWarm=false,warmU=null;
+function warmTTS(lang,v){
+  if(ttsWarm||!("speechSynthesis" in window))return;ttsWarm=true;
+  try{const w=new SpeechSynthesisUtterance("อ อ");w.volume=0;w.rate=1;w.lang=lang||LG().tts;if(v)w.voice=v;w.onend=w.onerror=()=>{warmU=null};warmU=w;setTimeout(()=>{warmU=null},3000);speechSynthesis.speak(w)}catch(e){}
+}
+function warmOnTouch(){try{const v=pickVoice();warmTTS(v?v.lang:LG().tts,v)}catch(e){}}
+["pointerdown","touchend","keydown"].forEach(ev=>document.addEventListener(ev,warmOnTouch,{once:true,capture:true}));
 function speak(i,tts){
   const f=full(i);
   if(!("speechSynthesis" in window)){toast("Speech isn't supported in this browser.",true);return}
@@ -1156,8 +1172,8 @@ function speak(i,tts){
   const v=pickVoice(tts);
   if(v){u.voice=v;u.lang=v.lang}
   u.onerror=e=>{if(e&&e.error&&e.error!=="canceled"&&e.error!=="interrupted")toast("Speech error: "+e.error,true)};
-  const go=()=>{try{ss.resume()}catch(e){}ss.speak(u)};
-  if(ss.speaking||ss.pending){ss.cancel();setTimeout(go,150)}else go();
+  const go=()=>{try{ss.resume()}catch(e){}if(!ttsWarm)warmTTS(u.lang,v);ss.speak(u);warmU=null};
+  if(warmU)go();else if(ss.speaking||ss.pending){ss.cancel();setTimeout(go,150)}else go();
   if(!v&&voicesLoaded)toast("No "+(tts?"English":LG().n)+" voice found on this phone. Add one in Settings > Accessibility > Spoken Content > Voices.",true);
 }
 
@@ -1690,7 +1706,7 @@ const histClean=t=>String(t||"").replace(/\s*(ครับ|ค่ะ|คะ)\s*$
 function histSaved(x){const t=histClean(x.th);return S.items.some(i=>(i.th===t||(i.tr&&i.tr[S.lang]&&i.tr[S.lang].th===t)))}
 function histTileHTML(x,n){
   const t=histClean(x.th),pr=S.ro?toneHTML(t,x.ro||"","",!x.ro):"",sv=histSaved(x);
-  return `<div class="tile htile" data-hi="${n}" role="button" tabindex="0"><span class="th" lang="${S.lang}" dir="auto">${esc(t)}</span>${pr?`<small class="ro">${pr}</small>`:""}${x.en?`<small class="en">${esc(x.en)}</small>`:""}<button class="hsave${sv?" done":""}" data-hsave="${n}"${sv?" disabled":""}>${sv?"✓ Saved":"＋ Save"}</button></div>`;
+  return `<div class="tile htile${x.en?" enonly":""}" data-hi="${n}" role="button" tabindex="0"><span class="th" lang="${S.lang}" dir="auto">${esc(t)}</span>${pr?`<small class="ro">${pr}</small>`:""}${x.en?`<small class="en">${esc(x.en)}</small>`:""}<button class="hsave${sv?" done":""}" data-hsave="${n}"${sv?" disabled":""}>${sv?"✓ Saved":"＋ Save"}</button></div>`;
 }
 function histSave(n){
   const x=S.hist[n];if(!x||histSaved(x))return;
@@ -1700,7 +1716,7 @@ function histSave(n){
 function tileHTML(i){
   const v=vw(i),f=full({th:v.th,ro:v.ro,en:v.en,cat:i.cat,np:i.np,lang:S.lang});
   const need=!v.th;let pr;
-  return `<button class="tile${need?" pend":""}${SEL.has(i.id)?" sel":""}"${need?' data-need="1"':""} style="--c:${colr(i.cat)}" data-id="${i.id}"><span class="th" lang="${S.lang}" dir="auto">${need?"…":esc(f.th)}</span>${(pr=S.ro&&!need?toneHTML(f.th,f.ro,"",!f.ro):"")?`<small class="ro">${pr}</small>`:""}${S.en&&f.en?`<small class="en">${esc(f.en)}</small>`:""}${v.auto&&!need?`<small class="auto">⚠ auto</small>`:""}<span class="fav${i.fav?" on":""}" data-fav="${i.id}" role="button" aria-label="Favourite">${i.fav?"★":"☆"}</span>${edit?`<span class="x" data-del="${i.id}">×</span>`:""}</button>`;
+  return `<button class="tile${f.en?" enonly":""}${need?" pend":""}${SEL.has(i.id)?" sel":""}"${need?' data-need="1"':""} style="--c:${colr(i.cat)}" data-id="${i.id}"><span class="th" lang="${S.lang}" dir="auto">${need?"…":esc(f.th)}</span>${(pr=S.ro&&!need?toneHTML(f.th,f.ro,"",!f.ro):"")?`<small class="ro">${pr}</small>`:""}${S.en&&f.en?`<small class="en">${esc(f.en)}</small>`:""}${v.auto&&!need?`<small class="auto">⚠ auto</small>`:""}<span class="fav${i.fav?" on":""}" data-fav="${i.id}" role="button" aria-label="Favourite">${i.fav?"★":"☆"}</span>${edit?`<span class="x" data-del="${i.id}">×</span>`:""}</button>`;
 }
 function paintTile(id){
   const el=document.querySelector('.tile[data-id="'+id+'"]');
