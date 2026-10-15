@@ -326,6 +326,28 @@ html,body{overflow-x:hidden;max-width:100%}
 .showbtn .hand{width:1.2em;height:1.2em;flex:none}
 .actrow .speakbtn,.actrow .showbtn{flex:1 1 0;min-width:0;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding-left:10px;padding-right:10px;white-space:nowrap}
 .actrow .speakbtn,.actrow .showbtn{min-height:56px!important;height:56px;font-size:var(--fs-m)!important;font-weight:600;padding-top:0!important;padding-bottom:0!important;box-sizing:border-box}
+.grid[data-gc] .tile.numpill{background:#fde68a!important}
+.grid[data-gc] .tile.numpill .en{color:#1e3a8a!important;font-weight:700}
+.ways{margin-top:14px;padding:12px;border-radius:18px;background:rgba(15,23,60,.32)}
+.wayh{font-weight:700;font-size:18px;margin-bottom:4px}
+.waysub{font-size:13px;color:var(--mute);text-transform:uppercase;letter-spacing:.05em;margin:10px 0 4px}
+.wsp{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.12)}
+.wsw,.wsk{font-size:22px;cursor:pointer}
+.wsw s{color:#f9a8d4;text-decoration-thickness:2px}
+.wsk u{color:#86efac;text-decoration-thickness:3px;text-underline-offset:4px}
+.wsa{color:var(--mute)}
+.wsr{color:#fde68a;font-size:16px}
+.wtab{width:100%;border-collapse:separate;border-spacing:0 4px;table-layout:fixed}
+.wtab th{font-size:12px;color:var(--mute);font-weight:600;text-transform:uppercase;letter-spacing:.04em;padding:2px}
+.wtab th.on{color:#fde68a}
+.wtab td{text-align:center;padding:6px 3px;background:rgba(255,255,255,.07);cursor:pointer;overflow-wrap:anywhere;vertical-align:middle}
+.wtab td:first-child{text-align:left;color:#fde68a;font-weight:600;font-size:14px;cursor:default;width:22%;border-radius:12px 0 0 12px}
+.wtab td:last-child{border-radius:0 12px 12px 0}
+.wtab td b{display:block;font-size:17px;font-weight:600;line-height:1.25}
+.wtab td small{display:block;font-size:12px;color:var(--mute);line-height:1.2}
+.wtab td.on{box-shadow:inset 0 0 0 2px #fde68a}
+.wtab td.in b{color:#86efac}
+.wayt{font-size:13px;color:var(--mute);margin-top:6px}
 .moreline{display:block;width:100%;margin-top:10px;min-height:46px;font-size:17px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-left:10px!important;padding-right:10px!important}
 .bldrow .ib{font-size:17px!important;white-space:nowrap;min-height:46px;padding-left:8px!important;padding-right:8px!important}
 
@@ -616,7 +638,7 @@ html[data-look="glass"] input,html[data-look="glass"] textarea{caret-color:#fde6
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 15 Oct 2026, build 31</div>
+  <div class="hint">Version: 15 Oct 2026, build 32</div>
   <label>Backup (everything on this device)</label>
   <div class="row"><button class="ib" id="exp" style="flex:1">Export backup</button><button class="ib" id="imp" style="flex:1">Import backup</button></div>
   <input type="file" id="file" accept=".json,application/json" hidden>
@@ -1275,8 +1297,8 @@ function render(){
       const mv=edit&&!ql?`<span class="catmv"><button data-cm="up" data-c="${esc(c)}" aria-label="Move category up">↑</button><button data-cm="down" data-c="${esc(c)}" aria-label="Move category down">↓</button></span>`:"";
       h+=`<div class="sec" style="--c:${colr(c)}">${esc(c)}${mv}</div>`;
     }
-    const cut=everywhere&&!ql&&!edit&&list.length>PREVIEW;
-    h+=`<div class="grid" data-gc="${esc(c)}">`+(cut?list.slice(0,PREVIEW):list).map(tileHTML).join("")+`</div>`;
+    const cut=everywhere&&!ql&&!edit&&c!=="Numbers"&&list.length>PREVIEW;
+    h+=`<div class="grid" data-gc="${esc(c)}">`+(c==="Numbers"&&!edit?`<button class="tile numpill" data-numpad="1" type="button"><span class="en">🔢 Type any number</span></button>`:"")+(cut?list.slice(0,PREVIEW):list).map(tileHTML).join("")+`</div>`;
     if(cut)h+=`<button class="seeall" data-see="${esc(c)}">See all ${list.length} ${esc(c)} →</button>`;
   });
   const emptyMsg=cat==="__f"&&!ql?"No favourites yet. Tap the star on any phrase to keep it here.":cat==="__r"&&!ql?"Nothing yet. Phrases you tap will show up here, newest first.":cat==="__t"&&!ql?"Nothing yet. Everything you translate will be kept here so you can replay it and save it to your vocab.":"Nothing here. Tap Add to add a phrase.";
@@ -1406,6 +1428,7 @@ mainEl.addEventListener("contextmenu",e=>{if(e.target.closest(".tile"))e.prevent
 $("main").onclick=async e=>{
   if(LONG){LONG=false;return}
   if(e.target.closest("#trAll")){translateAll();return}
+  if(e.target.closest("[data-numpad]")){openNum("");return}
   const cm=e.target.closest("[data-cm]");if(cm){moveCat(cm.dataset.c,cm.dataset.cm);return}
   if(e.target.closest("#selTog")){selMode=true;render();return}
   if(e.target.closest("#selDone")){selMode=false;SEL.clear();render();return}
@@ -1495,9 +1518,10 @@ function showRes(th,ro,en,note,auto,nohist,ph,alts,tn){
   $("trOut").innerHTML=`<div class="bub"><div class="rth" lang="${rev?"en":S.lang}" dir="auto">${esc(rev?en:f.th)}</div>${(!rev&&f.ro)?`<div class="rro">${toneHTML(f.th,f.ro,RES.tn,true)}</div>`:""}<div class="ren" lang="${rev?S.lang:"en"}" dir="auto">${esc(rev?th:en)}</div>${rev&&S.lang==="th"&&(rp=toneHTML(th,"","",true))?`<div class="rro">${rp}</div>`:""}</div>`+
    `<div class="row actrow"><button class="ib speakbtn" data-a="sp">🔊 Speak</button><button class="ib showbtn" data-a="show" aria-label="Show full screen to the other person"><svg class="hand" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="1.5" width="11" height="17" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M11.5 4.5h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M8 11.5H6.6A1.8 1.8 0 0 0 4.8 13.3v3.4c0 3 2.4 5.8 5.6 5.8H14c1.6 0 3-1 3.5-2.5l.6-1.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 15h2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Show</button></div>`+
    `<div class="row actrow"><select id="rcat" aria-label="Save to category" style="flex:1;min-width:0">${opts}<option value="__new">＋ New category…</option></select><button class="ib savebtn sm" data-a="save">💾 Save</button></div><input id="rcatNew" placeholder="New category name" style="display:none;margin-top:8px"><button class="ib moreline" data-a="more">✏️ Copy · Edit · Check meaning</button>`+
+   (!rev&&S.lang==="th"?waysHTML(f.th):"")+
    (note?`<div style="margin-top:10px;font-size:var(--fs-s)">${esc(note)}</div>`:"");
   const sg=suggestCat(en);
-  $("rcat").value=cs.includes(sg)?sg:(cs.includes(cat)?cat:cs[0]);
+  $("rcat").value=cs.includes(sg)?sg:(cs.includes(cat)?cat:(cs.find(c=>c!=="Numbers")||cs[0]));
   $("rcat").onchange=()=>{const n=$("rcat").value==="__new";$("rcatNew").style.display=n?"":"none";if(n)$("rcatNew").focus()};
   if(!nohist)addHist({th,ro,en,ph});
 }
@@ -1561,6 +1585,7 @@ $("dirEn").onclick=()=>setDir("en");
 $("dirTh").onclick=()=>setDir("th");
 $("trGo").onclick=doTr;
 $("trOut").onclick=e=>{
+  const sy=e.target.closest("[data-say]");if(sy){speak({th:sy.dataset.say,ro:"",en:"",cat:"x",np:1,lang:"th"},"th-TH");return}
   const b=e.target.closest("[data-a]");if(!b||!RES)return;
   if(b.dataset.a==="show"){showBig(RES.dir==="en"?shown(RES):{th:RES.en,ro:"",en:RES.th,lang:"en",tts:"en-US"});return}
   if(b.dataset.a==="more"){openMore();return}
@@ -2220,6 +2245,42 @@ $("nmClr").onclick=()=>{NKV="";numPaint()};
 $("nmPlay").onclick=()=>{if(NKV){const r=thNum(NKV,NKB);speak({th:r.th,ro:r.ro,en:numFmt(NKV),cat:"x",np:1,lang:"th"},"th-TH")}};
 $("nmShow").onclick=()=>{if(!NKV)return;const r=thNum(NKV,NKB);$("numD").close();BIG.sub=true;showBig({th:r.th,ro:r.ro,en:numFmt(NKV)+(NKB?" baht":""),tts:"th-TH"})};
 $("nmX").onclick=()=>$("numD").close();
+
+/* "Ways to say it" under a translation: how words are really said (B) and casual/polite/formal word swaps (D) */
+const SPOKEN=[["ไม่เป็นไร","ไม่เปงไร","mai peng rai","เป็น","เปง"],["อย่างไร","ยังไง","yang ngai"],["อย่างนี้","ยังงี้","yang ngee"],["อย่างนั้น","ยังงั้น","yang ngan"],["หรือเปล่า","รึเปล่า / ป่ะ","reu bplao / bpa"],["หรือไม่","มั้ย","mai"],["ไหม","มั้ย","mai"],["เท่าไร","เท่าไหร่","tao rai"],["หนึ่ง","นึง","neung"],["เขา","เค้า","kao"],["ฉัน","ชั้น","chan"]];
+const SWAPS=[
+ ["Eat",[["กิน","gin"],["ทาน","taan"],["รับประทาน","rap-bpra-taan"]]],
+ ["Thanks",[["ขอบใจ","kop jai"],["ขอบคุณ","kop kun"],["ขอบพระคุณ","kop pra kun"]]],
+ ["Sorry",[["โทษที","toht tee"],["ขอโทษ","kor toht"],["ขออภัย","kor a-pai"]]],
+ ["Wait",[["แป๊บ","bpaep"],["รอแป๊บนึง","ror bpaep neung"],["สักครู่","sak kroo"]]],
+ ["I / me",[["เรา","rao"],["ผม / ฉัน","pom / chan"],["กระผม / ดิฉัน","gra-pom / di-chan"]]],
+ ["…or not?",[["ป่ะ","bpa"],["มั้ย","mai"],["หรือไม่","reu mai"]]],
+ ["How much",[["กี่บาท","gee baht"],["เท่าไหร่","tao rai"],["ราคาเท่าไร","raa-kaa tao rai"]]],
+ ["Hello",[["หวัดดี","wat dee"],["สวัสดี","sa-wat-dee"],["สวัสดี","sa-wat-dee"]]]
+];
+function waysHTML(th){
+  if(!th)return"";
+  const sp=[],seen=new Set();
+  for(const [w,k,ro,part,np] of SPOKEN){
+    const hasW=th.includes(w),hasK=k.split(" / ").some(x=>th.includes(x));
+    if(!(hasW||hasK)||seen.has(k))continue;seen.add(k);
+    const wr=part?esc(w).replace(part,`<s>${part}</s>`):`<s>${esc(w)}</s>`;
+    const kk=part?esc(k).replace(np,`<u>${np}</u>`):`<u>${esc(k)}</u>`;
+    sp.push(`<div class="wsp"><span class="wsw" data-say="${esc(w)}">${wr}</span><span class="wsa" aria-hidden="true">→</span><span class="wsk" data-say="${esc(k.split(" / ")[0])}">${kk}</span><span class="wsr">${esc(ro)}</span></div>`);
+    if(sp.length>=4)break;
+  }
+  const words=x=>x.split(" / ");
+  const rows=SWAPS.filter(([,fs])=>fs.some(([t])=>words(t).some(x=>th.includes(x)))).slice(0,4);
+  if(!sp.length&&!rows.length)return"";
+  const reg=regNow(),ri={friends:0,polite:1,formal:2}[reg];
+  let h=`<div class="ways"><div class="wayh">Ways to say it</div>`;
+  if(sp.length)h+=`<div class="waysub">Written → how it's really said</div>`+sp.join("");
+  if(rows.length){
+    h+=`<div class="waysub">Swap a word to change the tone</div><table class="wtab"><thead><tr><th></th>${["Friends","Polite","Formal"].map((x,i)=>`<th${i===ri?' class="on"':""}>${x}</th>`).join("")}</tr></thead><tbody>`+
+      rows.map(([lab,fs])=>`<tr><td>${esc(lab)}</td>`+fs.map(([t,ro],i)=>`<td class="${i===ri?"on ":""}${words(t).some(x=>th.includes(x))?"in":""}" data-say="${esc(words(t)[0])}"><b>${esc(t)}</b><small>${esc(ro)}</small></td>`).join("")+`</tr>`).join("")+`</tbody></table>`;
+  }
+  return h+`<div class="wayt">Tap any word to hear it.</div></div>`;
+}
 function dragTip(){
   if(S.tipHold2||$("tip"))return;
   const d=document.createElement("div");d.id="tip";d.setAttribute("role","dialog");
@@ -2234,6 +2295,11 @@ try{if("scrollRestoration" in history)history.scrollRestoration="manual"}catch(e
 const toTop=()=>window.scrollTo(0,0);toTop();addEventListener("load",toTop);addEventListener("pageshow",toTop);
 load();
 /* one time: Numbers category first */
+/* one time: 200-500 in Numbers, right after 100 */
+if(!S.num2){try{const add=[["สองร้อย","song roi","200"],["สามร้อย","saam roi","300"],["สี่ร้อย","sii roi","400"],["ห้าร้อย","haa roi","500"]].filter(([t])=>!S.items.some(i=>i.th===t));
+  let at=S.items.findIndex(i=>i.cat==="Numbers"&&i.en==="100");if(at<0){S.items.forEach((x,n)=>{if(x.cat==="Numbers")at=n})}
+  const its=add.map(([th,ro,en])=>({id:uid(),th,ro,en,cat:"Numbers",np:1}));
+  if(at<0)S.items.push(...its);else S.items.splice(at+1,0,...its);S.num2=1;save()}catch(e){}}
 if(!S.numFirst){try{const c=cats();S.catOrder=["Numbers",...c.filter(x=>x!=="Numbers")];S.numFirst=1;save()}catch(e){}}
 applyTheme();refreshLang();render();loadVoices();renderHist();
 if("speechSynthesis" in window)speechSynthesis.onvoiceschanged=loadVoices;
