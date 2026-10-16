@@ -671,7 +671,7 @@ html .nmunits .ib.on,html[data-look] .nmunits .ib.on{background:#fde68a!importan
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 16 Oct 2026, build 43</div>
+  <div class="hint">Version: 16 Oct 2026, build 45</div>
   <label>Backup (everything on this device)</label>
   <div class="row"><button class="ib" id="exp" style="flex:1">Export backup</button><button class="ib" id="imp" style="flex:1">Import backup</button></div>
   <input type="file" id="file" accept=".json,application/json" hidden>
@@ -1210,6 +1210,16 @@ function thSyl(m,v,long){
   return out;
 }
 function thPron(th){
+  /* text with numbers in it (times, prices): read the digits as Thai numbers, น. as นาฬิกา */
+  if(/[0-9]/.test(th||"")){
+    let ro=[],tn="";
+    for(const p of String(th).replace(/น\./g,"นาฬิกา").split(/(\d+(?:[.,]\d+)*)/)){
+      if(/^\d/.test(p)){const r=thNum(p.replace(/,/g,""));ro=ro.concat(r.raw);tn+=r.tn;continue}
+      const t=p.replace(/[\s.,!?'"()\-–—…:;\/]+/g,"");if(!t)continue;
+      const P=thPron(t);if(!P)return null;ro=ro.concat(P.ro);tn+=P.tn;
+    }
+    return ro.length?{ro,tn}:null;
+  }
   const s=String(th||"").replace(/[\s.,!?'"()\-–—…:;]+/g,""),n=s.length;if(!n||!/^[฀-๿]+$/.test(s))return null;
   const B=new Array(n+1).fill(null);B[0]={c:0,ro:[],tn:"",last:null};
   const step=(i,L,c,ro,tn)=>{const b=B[i],k=i+L;if(!B[k]||B[k].c>b.c+c)B[k]={c:b.c+c,ro:b.ro.concat(ro),tn:b.tn+tn,last:{ro,tn}}};
@@ -1634,7 +1644,7 @@ $("trGo").onclick=doTr;
 $("trOut").onclick=e=>{
   const sy=e.target.closest("[data-say]");if(sy){speak({th:sy.dataset.say,ro:"",en:"",cat:"x",np:1,lang:"th"},"th-TH");return}
   const b=e.target.closest("[data-a]");if(!b||!RES)return;
-  if(b.dataset.a==="show"){showBig(RES.dir==="en"?shown(RES):{th:RES.en,ro:"",en:RES.th,lang:"en",tts:"en-US"});return}
+  if(b.dataset.a==="show"){if(RES.dir==="en"){BIG.sub=true;showBig({...shown(RES),tn:RES.tn,noEn:1})}else{BIG.sub=false;showBig({th:RES.en,ro:"",en:RES.th,lang:"en",tts:"en-US"})}return}
   if(b.dataset.a==="more"){openMore();return}
   if(b.dataset.a==="sp"){if(RES.dir==="en")speak({th:RES.th,ro:RES.ro,en:RES.en,cat:"x",np:0});else speak({th:RES.en,ro:"",en:RES.th,cat:"x",np:1,lang:"en"},"en-US")}
   else if(b.dataset.a==="cp"){copyText(RES.dir==="en"?shown(RES).th:RES.en).then(()=>toast("✓ Copied")).catch(()=>toast("Couldn't copy",true))}
@@ -2010,10 +2020,10 @@ function replyGo(talk){
   if(talk)startMic();else $("trIn").focus();
 }
 $("bigTalk").onclick=()=>replyGo(true);$("bigType").onclick=()=>replyGo(false);
-function showBig(v){BIG.id=v.id||"";$("bigFav").hidden=!BIG.id;paintFav();BIG.th=v.th;BIG.ro=v.ro||"";BIG.en=v.en||"";BIG.lang=v.lang||S.lang;BIG.tts=v.tts||"";$("big").hidden=false;paintReply();paintBig()}
+function showBig(v){BIG.id=v.id||"";$("bigFav").hidden=!BIG.id;paintFav();BIG.th=v.th;BIG.ro=v.ro||"";BIG.en=v.en||"";BIG.lang=v.lang||S.lang;BIG.tts=v.tts||"";BIG.tn=v.tn||"";BIG.noEn=!!v.noEn;$("big").hidden=false;paintReply();paintBig()}
 function paintBig(){
   const t=$("bigTxt");t.textContent=BIG.th;t.lang=BIG.lang||S.lang;
-  $("bigSub").innerHTML=BIG.sub?`<div class="bsr">${(BIG.lang||S.lang)===S.lang?toneHTML(BIG.th,BIG.ro,"",!BIG.ro):esc(BIG.ro)}</div><div class="bse">${esc(BIG.en)}</div>`:"";
+  $("bigSub").innerHTML=BIG.sub?`<div class="bsr">${(BIG.lang||S.lang)===S.lang?toneHTML(BIG.th,BIG.ro,BIG.tn||"",!BIG.ro):esc(BIG.ro)}</div>${BIG.noEn?"":`<div class="bse">${esc(BIG.en)}</div>`}`:"";
   t.style.transform=BIG.rot?"rotate(180deg)":"";
   $("bigSnd").textContent=BIG.sub?"Thai only":"Sounds";
   fitBig();
@@ -2275,7 +2285,7 @@ function thNum(str,baht){
   if(baht===true||baht==="baht")w.push(NX.baat);
   else if(baht==="beer"){w.unshift(NX.bia);w.push(NX.kuat)}
   else if(baht==="coffee"){w.unshift(NX.gaa,NX.fae);w.push(NX.gaeo)}
-  return{th:w.map(x=>x[0]).join(""),tn:w.map(x=>x[1]).join(""),ro:w.map(x=>phonFromRo(x[2])||x[2]).join(" ")};
+  return{raw:w.map(x=>x[2]),th:w.map(x=>x[0]).join(""),tn:w.map(x=>x[1]).join(""),ro:w.map(x=>phonFromRo(x[2])||x[2]).join(" ")};
 }
 const NUNIT={baht:[" ฿"," baht"],beer:[" 🍺"," beers"],coffee:[" ☕"," coffees"]};
 let NKV="",NKB="";
