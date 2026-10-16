@@ -671,7 +671,7 @@ html .nmunits .ib.on,html[data-look] .nmunits .ib.on{background:#fde68a!importan
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 16 Oct 2026, build 42</div>
+  <div class="hint">Version: 16 Oct 2026, build 43</div>
   <label>Backup (everything on this device)</label>
   <div class="row"><button class="ib" id="exp" style="flex:1">Export backup</button><button class="ib" id="imp" style="flex:1">Import backup</button></div>
   <input type="file" id="file" accept=".json,application/json" hidden>
@@ -2362,6 +2362,11 @@ if(!S.pros1){try{const PC="Prosthetics & makeup";
   const o=cats().filter(c=>c!==PC),k=o.indexOf("SFX");o.splice(k<0?o.length:k+1,0,PC);S.catOrder=o;
   const ex=S.items.find(i=>i.th==="ปลั๊กพ่วง"&&i.en==="Extension cord");if(ex)ex.en="Powerboard / extension cord";
   S.pros1=1;save()}catch(e){}}
+/* one time: blood words in Prosthetics & makeup, next to Fake blood */
+if(!S.blood1){try{const PC="Prosthetics & makeup";
+  const add=[["เพิ่มเลือดหน่อย","phoem leuat noi","More blood, please",0],["ลดเลือดหน่อย","lot leuat noi","Less blood, please",0],["เลือด","leuat","Blood",1]].filter(([th])=>!S.items.some(i=>i.th===th&&i.cat===PC)).map(([th,ro,en,np])=>({id:uid(),th,ro,en,cat:PC,np}));
+  let at=S.items.findIndex(i=>i.cat===PC&&i.th==="เลือดปลอม");if(at<0)S.items.forEach((x,n)=>{if(x.cat===PC)at=n});
+  if(at<0)S.items.push(...add);else S.items.splice(at+1,0,...add);S.blood1=1;save()}catch(e){}}
 /* one time: your / my call time, next to "Call time" */
 if(!S.call1){try{const base=S.items.find(i=>i.th==="คอลไทม์")||S.items.find(i=>/call time/i.test(i.en||""));const cat=base?base.cat:"Schedule & meals";
   const add=[["คอลไทม์ของคุณ","khon-thaim khong khun","Your call time",1],["คอลไทม์ของผม","khon-thaim khong phom","My call time",1],["คุณคอลไทม์กี่โมง","khun khon-thaim gii mohng","What's your call time?",0]].filter(([t])=>!S.items.some(i=>i.th===t));
