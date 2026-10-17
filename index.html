@@ -728,7 +728,7 @@ html[data-look] #convAuto[aria-pressed="true"]{background:#fde68a!important;colo
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 17 Oct 2026, build 59</div>
+  <div class="hint">Version: 17 Oct 2026, build 60</div>
   <input type="file" id="file" accept=".json,application/json" hidden>
   <div id="bs" style="font-size:var(--fs-s);color:var(--mute);min-height:18px;margin-top:6px"></div>
   <div class="act" style="justify-content:space-between">
@@ -2717,10 +2717,10 @@ async function listenOnce(lang,onText){
   const wait=ms=>new Promise(z=>setTimeout(z,ms));
   if(closing)await Promise.race([closing,wait(600)]);
   for(let i=0;i<10&&LASTREC&&!LASTREC._ended;i++)await wait(100);
-  if(busy)await wait(350);
+  if(busy)await wait(700);
   const t0=Date.now();let r=await listen1(lang,onText);
   // iPhone sometimes fails a second listen straight away: try once more
-  if(!r.txt&&!r.manual&&Date.now()-t0<1500&&!/not-allowed|unsupported|nostart|language/.test(r.err||"")){await wait(500);r=await listen1(lang,onText)}
+  if(!r.txt&&!r.manual&&Date.now()-t0<1500&&!/not-allowed|unsupported|nostart|language/.test(r.err||"")){await wait(900);r=await listen1(lang,onText)}
   return r;
 }
 function listen1(lang,onText){return new Promise(res=>{
@@ -2778,7 +2778,7 @@ async function convTalk(who){
   btn.classList.remove("rec");
   if(!r.txt){$("convMsg").textContent=micErr(r.err,who==="me"?"English":LG().n);CVBUSY=false;return}
   $("convMsg").textContent="Translating…";
-  try{const o=await convTranslate(r.txt,who==="me"?"en":"th");const c={who,inp:r.txt,out:o.t,ro:o.ro||"",ph:o.ph||"",tn:o.tn||""};CONV.push(c);$("convMsg").textContent="";convPaint();if(S.convAuto!==false)convPlay(c)}
+  try{const o=await convTranslate(r.txt,who==="me"?"en":"th");const c={who,inp:r.txt,out:o.t,ro:o.ro||"",ph:o.ph||"",tn:o.tn||""};CONV.push(c);$("convMsg").textContent="";convPaint();if(S.convAuto!==false)setTimeout(()=>{if(!LSN)convPlay(c)},800)}
   catch(e){$("convMsg").textContent="Couldn't translate: "+why(e)+"."}
   CVBUSY=false;
 }
