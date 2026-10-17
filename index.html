@@ -526,6 +526,8 @@ html[data-look="glass"] .ovl{background:#1e3a8a}
 .cvb .rro{color:var(--accent);font-size:var(--fs-m)}
 #convMsg{min-height:22px;text-align:center;font-weight:700}
 .cvbtns{display:flex;gap:10px;margin-top:6px}
+.cvplay{margin-top:8px;min-height:40px;padding:2px 16px;display:inline-flex;align-items:center;gap:6px}
+#convAuto[aria-pressed="true"]{background:var(--accent);color:var(--bg,#172554);border-color:var(--accent)}
 .cvbtns .ib{flex:1 1 0;min-width:0;min-height:72px;font-size:var(--fs-l);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15}
 .cvbtns .ib small{font-size:var(--fs-s);opacity:.85;font-weight:500}
 .cvbtns .ib.rec{background:var(--danger);color:#fff;border-color:var(--danger)}
@@ -592,7 +594,7 @@ html[data-look="glass"] .ovl{background:#1e3a8a}
 <div id="toast" role="status" aria-live="polite"></div>
 <div id="undoBar" hidden><span id="undoMsg">Moved</span><button class="ib" id="undoBtn" type="button">↶ Undo</button></div>
 <div id="conv" class="ovl" hidden role="dialog" aria-label="Conversation">
-  <div class="ovlh"><h3>💬 Conversation</h3><div class="row" style="gap:8px"><button class="ib" id="convClear">Clear</button><button class="ib" id="convClose">Close</button></div></div>
+  <div class="ovlh"><h3>💬 Conversation</h3><div class="row" style="gap:8px;flex-wrap:wrap"><button class="ib" id="convAuto" aria-pressed="true">Auto-play: On</button><button class="ib" id="convClear">Clear</button><button class="ib" id="convClose">Close</button></div></div>
   <div id="convLog"></div>
   <div id="convMsg"></div>
   <div class="cvbtns"><button class="ib" id="convMe"></button><button class="ib" id="convThem"></button></div>
@@ -725,7 +727,7 @@ html[data-look="glass"] .ovl{background:#1e3a8a}
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 17 Oct 2026, build 57</div>
+  <div class="hint">Version: 17 Oct 2026, build 58</div>
   <input type="file" id="file" accept=".json,application/json" hidden>
   <div id="bs" style="font-size:var(--fs-s);color:var(--mute);min-height:18px;margin-top:6px"></div>
   <div class="act" style="justify-content:space-between">
@@ -2750,7 +2752,8 @@ function convPaint(){
   $("convLog").innerHTML=CONV.length?CONV.map((c,k)=>{
     const thSide=c.who==="me";
     let pr="";if(thSide&&SOUNDS.includes(S.lang)&&S.ro!==false){const f=full({th:c.out,ro:c.ro,en:c.inp,cat:"x"});const h=toneHTML(f.th,c.ph||(c.ro?phonFromRo(c.ro):""),c.tn||"",true);pr=h?`<div class="rro">${h}</div>`:""}
-    return`<div class="cvb ${c.who}" data-k="${k}"><div class="cvo" dir="auto">${esc(c.inp)}</div><div class="cvt" dir="auto" lang="${thSide?S.lang:"en"}">${esc(thSide?full({th:c.out,ro:"",en:"",cat:"x"}).th:c.out)}</div>${pr}</div>`}).join(""):`<div class="hint" style="text-align:center;margin-top:30px">Tap <b>Me</b> and speak English. Tap the other button and let them speak ${esc(LG().n)}. Each line is translated and played out loud. Tap a line to hear it again.</div>`;
+    return`<div class="cvb ${c.who}" data-k="${k}"><div class="cvo" dir="auto">${esc(c.inp)}</div><div class="cvt" dir="auto" lang="${thSide?S.lang:"en"}">${esc(thSide?full({th:c.out,ro:"",en:"",cat:"x"}).th:c.out)}</div>${pr}<button class="ib cvplay" type="button" data-k="${k}">${SPK}Play</button></div>`}).join(""):`<div class="hint" style="text-align:center;margin-top:30px">Tap <b>Me</b> and speak English. Tap the other button and let them speak ${esc(LG().n)}. Each line is translated. Tap Play to hear it, or turn on Auto-play to hear each one straight away.</div>`;
+  $("convAuto").textContent="Auto-play: "+(S.convAuto!==false?"On":"Off");$("convAuto").setAttribute("aria-pressed",S.convAuto!==false);
   const L=$("convLog");L.scrollTop=L.scrollHeight;
 }
 function convPlay(c){if(c.who==="me")speak({th:c.out,ro:c.ro||"",en:c.inp,cat:"x",np:0});else speak({th:c.out,ro:"",en:c.inp,cat:"x",np:1,lang:"en"},"en-US")}
@@ -2763,13 +2766,14 @@ async function convTalk(who){
   btn.classList.remove("rec");
   if(!r.txt){$("convMsg").textContent=micErr(r.err,who==="me"?"English":LG().n);CVBUSY=false;return}
   $("convMsg").textContent="Translating…";
-  try{const o=await convTranslate(r.txt,who==="me"?"en":"th");const c={who,inp:r.txt,out:o.t,ro:o.ro||"",ph:o.ph||"",tn:o.tn||""};CONV.push(c);$("convMsg").textContent="";convPaint();convPlay(c)}
+  try{const o=await convTranslate(r.txt,who==="me"?"en":"th");const c={who,inp:r.txt,out:o.t,ro:o.ro||"",ph:o.ph||"",tn:o.tn||""};CONV.push(c);$("convMsg").textContent="";convPaint();if(S.convAuto!==false)convPlay(c)}
   catch(e){$("convMsg").textContent="Couldn't translate: "+why(e)+"."}
   CVBUSY=false;
 }
 $("convBtn").onclick=()=>{$("conv").hidden=false;$("convMsg").textContent="";convPaint()};
 $("convClose").onclick=()=>{stopListen();$("conv").hidden=true};
 $("convClear").onclick=()=>{CONV=[];convPaint()};
+$("convAuto").onclick=()=>{S.convAuto=S.convAuto===false;save();convPaint()};
 $("convMe").onclick=()=>convTalk("me");
 $("convThem").onclick=()=>convTalk("them");
 $("convLog").onclick=e=>{const b=e.target.closest("[data-k]");if(b&&CONV[+b.dataset.k])convPlay(CONV[+b.dataset.k])};
