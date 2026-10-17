@@ -722,7 +722,7 @@ html[data-look="glass"] .ovl{background:#1e3a8a}
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 17 Oct 2026, build 51</div>
+  <div class="hint">Version: 17 Oct 2026, build 52</div>
   <input type="file" id="file" accept=".json,application/json" hidden>
   <div id="bs" style="font-size:var(--fs-s);color:var(--mute);min-height:18px;margin-top:6px"></div>
   <div class="act" style="justify-content:space-between">
@@ -1342,12 +1342,18 @@ function audioSleepSoon(){clearTimeout(acStop);lastAudio=Date.now();acStop=setTi
 ["pointerdown","touchend","keydown"].forEach(ev=>document.addEventListener(ev,e=>{if(e.target&&e.target.closest&&e.target.closest("#trMic,#bigTalk"))return;audioAwake();audioSleepSoon()},{capture:true,once:true}));
 const SPOKEN_TTS=[[/หรือเปล่า/g,"รึเป่า"],[/ไม่เป็นไร/g,"ไม่เปงไร"],[/ครับ/g,"คับ"],[/(?<!ภู)เขา(?!ะ)/g,"เค้า"],[/(?<!ผ้า)ไหม(?!้)/g,"มั้ย"],[/ฉัน(?!ท์)/g,"ชั้น"],[/ใคร/g,"ไค"],[/เปล่า/g,"เป่า"],[/กลับ/g,"กับ"],[/ความ/g,"คาม"],[/ปลา/g,"ปา"],[/กลัว/g,"กัว"],
  [/(?<![เแโ][กขคตปพบทด])ร(?=ู้|ัก|้อน|ถ|้าน|ีบ)/g,"ล"],[/เร(?=็ว|ียก|ื่อง|า(?!ะ))/g,"เล"]];
+/* Casual spoken French and Spanish for Friends mode audio */
+const SPOKEN_FR=[[/\bce n'est\b/gi,"c'est"],[/\bje ne sais pas\b/gi,"chais pas"],[/\bje sais pas\b/gi,"chais pas"],[/\bil n'y a\b/gi,"y a"],[/\bil y a\b/gi,"y a"],[/\bje suis\b/gi,"chuis"],[/\btu es\b/gi,"t'es"],[/\btu as\b/gi,"t'as"],[/\btu avais\b/gi,"t'avais"],[/\bil faut\b/gi,"faut"],[/\bparce que\b/gi,"pasque"],[/\bcela\b/gi,"ça"],[/\bs'il te plaît\b/gi,"s'te plaît"],
+ [/\bne\s+(\S+)\s+(pas|plus|jamais|rien|personne)\b/gi,"$1 $2"],[/\bn'(\S+)\s+(pas|plus|jamais|rien|personne)\b/gi,"$1 $2"],[/\b(j|c|m|t|s|l|d|qu)e\s+(?=[aeiouéèêàâîôû])/gi,"$1'"]];
+const SPOKEN_ES=[[/\bpara\b/gi,"pa"],[/\bnada\b/gi,"na"],[/\b([a-záéíóúñ]{2,})ado\b/gi,"$1ao"]];
+function spokenRe(t,L){let r=t;L.forEach(([a,b])=>{r=r.replace(a,b)});return r}
 function spokenTh(t){if(!t||!/[฀-๿]/.test(t))return t;let r=t;SPOKEN_TTS.forEach(([a,b])=>{r=r.replace(a,b)});return r}
 function speak(i,tts){
   const f=full(i);
   if(!("speechSynthesis" in window)){toast("Speech isn't supported in this browser.",true);return}
   const ss=window.speechSynthesis;
-  const u=new SpeechSynthesisUtterance(regNow()==="friends"&&(!tts||/^th/.test(tts))&&/[฀-๿]/.test(f.th||"")?spokenTh(f.th):f.th);
+  const lc=(tts||LG().tts||"").slice(0,2).toLowerCase(),fr=regNow()==="friends";
+  const u=new SpeechSynthesisUtterance(!fr?f.th:lc==="th"&&/[฀-๿]/.test(f.th||"")?spokenTh(f.th):lc==="fr"?spokenRe(f.th,SPOKEN_FR):lc==="es"?spokenRe(f.th,SPOKEN_ES):f.th);
   u.lang=tts||LG().tts;u.rate=S.rate||0.9;
   const v=pickVoice(tts);
   if(v){u.voice=v;u.lang=v.lang}
@@ -1732,8 +1738,12 @@ function waveOn(){
   draw();
 }
 function waveOff(){WVA.on=false;cancelAnimationFrame(WVA.raf)}
+/* Some browsers (Chrome on iPhone) offer voice input but never actually start it; don't hang on "Starting microphone…". */
+const NOSR_MSG="Voice input didn't start in this browser. "+(/CriOS|FxiOS|EdgiOS/.test(navigator.userAgent)?"Chrome on iPhone often can't use it. Open the app in Safari, or ":"Try again, or ")+"use the microphone key on your keyboard.";
+let RECGUARD=0;
 function startMic(){
-  if(RECON){try{REC.stop()}catch(e){}return}
+  if(RECON){const r0=REC;try{r0.stop()}catch(e){}clearTimeout(RECGUARD);RECGUARD=setTimeout(()=>{if(RECON&&REC===r0&&r0.onend)r0.onend()},2500);return}
+  if(REC&&REC._wait){try{REC.abort()}catch(e){}REC.onstart=REC.onend=REC.onresult=REC.onerror=null;REC=null}
   if(!SR){micMsg("Voice input isn't supported in this browser. Tap the microphone key on your keyboard to dictate instead.",false);$("trIn").focus();return}
   try{if(window.speechSynthesis)speechSynthesis.cancel()}catch(e){}
   audioOff();
@@ -1742,7 +1752,8 @@ function startMic(){
   REC=r;
   r.lang=DIR==="th"?LG().tts:"en-US";r.interimResults=true;r.continuous=false;r.maxAlternatives=1;
   let got=false,err=null;const t0=Date.now();
-  r.onstart=()=>{RECON=true;$("trMic").classList.add("rec");$("trMic").querySelector(".mlab").innerHTML=bi("กำลังฟัง","Listening");micMsg("Listening… speak now",false);$("trOut").insertAdjacentHTML("beforeend",'<canvas id="wave" aria-hidden="true"></canvas>');waveOn()};
+  r._wait=true;
+  r.onstart=()=>{r._wait=false;clearTimeout(RECGUARD);if(REC!==r)return;RECON=true;$("trMic").classList.add("rec");$("trMic").querySelector(".mlab").innerHTML=bi("กำลังฟัง","Listening");micMsg("Listening… speak now",false);$("trOut").insertAdjacentHTML("beforeend",'<canvas id="wave" aria-hidden="true"></canvas>');waveOn()};
   r.onsoundstart=()=>waveKick(0.35);r.onspeechstart=()=>waveKick(0.7);r.onspeechend=()=>{WVA.tgt=0.06};
   r.onresult=ev=>{
     let txt="";for(let i=0;i<ev.results.length;i++)txt+=ev.results[i][0].transcript;
@@ -1752,6 +1763,7 @@ function startMic(){
   };
   r.onerror=ev=>{err=ev&&ev.error?ev.error:"unknown"};
   r.onend=()=>{
+    r._wait=false;r.onend=null;clearTimeout(RECGUARD);if(REC!==r)return;
     RECON=false;$("trMic").classList.remove("rec");whoLabels();waveOff();
     const txt=$("trIn").value.trim();
     if(txt&&(got||!err)){const before=RES;doTr().then(()=>{if(S.autoTalk!==false&&RES&&RES!==before)playRes()});return}
@@ -1763,7 +1775,8 @@ function startMic(){
     else micMsg("Voice input error: "+err+". The keyboard's microphone key also works.",true);
   };
   micMsg("Starting microphone…",false);
-  try{r.start()}catch(e){RECON=false;micMsg("Couldn't start the microphone ("+(e&&e.name?e.name:"error")+"). Use the microphone key on your keyboard instead.",true);$("trIn").focus()}
+  clearTimeout(RECGUARD);RECGUARD=setTimeout(()=>{if(REC===r&&r._wait){r._wait=false;try{r.abort()}catch(e){}r.onstart=r.onend=r.onresult=r.onerror=null;REC=null;RECON=false;$("trMic").classList.remove("rec");whoLabels();micMsg(NOSR_MSG,true)}},5000);
+  try{r.start()}catch(e){clearTimeout(RECGUARD);r._wait=false;RECON=false;micMsg("Couldn't start the microphone ("+(e&&e.name?e.name:"error")+"). Use the microphone key on your keyboard instead.",true);$("trIn").focus()}
 }
 $("trMic").style.display="";
 $("trMic").onclick=startMic;
@@ -1871,7 +1884,7 @@ async function webTr(q,from,to){
   throw new Error(LASTERR);
 }
 async function aiTr(q,from,to){
-  const prompt=`Translate this ${to==="en"?"text (probably "+nm(from)+", but detect the language if it is different)":nm(from)+" text"} into ${nm(to)} the way a native speaker would actually say it out loud on a film set or while travelling: everyday spoken register, not textbook or word-for-word. Drop pronouns when obvious, use the loanwords crews really use (in Thai: เทค, ซีน, คอลไทม์), and add softeners (in Thai: หน่อย, ด้วย, นะ) where natural.${S.reg==="formal"?" For Thai, use polite, respectful spoken Thai for strangers, elders, officials and clients: full forms like อะไร, ไหม, อย่างไร or ยังไง, no slang, and ผม for a male speaker or ดิฉัน/ฉัน for a female one. Keep it natural, not stiff written Thai.":` For Thai, write it the way Thais really talk, not how they write: use spoken forms like ไร for อะไร, ยังไง/ไง for อย่างไร, นึง for หนึ่ง after a classifier, มั้ย for ไหม, ป่ะ or รึเปล่า for หรือไม่, เท่าไหร่, เดี๋ยว, แป๊บนึง, and casual endings like อ่ะ, ดิ, เนอะ, ละ when they fit. Use ผม for a male speaker and ฉัน or เรา for a female one, or drop it.`} No politeness particle at the end. Reply with ONLY JSON: {"t":"the translation","ro":"standard romanization if the translation is not written in Latin letters, with syllables separated by hyphens or spaces, otherwise an empty string","tn":"only for Thai: the spoken tone of each syllable in ro, one letter per syllable in order (M mid, L low, F falling, H high, R rising); otherwise an empty string","ph":"how an English speaker should say the translation, written with plain English letters and spaces only: no symbols, no accents, no hyphens, no tone marks, no IPA. Empty string if the translation is English","alts":[{"label":"Formal or Casual or similar","t":"another natural way to say it","ro":"","ph":""}]}\nGive 0 to 2 alternatives: usually one labelled "Slang" with how Thai friends would say it among themselves (current slang is fine if it fits), and one labelled "Polite" for strangers or elders, and an empty alts array if there is no useful alternative.\nText: ${q}`;
+  const prompt=`Translate this ${to==="en"?"text (probably "+nm(from)+", but detect the language if it is different)":nm(from)+" text"} into ${nm(to)} the way a native speaker would actually say it out loud on a film set or while travelling: everyday spoken register, not textbook or word-for-word. Drop pronouns when obvious, use the loanwords crews really use (in Thai: เทค, ซีน, คอลไทม์), and add softeners (in Thai: หน่อย, ด้วย, นะ) where natural.${S.reg==="formal"?" For Thai, use polite, respectful spoken Thai for strangers, elders, officials and clients: full forms like อะไร, ไหม, อย่างไร or ยังไง, no slang, and ผม for a male speaker or ดิฉัน/ฉัน for a female one. Keep it natural, not stiff written Thai.":` For Thai, write it the way Thais really talk, not how they write: use spoken forms like ไร for อะไร, ยังไง/ไง for อย่างไร, นึง for หนึ่ง after a classifier, มั้ย for ไหม, ป่ะ or รึเปล่า for หรือไม่, เท่าไหร่, เดี๋ยว, แป๊บนึง, and casual endings like อ่ะ, ดิ, เนอะ, ละ when they fit. Use ผม for a male speaker and ฉัน or เรา for a female one, or drop it.`}${S.reg!=="formal"&&(to==="fr"||to==="es")?(to==="fr"?" For French, talk like friends: use tu, not vous, and everyday spoken French.":" For Spanish, talk like friends: use tú, not usted, and everyday spoken Spanish."):""} No politeness particle at the end. Reply with ONLY JSON: {"t":"the translation","ro":"standard romanization if the translation is not written in Latin letters, with syllables separated by hyphens or spaces, otherwise an empty string","tn":"only for Thai: the spoken tone of each syllable in ro, one letter per syllable in order (M mid, L low, F falling, H high, R rising); otherwise an empty string","ph":"how an English speaker should say the translation, written with plain English letters and spaces only: no symbols, no accents, no hyphens, no tone marks, no IPA. Empty string if the translation is English","alts":[{"label":"Formal or Casual or similar","t":"another natural way to say it","ro":"","ph":""}]}\nGive 0 to 2 alternatives: usually one labelled "Slang" with how Thai friends would say it among themselves (current slang is fine if it fits), and one labelled "Polite" for strangers or elders, and an empty alts array if there is no useful alternative.\nText: ${q}`;
   let r=null;
   if(SM){r=await SM.json(prompt)}
   else if(S.aiKey){
@@ -2529,16 +2542,19 @@ function listenOnce(lang,onText){return new Promise(res=>{
   audioOff();
   let r;try{r=new SR()}catch(e){res({err:"start",txt:""});return}
   LSN=r;r.lang=lang;r.interimResults=true;r.continuous=false;r.maxAlternatives=1;
-  let txt="",got=false,err=null,len=0;
-  r.onstart=()=>{waveOn()};
+  let txt="",got=false,err=null,len=0,done=false,started=false,gs=0,ge=0;
+  const fin=o=>{if(done)return;done=true;clearTimeout(gs);clearTimeout(ge);if(LSN===r)LSN=null;waveOff();r.onstart=r.onend=r.onresult=r.onerror=null;res(o)};
+  r._stopGuard=()=>{clearTimeout(ge);ge=setTimeout(()=>fin({txt:txt.trim(),err:txt.trim()?null:"aborted",got}),2500)};
+  gs=setTimeout(()=>{if(!started){try{r.abort()}catch(e){}fin({txt:"",err:"nostart"})}},5000);
+  r.onstart=()=>{started=true;clearTimeout(gs);waveOn()};
   r.onsoundstart=()=>waveKick(0.35);r.onspeechstart=()=>waveKick(0.7);r.onspeechend=()=>{WVA.tgt=0.06};
   r.onresult=ev=>{txt="";for(let i=0;i<ev.results.length;i++)txt+=ev.results[i][0].transcript;if(ev.results[ev.results.length-1].isFinal)got=true;if(txt.length!==len){waveKick(Math.min(1,0.55+(txt.length-len)*0.08));len=txt.length}onText&&onText(txt)};
   r.onerror=ev=>{err=ev&&ev.error?ev.error:"unknown"};
-  r.onend=()=>{LSN=null;waveOff();res({txt:txt.trim(),err:txt.trim()?null:err,got})};
-  try{r.start()}catch(e){LSN=null;res({err:"start",txt:""})}
+  r.onend=()=>fin({txt:txt.trim(),err:txt.trim()?null:err,got});
+  try{r.start()}catch(e){fin({err:"start",txt:""})}
 })}
-function stopListen(){if(LSN){try{LSN.stop()}catch(e){}return true}return false}
-function micErr(err){return err==="not-allowed"||err==="service-not-allowed"?"Voice input is blocked. Check Safari's microphone permission (aA › Website Settings).":err==="no-speech"?"I didn't hear anything. Tap and speak again.":err==="network"?"Voice input needs an internet connection.":err==="unsupported"?"Voice input isn't supported in this browser.":"I didn't catch that. Tap and try again."}
+function stopListen(){if(LSN){const r=LSN;try{r.stop()}catch(e){}r._stopGuard&&r._stopGuard();return true}return false}
+function micErr(err){return err==="not-allowed"||err==="service-not-allowed"?"Voice input is blocked. Check Safari's microphone permission (aA › Website Settings).":err==="no-speech"?"I didn't hear anything. Tap and speak again.":err==="network"?"Voice input needs an internet connection.":err==="unsupported"?"Voice input isn't supported in this browser.":err==="nostart"?NOSR_MSG:"I didn't catch that. Tap and try again."}
 
 /* Conversation mode */
 let CONV=[],CVBUSY=false;
