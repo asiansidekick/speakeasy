@@ -527,7 +527,8 @@ html[data-look="glass"] .ovl{background:#1e3a8a}
 #convMsg{min-height:22px;text-align:center;font-weight:700}
 .cvbtns{display:flex;gap:10px;margin-top:6px}
 .cvplay{margin-top:8px;min-height:40px;padding:2px 16px;display:inline-flex;align-items:center;gap:6px}
-#convAuto[aria-pressed="true"]{background:var(--accent);color:var(--bg,#172554);border-color:var(--accent)}
+#convAuto[aria-pressed="true"]{background:var(--accent);color:var(--onaccent,#172554)!important;border-color:var(--accent)}
+html[data-look] #convAuto[aria-pressed="true"]{background:#fde68a!important;color:#172554!important;border-color:#fde68a!important}
 .cvbtns .ib{flex:1 1 0;min-width:0;min-height:72px;font-size:var(--fs-l);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15}
 .cvbtns .ib small{font-size:var(--fs-s);opacity:.85;font-weight:500}
 .cvbtns .ib.rec{background:var(--danger);color:#fff;border-color:var(--danger)}
@@ -727,7 +728,7 @@ html[data-look="glass"] .ovl{background:#1e3a8a}
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 17 Oct 2026, build 58</div>
+  <div class="hint">Version: 17 Oct 2026, build 59</div>
   <input type="file" id="file" accept=".json,application/json" hidden>
   <div id="bs" style="font-size:var(--fs-s);color:var(--mute);min-height:18px;margin-top:6px"></div>
   <div class="act" style="justify-content:space-between">
@@ -1894,7 +1895,7 @@ function startMic(){
     else if(err==="language-not-supported")micMsg("Voice input isn't available for "+(DIR==="th"?LG().n:"English")+" on this phone. Type it instead.",true);
     else if(err==="network")micMsg("Voice input needs an internet connection.",true);
     else if(err==="no-speech")micMsg("I didn't hear anything. Tap the mic, wait for Listening…, then speak.",true);
-    else if(!err||err==="aborted")micMsg(Date.now()-t0<3000?"If you just allowed the microphone, tap the mic again and speak.":"Voice input stopped. Tap the mic to try again."+(DIR==="th"?" If "+LG().n+" never works, add the "+LG().n+" keyboard on your iPhone (Settings › General › Keyboard › Keyboards › Add New Keyboard) and turn on Dictation.":""),false);
+    else if(!err||err==="aborted")micMsg(Date.now()-t0<3000?"If you just allowed the microphone, tap the mic again and speak.":"Voice input stopped. Tap the mic to try again.",false);
     else micMsg("Voice input error: "+err+". The keyboard's microphone key also works.",true);
   };
   micMsg("Starting microphone…",false);
@@ -2708,27 +2709,38 @@ $("setBtn").addEventListener("click",()=>setTimeout(()=>{bkFill();bkInfo()},0));
 
 /* Shared voice input for Conversation and Practice (same recognizer pattern as Talk) */
 let LSN=null;
-function listenOnce(lang,onText){return new Promise(res=>{
-  if(!SR){res({err:"unsupported",txt:""});return}
-  try{if(window.speechSynthesis)speechSynthesis.cancel()}catch(e){}
-  audioOff();
+let LASTREC=null;
+async function listenOnce(lang,onText){
+  if(!SR)return{err:"unsupported",txt:""};
+  let busy=false;try{busy=!!(window.speechSynthesis&&(speechSynthesis.speaking||speechSynthesis.pending))||!!AC;if(window.speechSynthesis)speechSynthesis.cancel()}catch(e){}
+  let closing=null;if(AC&&AC.close){try{closing=AC.close().catch(()=>{})}catch(e){}AC=null}audioOff();
+  const wait=ms=>new Promise(z=>setTimeout(z,ms));
+  if(closing)await Promise.race([closing,wait(600)]);
+  for(let i=0;i<10&&LASTREC&&!LASTREC._ended;i++)await wait(100);
+  if(busy)await wait(350);
+  const t0=Date.now();let r=await listen1(lang,onText);
+  // iPhone sometimes fails a second listen straight away: try once more
+  if(!r.txt&&!r.manual&&Date.now()-t0<1500&&!/not-allowed|unsupported|nostart|language/.test(r.err||"")){await wait(500);r=await listen1(lang,onText)}
+  return r;
+}
+function listen1(lang,onText){return new Promise(res=>{
   let r;try{r=new SR()}catch(e){res({err:"start",txt:""});return}
-  LSN=r;r.lang=lang;r.interimResults=true;r.continuous=false;r.maxAlternatives=1;
+  LSN=r;LASTREC=r;r.lang=lang;r.interimResults=true;r.continuous=false;r.maxAlternatives=1;
   let txt="",got=false,err=null,len=0,done=false,started=false,gs=0,ge=0,gq=0;
   // iPhone Safari can keep listening forever: stop by itself after a pause in speech, or if nothing is heard
   const quiet=ms=>{clearTimeout(gq);gq=setTimeout(()=>{if(done)return;if(!txt.trim())err=err||"no-speech";try{r.stop()}catch(e){}r._stopGuard()},ms)};
-  const fin=o=>{if(done)return;done=true;clearTimeout(gs);clearTimeout(ge);clearTimeout(gq);if(LSN===r)LSN=null;waveOff();r.onstart=r.onend=r.onresult=r.onerror=null;res(o)};
+  const fin=o=>{if(done)return;done=true;o.manual=!!r._manual;clearTimeout(gs);clearTimeout(ge);clearTimeout(gq);if(LSN===r)LSN=null;waveOff();r.onstart=r.onend=r.onresult=r.onerror=null;res(o)};
   r._stopGuard=()=>{clearTimeout(ge);ge=setTimeout(()=>fin({txt:txt.trim(),err:txt.trim()?null:err||"aborted",got}),2500)};
   gs=setTimeout(()=>{if(!started){try{r.abort()}catch(e){}fin({txt:"",err:"nostart"})}},5000);
   r.onstart=()=>{started=true;clearTimeout(gs);waveOn();quiet(8000)};
   r.onsoundstart=()=>waveKick(0.35);r.onspeechstart=()=>waveKick(0.7);r.onspeechend=()=>{WVA.tgt=0.06};
   r.onresult=ev=>{txt="";for(let i=0;i<ev.results.length;i++)txt+=ev.results[i][0].transcript;if(ev.results[ev.results.length-1].isFinal)got=true;if(txt.length!==len){waveKick(Math.min(1,0.55+(txt.length-len)*0.08));len=txt.length;quiet(1600)}onText&&onText(txt)};
   r.onerror=ev=>{err=ev&&ev.error?ev.error:"unknown"};
-  r.onend=()=>fin({txt:txt.trim(),err:txt.trim()?null:err,got});
+  r.onend=()=>{r._ended=true;fin({txt:txt.trim(),err:txt.trim()?null:err,got})};
   try{r.start()}catch(e){fin({err:"start",txt:""})}
 })}
-function stopListen(){if(LSN){const r=LSN;try{r.stop()}catch(e){}r._stopGuard&&r._stopGuard();return true}return false}
-function micErr(err,ln){return err==="not-allowed"||err==="service-not-allowed"?"Voice input is blocked. Check Safari's microphone permission (aA › Website Settings).":err==="no-speech"?"I didn't hear anything. Tap and speak again.":err==="network"?"Voice input needs an internet connection.":err==="unsupported"?"Voice input isn't supported in this browser.":err==="nostart"?NOSR_MSG:err==="language-not-supported"?"Voice input isn't available for this language on this phone. Type it instead.":"I didn't catch that. Tap and try again."+(ln&&ln!=="English"?" If "+ln+" never works, add the "+ln+" keyboard on your iPhone (Settings › General › Keyboard › Keyboards › Add New Keyboard) and turn on Dictation, so it can understand spoken "+ln+".":"")}
+function stopListen(){if(LSN){const r=LSN;r._manual=true;try{r.stop()}catch(e){}r._stopGuard&&r._stopGuard();return true}return false}
+function micErr(err,ln){return err==="not-allowed"||err==="service-not-allowed"?"Voice input is blocked. Check Safari's microphone permission (aA › Website Settings).":err==="no-speech"?"I didn't hear anything. Tap and speak again.":err==="network"?"Voice input needs an internet connection.":err==="unsupported"?"Voice input isn't supported in this browser.":err==="nostart"?NOSR_MSG:err==="language-not-supported"?"Voice input isn't available for this language on this phone. Type it instead.":"I didn't catch that. Tap and try again."+(err?" ("+err+")":"")}
 
 /* Conversation mode */
 let CONV=[],CVBUSY=false;
@@ -2752,7 +2764,7 @@ function convPaint(){
   $("convLog").innerHTML=CONV.length?CONV.map((c,k)=>{
     const thSide=c.who==="me";
     let pr="";if(thSide&&SOUNDS.includes(S.lang)&&S.ro!==false){const f=full({th:c.out,ro:c.ro,en:c.inp,cat:"x"});const h=toneHTML(f.th,c.ph||(c.ro?phonFromRo(c.ro):""),c.tn||"",true);pr=h?`<div class="rro">${h}</div>`:""}
-    return`<div class="cvb ${c.who}" data-k="${k}"><div class="cvo" dir="auto">${esc(c.inp)}</div><div class="cvt" dir="auto" lang="${thSide?S.lang:"en"}">${esc(thSide?full({th:c.out,ro:"",en:"",cat:"x"}).th:c.out)}</div>${pr}<button class="ib cvplay" type="button" data-k="${k}">${SPK}Play</button></div>`}).join(""):`<div class="hint" style="text-align:center;margin-top:30px">Tap <b>Me</b> and speak English. Tap the other button and let them speak ${esc(LG().n)}. Each line is translated. Tap Play to hear it, or turn on Auto-play to hear each one straight away.</div>`;
+    return`<div class="cvb ${c.who}" data-k="${k}"><div class="cvo" dir="auto">${esc(c.inp)}</div><div class="cvt" dir="auto" lang="${thSide?S.lang:"en"}">${esc(thSide?full({th:c.out,ro:"",en:"",cat:"x"}).th:c.out)}</div>${pr}<button class="ib cvplay" type="button" data-k="${k}">${SPK}Play</button></div>`}).join(""):`<div class="hint" style="text-align:center;margin-top:30px">Tap <b>Me</b> and speak English. Tap the other button and let them speak ${esc(LG().n)}. Each line is translated and, with Auto-play on, played straight away. Tap Play to hear a line again.</div>`;
   $("convAuto").textContent="Auto-play: "+(S.convAuto!==false?"On":"Off");$("convAuto").setAttribute("aria-pressed",S.convAuto!==false);
   const L=$("convLog");L.scrollTop=L.scrollHeight;
 }
