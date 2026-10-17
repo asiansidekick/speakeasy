@@ -203,6 +203,12 @@ label{color:var(--mute);font-size:var(--fs-s);font-weight:600;margin:12px 0 4px}
 label.ck{color:var(--ink);font-size:var(--fs-m);font-weight:400}
 label.sw,label.spd{margin:0}
 label.langbar{margin:0 0 10px}
+.toplang{flex:1;min-width:0}
+#thTop{flex:none;align-self:stretch;margin:0 0 10px 8px;padding:0 10px;align-items:center;min-height:0;display:flex;flex-direction:column;justify-content:center;line-height:1.1;font-size:var(--fs-s);font-weight:700}
+#thTop small{font-size:12px;font-weight:500;opacity:.85}
+#thTop[aria-pressed="true"]{background:#fde68a!important;color:#172554!important;border-color:#fde68a!important}
+#thTop[hidden]{display:none}
+@media (max-width:370px){.toplang{gap:8px;padding-left:12px;padding-right:12px}.toplang .lb-n{font-size:var(--fs-m)}}
 #toast{bottom:calc(96px + env(safe-area-inset-bottom,0px));background:var(--accent);color:var(--onaccent);border:0;border-radius:var(--r);box-shadow:0 10px 24px rgba(30,34,110,.40);font-size:var(--fs-m);font-weight:600;transform:translateX(-50%)}
 #toast.show{transform:translateX(-50%)}
 #toast.bad{background:var(--danger);color:#fff}
@@ -561,6 +567,7 @@ html[data-look] #convAuto[aria-pressed="true"]{background:#fde68a!important;colo
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
       <select id="lang" aria-label="Language"></select>
   </label>
+    <button class="ib" id="thTop" type="button" aria-pressed="false" aria-label="Thai mode: I speak Thai and want to learn English"></button>
     <button class="ib big" id="setBtn" aria-label="Settings">⚙︎</button>
   </div>
   <div class="hrow toprow">
@@ -732,7 +739,7 @@ html[data-look] #convAuto[aria-pressed="true"]{background:#fde68a!important;colo
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 17 Oct 2026, build 64</div>
+  <div class="hint">Version: 17 Oct 2026, build 65</div>
   <input type="file" id="file" accept=".json,application/json" hidden>
   <div id="bs" style="font-size:var(--fs-s);color:var(--mute);min-height:18px;margin-top:6px"></div>
   <div class="act" style="justify-content:space-between">
@@ -1409,6 +1416,7 @@ function thLabels(){
   set("hint",document.querySelector(".bhint2"),"<b>แตะ</b> เพื่อฟัง · <b>กดค้างครึ่งวินาทีแล้วปล่อย</b> เพื่อแสดงเต็มจอ · <b>กดค้างแล้วลาก</b> เพื่อย้าย");
   set("cv",$("convBtn"),"💬 โหมดสนทนา");set("pr",$("pracBtn"),"🎯 ฝึกพูดภาษาอังกฤษ");
   $("q").placeholder=T?"ค้นหาวลี":"Search phrases";
+  const b=$("thTop");if(b){b.hidden=S.lang!=="th";b.setAttribute("aria-pressed",T);b.innerHTML=`<span lang="th">🇹🇭 ไทย</span><small>${T?"On":"Off"}</small>`}
 }
 function glWords(th,L){
   let ws=[];try{ws=[...new Intl.Segmenter(L,{granularity:"word"}).segment(th)].filter(x=>x.isWordLike).map(x=>x.segment)}catch(e){ws=th.split(/\s+/)}
@@ -1448,8 +1456,8 @@ async function glossIn(root){
     let k=0;el.innerHTML="";W.forEach(x=>{const g=document.createElement("span");g.className="wg";const sy=document.createElement("span");sy.className="wsy";
       for(let i=0;i<x.n;i++)sy.appendChild(ts[k++]);g.appendChild(sy);const m=glGet(L,x.w);if(m){const sm=document.createElement("small");sm.className="gl";sm.textContent=m;g.appendChild(sm)}el.appendChild(g)})});
 }
-function glWatch(){const mo=new MutationObserver(ms=>{const seen=new Set();ms.forEach(m=>{const r=m.target.closest&&m.target.closest("#trOut,#bigSub,#conv,#prac");if(r&&!seen.has(r)){seen.add(r);glossIn(r);enGlossIn(r)}})});
-  ["trOut","bigSub","conv","prac"].forEach(id=>{const e=$(id);if(e)mo.observe(e,{childList:true,subtree:true})})}
+function glWatch(){const mo=new MutationObserver(ms=>{const seen=new Set();ms.forEach(m=>{const r=m.target.closest&&m.target.closest("#trOut,#bigSub,#conv,#prac,#bldOut");if(r&&!seen.has(r)){seen.add(r);glossIn(r);enGlossIn(r)}})});
+  ["trOut","bigSub","conv","prac","bldOut"].forEach(id=>{const e=$(id);if(e)mo.observe(e,{childList:true,subtree:true})})}
 setTimeout(glWatch,0);
 function viSyl(w){
   const d=w.normalize("NFD");let tn="a";
@@ -1800,7 +1808,7 @@ $("main").onclick=async e=>{
   if(e.target.closest("#selMove")){selMoveDo();return}
   const sa=e.target.closest("[data-see]");if(sa){cat=sa.dataset.see;render();document.querySelector(".board").scrollIntoView({block:"start"});return}
   const hs=e.target.closest("[data-hsave]");if(hs){histSave(+hs.dataset.hsave);return}
-  const hi=e.target.closest("[data-hi]");if(hi){const x=S.hist[+hi.dataset.hi];if(x)speak({th:histClean(x.th),ro:x.ro||"",en:x.en||"",np:1,cat:"",lang:S.lang});return}
+  const hi=e.target.closest("[data-hi]");if(hi){const x=S.hist[+hi.dataset.hi];if(x&&TU()&&x.en){speak({th:x.en,en:"",cat:"x",np:1,lang:"en"},"en-US");return}if(x)speak({th:histClean(x.th),ro:x.ro||"",en:x.en||"",np:1,cat:"",lang:S.lang});return}
   const fv=e.target.closest("[data-fav]");if(fv){toggleFav(fv.dataset.fav);return}
   const d=e.target.closest("[data-del]");
   if(d){e.stopPropagation();deleteMany([d.dataset.del]);return}
@@ -2204,7 +2212,7 @@ const histClean=t=>String(t||"").replace(/\s*(ครับ|ค่ะ|คะ)\s*$
 function histSaved(x){const t=histClean(x.th);return S.items.some(i=>(i.th===t||(i.tr&&i.tr[S.lang]&&i.tr[S.lang].t===t)))}
 function histTileHTML(x,n){
   const t=histClean(x.th),pr=S.ro?toneHTML(t,x.ro||"","",!x.ro):"",sv=histSaved(x);
-  return `<div class="tile htile${x.en?" enonly":""}" data-hi="${n}" role="button" tabindex="0"><span class="th" lang="${S.lang}" dir="auto">${esc(t)}</span>${pr?`<small class="ro">${pr}</small>`:""}${x.en?`<small class="en">${esc(x.en)}</small>`:""}<button class="hsave${sv?" done":""}" data-hsave="${n}"${sv?" disabled":""}>${sv?"✓ Saved":"＋ Save"}</button></div>`;
+  return `<div class="tile htile${x.en?" enonly":""}" data-hi="${n}" role="button" tabindex="0"><span class="th" lang="${S.lang}" dir="auto">${esc(t)}</span>${pr?`<small class="ro">${pr}</small>`:""}${x.en?`<small class="en"${TU()?' lang="th"':""}>${esc(TU()?t:x.en)}</small>`:""}<button class="hsave${sv?" done":""}" data-hsave="${n}"${sv?" disabled":""}>${sv?"✓ Saved":"＋ Save"}</button></div>`;
 }
 function histSave(n){
   const x=S.hist[n];if(!x||histSaved(x))return;
@@ -2427,7 +2435,7 @@ function bldPick(){
   const vals=T.s.map((x,k)=>x[1][+$("bldS"+k).value]);
   const r=T.mk(...vals);BLD={...r,cat:T.cat};
   const f=full({th:r.th,ro:phonFromRo(r.ro),en:r.en,cat:"x",lang:"th"});
-  $("bldOut").innerHTML=`<div class="bub"><div class="rth" lang="th">${esc(f.th)}</div><div class="rro">${esc(f.ro)}</div><div class="ren">${esc(r.en)}</div></div>`;
+  $("bldOut").innerHTML=TU()?`<div class="bub"><div class="rth" lang="en">${esc(r.en)}</div><div class="rro">${enHTML(r.en)}</div><div class="ren" lang="th">${esc(f.th)}</div></div>`:`<div class="bub"><div class="rth" lang="th">${esc(f.th)}</div><div class="rro">${esc(f.ro)}</div><div class="ren">${esc(r.en)}</div></div>`;
   const cs=cats(),want=cs.includes(T.cat)?T.cat:cs[0];
   // rebuild the list with the right one selected: iPhone doesn't always redraw a picker changed by code
   $("bldCat").innerHTML=cs.map(c=>`<option value="${esc(c)}"${c===want?" selected":""}>${esc(c)}</option>`).join("");$("bldCat").value=want;
@@ -2446,8 +2454,8 @@ $("bldBtn").onclick=()=>{
 };
 $("bldT").onchange=bldBuild;
 $("bldClose").onclick=()=>$("bldD").close();
-$("bldSpk").onclick=()=>{if(BLD)speak({th:BLD.th,ro:BLD.ro,en:BLD.en,cat:"x",lang:"th",np:0})};
-$("bldShow").onclick=()=>{if(BLD){$("bldD").close();showBig(full({th:BLD.th,ro:phonFromRo(BLD.ro),en:BLD.en,cat:"x",lang:"th"}))}};
+$("bldSpk").onclick=()=>{if(BLD&&TU()){speak({th:BLD.en.replace(/ × /," "),en:"",cat:"x",np:1,lang:"en"},"en-US");return}if(BLD)speak({th:BLD.th,ro:BLD.ro,en:BLD.en,cat:"x",lang:"th",np:0})};
+$("bldShow").onclick=()=>{if(BLD&&TU()){$("bldD").close();BIG.sub=true;showBig({th:BLD.en.replace(/ × /," "),ro:"",en:BLD.th,lang:"en",tts:"en-US"});return}if(BLD){$("bldD").close();showBig(full({th:BLD.th,ro:phonFromRo(BLD.ro),en:BLD.en,cat:"x",lang:"th"}))}};
 $("bldSave").onclick=()=>{
   if(!BLD)return;
   const c=$("bldCat").value;
@@ -2605,7 +2613,9 @@ $("setBtn").onclick=()=>{
   if(!S.ghRepo&&/github\.io$/.test(location.hostname)){const rp=location.pathname.split("/")[1];if(rp)S.ghRepo=location.hostname.split(".")[0]+"/"+rp}
   $("catExpSel").innerHTML=cats().map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");$("aiKey").value=S.aiKey||"";$("ghToken").value=S.ghToken||"";$("ghRepo").value=S.ghRepo||"";$("ghAuto").checked=!!S.ghAuto;
   $("mmEmail").value=S.mmEmail||"";$("sLight").checked=!!S.light;$("sLook").value=S.look||"";$("pol").value=S.pol;$("sRo").checked=S.ro;$("tLeg").innerHTML=S.lang==="th"||S.lang==="vi"?(S.lang==="th"?"MLHRF":"afsrxj").split("").map(t=>`<span>${ticon(t)}${TNAME[t]}</span>`).join(""):"";$("sEn").checked=S.en;$("sThai").checked=!!S.thUser;$("sThaiRow").style.display=S.lang==="th"?"":"none";$("setD").showModal()};
-$("sThai").onchange=e=>{S.thUser=e.target.checked;save();setDir(TU()?"th":"en");thLabels();refreshLang();render();renderHist()};
+function setThai(on){S.thUser=on;save();setDir(TU()?"th":"en");thLabels();refreshLang();render();renderHist()}
+$("sThai").onchange=e=>setThai(e.target.checked);
+$("thTop").onclick=()=>setThai(!S.thUser);
 $("setClose").onclick=()=>$("setD").close();
 $("pol").onchange=e=>{S.pol=e.target.value;save();render()};
 const LOOKFONT={"glass":"Prompt:wght@400;500"};
@@ -2690,7 +2700,18 @@ function ltNum(str,unit,L){
   else if(unit){w=tlLink(w)+({baht:" piso",beer:" bote ng beer",coffee:" tasa ng kape"})[unit]}
   return{th:w,ro:ltPron(w,L)};
 }
-function numFor(v,u){return S.lang==="vi"?viNum(v,u):S.lang==="ms"||S.lang==="tl"?ltNum(v,u,S.lang):thNum(v,u)}
+/* number words in English, for Thai mode */
+function enNum(v,u){
+  const O="zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen".split(" "),T="  twenty thirty forty fifty sixty seventy eighty ninety".split(" ");
+  const h=n=>{let w=[];if(n>=100){w.push(O[Math.floor(n/100)],"hundred");n%=100}if(n>=20){w.push(T[Math.floor(n/10)]+(n%10?"-"+O[n%10]:""))}else if(n||!w.length)w.push(O[n]);return w.join(" ")};
+  const [a,b]=String(v).split(".");let n=+(a||0),w=[];
+  if(!n)w.push("zero");
+  for(const[sz,nm]of[[1e9,"billion"],[1e6,"million"],[1e3,"thousand"],[1,""]]){const k=Math.floor(n/sz);if(k){w.push(h(k)+(nm?" "+nm:""));n%=sz}}
+  let t=w.join(" ");if(b!==undefined)t+=" point "+[...b].map(d=>O[+d]).join(" ");
+  if(u){const one=v==="1";t+=" "+(u==="baht"?"baht":u==="beer"?(one?"beer":"beers"):(one?"coffee":"coffees"))}
+  return{th:t,ro:"",tn:""};
+}
+function numFor(v,u){if(TU())return enNum(v,u);return S.lang==="vi"?viNum(v,u):S.lang==="ms"||S.lang==="tl"?ltNum(v,u,S.lang):thNum(v,u)}
 const CUR={vi:[" ₫"," dong","₫ Dong"],ms:["RM "," ringgit","RM Ringgit"],tl:["₱"," pesos","₱ Peso"]};
 function nUnit(k,i){return k==="baht"&&CUR[S.lang]?CUR[S.lang][i]:NUNIT[k][i]}
 function numLang(){return CUR[S.lang]?S.lang:"th"}
@@ -2699,10 +2720,10 @@ function nkU(){return S.numUnit!==undefined?S.numUnit:(S.numBaht?"baht":"")}
 function numFmt(v){if(!v)return"0";const [a,b]=v.split(".");return a.replace(/\B(?=(\d{3})+(?!\d))/g,",")+(b!==undefined?"."+b:"")}
 function numPaint(){
   const pre=NKB==="baht"&&(S.lang==="ms"||S.lang==="tl");$("nmVal").textContent=pre?nUnit(NKB,0)+numFmt(NKV):numFmt(NKV)+(NKB?nUnit(NKB,0):"");
-  $("nmTh").lang=numLang();const ub=document.querySelector('#numD [data-u=baht]');if(ub)ub.textContent=CUR[S.lang]?CUR[S.lang][2]:"฿ Baht";
+  $("nmTh").lang=TU()?"en":numLang();const ub=document.querySelector('#numD [data-u=baht]');if(ub)ub.textContent=CUR[S.lang]?CUR[S.lang][2]:"฿ Baht";
   document.querySelectorAll("#numD [data-u]").forEach(b=>{const on=b.dataset.u===NKB;b.classList.toggle("on",on);b.setAttribute("aria-pressed",on)});
-  if(!NKV){$("nmTh").textContent="";$("nmRo").innerHTML="<span class='nmhint'>Tap the numbers below</span>";return}
-  const r=numFor(NKV,NKB);$("nmTh").textContent=r.th;$("nmRo").innerHTML=toneHTML(r.th,r.ro,r.tn);
+  if(!NKV){$("nmTh").textContent="";$("nmRo").innerHTML="<span class='nmhint'>"+(TU()?"แตะตัวเลขด้านล่าง · ":"")+"Tap the numbers below</span>";return}
+  const r=numFor(NKV,NKB);$("nmTh").textContent=r.th;$("nmRo").innerHTML=TU()?enHTML(r.th,1):toneHTML(r.th,r.ro,r.tn);
 }
 function numKey(k){
   if(k==="back")NKV=NKV.slice(0,-1);
@@ -2716,8 +2737,9 @@ document.querySelectorAll("#numD [data-k]").forEach(b=>b.onclick=()=>numKey(b.da
 $("numD").addEventListener("keydown",e=>{if(/^[0-9.]$/.test(e.key)){numKey(e.key);e.preventDefault()}else if(e.key==="Backspace"){numKey("back");e.preventDefault()}});
 document.querySelectorAll("#numD [data-u]").forEach(b=>b.onclick=()=>{NKB=NKB===b.dataset.u?"":b.dataset.u;S.numUnit=NKB;save();numPaint()});
 $("nmClr").onclick=()=>{NKV="";numPaint()};
-$("nmPlay").onclick=()=>{if(NKV){const r=numFor(NKV,NKB),nl=numLang();speak({th:r.th,ro:r.ro,en:numFmt(NKV),cat:"x",np:1,lang:nl},nl==="th"?"th-TH":LG().tts)}};
-$("nmShow").onclick=()=>{if(!NKV)return;const r=numFor(NKV,NKB);$("numD").close();BIG.sub=true;showBig({th:r.th,ro:r.ro,en:numFmt(NKV)+(NKB?(NKV==="1"?nUnit(NKB,1).replace(/s$/,""):nUnit(NKB,1)):""),tts:numLang()==="th"?"th-TH":LG().tts})};
+$("nmPlay").onclick=()=>{if(NKV&&TU()){speak({th:enNum(NKV,NKB).th,en:"",cat:"x",np:1,lang:"en"},"en-US");return}if(NKV){const r=numFor(NKV,NKB),nl=numLang();speak({th:r.th,ro:r.ro,en:numFmt(NKV),cat:"x",np:1,lang:nl},nl==="th"?"th-TH":LG().tts)}};
+$("nmShow").onclick=()=>{if(!NKV)return;const r=numFor(NKV,NKB);$("numD").close();BIG.sub=true;
+  if(TU()){showBig({th:r.th,ro:"",en:numFmt(NKV),lang:"en",tts:"en-US"});return}showBig({th:r.th,ro:r.ro,en:numFmt(NKV)+(NKB?(NKV==="1"?nUnit(NKB,1).replace(/s$/,""):nUnit(NKB,1)):""),tts:numLang()==="th"?"th-TH":LG().tts})};
 $("nmX").onclick=()=>$("numD").close();
 
 /* "Ways to say it" under a translation: how words are really said (B) and casual/polite/formal word swaps (D) */
