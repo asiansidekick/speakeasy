@@ -672,7 +672,7 @@ html .nmunits .ib.on,html[data-look] .nmunits .ib.on{background:#fde68a!importan
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 17 Oct 2026, build 47</div>
+  <div class="hint">Version: 17 Oct 2026, build 48</div>
   <label>Backup (everything on this device)</label>
   <div class="row"><button class="ib" id="exp" style="flex:1">Export backup</button><button class="ib" id="imp" style="flex:1">Import backup</button></div>
   <input type="file" id="file" accept=".json,application/json" hidden>
@@ -1665,35 +1665,25 @@ $("trOut").onclick=e=>{
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 let REC=null,RECON=false;
 function micMsg(m,bad){$("trOut").innerHTML=`<div style="margin-top:12px;font-weight:700;${bad?"color:#e5745f":""}">${esc(m)}</div>`}
-/* Live waveform while Talk listens. iPhone shares one mic between speech input and this stream,
-   so the stream is opened once and kept (stopping it breaks the next Talk); it's only released when the app is hidden. */
-let WV=null,WVBAD=false,WVUSED=false,WVRETRY=false;
-async function waveOn(){
-  if(WVBAD||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return;
-  try{
-    if(!WV||!WV.st||WV.st.getTracks().every(t=>t.readyState==="ended")){
-      waveRelease();
-      const st=await navigator.mediaDevices.getUserMedia({audio:true});
-      const C=window.AudioContext||window.webkitAudioContext,ac=new C(),an=ac.createAnalyser();an.fftSize=1024;
-      ac.createMediaStreamSource(st).connect(an);WV={st,ac,an,d:new Uint8Array(an.fftSize),on:false};
-    }
-    const w=WV;if(!RECON)return;
-    if(w.ac.state==="suspended")await w.ac.resume();
-    w.on=true;WVUSED=true;cancelAnimationFrame(w.raf);
-    const draw=()=>{if(!w.on)return;const c=$("wave");if(c){const r=c.getBoundingClientRect(),k=window.devicePixelRatio||1;if(c.width!==Math.round(r.width*k)){c.width=Math.round(r.width*k);c.height=Math.round(r.height*k)}
-      const x=c.getContext("2d"),W=c.width,H=c.height,d=w.d;w.an.getByteTimeDomainData(d);x.clearRect(0,0,W,H);
-      x.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue("--danger").trim()||"#e5745f";x.lineWidth=3*k;x.lineJoin="round";x.beginPath();
-      for(let i=0;i<d.length;i++){const px=i/(d.length-1)*W,py=H/2+(d[i]-128)/128*H*1.6;x[i?"lineTo":"moveTo"](px,Math.max(2,Math.min(H-2,py)))}x.stroke()}
-      w.raf=requestAnimationFrame(draw)};
-    draw();
-  }catch(e){WVBAD=true;waveRelease()}
+/* Waveform while Talk listens. iPhone won't share the mic between speech input and a second recorder
+   (Talk stopped working), so the wave is driven by the speech recognizer's own events: it rises when sound
+   and speech are detected and jumps with each new word heard. */
+let WVA={on:false,lvl:0,tgt:0,ph:0,raf:0,len:0};
+function waveKick(v){WVA.tgt=Math.max(WVA.tgt,v);WVA.lvl=Math.max(WVA.lvl,v*0.8)}
+function waveOn(){
+  const w=WVA;w.on=true;w.lvl=0;w.tgt=0.06;w.len=0;cancelAnimationFrame(w.raf);
+  const draw=()=>{if(!w.on)return;const c=$("wave");if(c){const r=c.getBoundingClientRect(),k=window.devicePixelRatio||1;if(c.width!==Math.round(r.width*k)){c.width=Math.round(r.width*k);c.height=Math.round(r.height*k)}
+    w.tgt=Math.max(0.06,w.tgt*0.95);w.lvl+=(w.tgt-w.lvl)*0.25;w.ph+=0.22;
+    const x=c.getContext("2d"),W=c.width,H=c.height,n=96;x.clearRect(0,0,W,H);
+    x.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue("--danger").trim()||"#e5745f";x.lineWidth=3*k;x.lineJoin="round";x.beginPath();
+    for(let i=0;i<=n;i++){const u=i/n,env=Math.sin(Math.PI*u),y=Math.sin(u*22+w.ph)*0.6+Math.sin(u*37-w.ph*1.7)*0.3+Math.sin(u*9+w.ph*0.6)*0.25;
+      const py=H/2+y*env*w.lvl*H*0.45;x[i?"lineTo":"moveTo"](u*W,py)}x.stroke()}
+    w.raf=requestAnimationFrame(draw)};
+  draw();
 }
-function wavePause(){const w=WV;if(!w)return;w.on=false;try{cancelAnimationFrame(w.raf)}catch(e){}try{w.ac.suspend()}catch(e){}}
-function waveRelease(){const w=WV;WV=null;if(!w)return;w.on=false;try{cancelAnimationFrame(w.raf)}catch(e){}try{w.st.getTracks().forEach(t=>t.stop())}catch(e){}try{w.ac.close()}catch(e){}}
-document.addEventListener("visibilitychange",()=>{if(document.hidden&&!RECON)waveRelease()});
-function micRecover(){if(!WVUSED||WVRETRY)return false;WVRETRY=true;WVBAD=true;waveRelease();setTimeout(startMic,400);return true}
+function waveOff(){WVA.on=false;cancelAnimationFrame(WVA.raf)}
 function startMic(){
-  if(RECON){try{REC._user=1;REC.stop()}catch(e){}return}
+  if(RECON){try{REC.stop()}catch(e){}return}
   if(!SR){micMsg("Voice input isn't supported in this browser. Tap the microphone key on your keyboard to dictate instead.",false);$("trIn").focus();return}
   try{if(window.speechSynthesis)speechSynthesis.cancel()}catch(e){}
   audioOff();
@@ -1702,18 +1692,18 @@ function startMic(){
   REC=r;
   r.lang=DIR==="th"?LG().tts:"en-US";r.interimResults=true;r.continuous=false;r.maxAlternatives=1;
   let got=false,err=null;const t0=Date.now();
-  r.onstart=()=>{RECON=true;$("trMic").classList.add("rec");$("trMic").querySelector(".mlab").innerHTML=bi("กำลังฟัง","Listening");micMsg("Listening… speak now",false);if(!WVBAD){$("trOut").insertAdjacentHTML("beforeend",'<canvas id="wave" aria-hidden="true"></canvas>');waveOn()}};
+  r.onstart=()=>{RECON=true;$("trMic").classList.add("rec");$("trMic").querySelector(".mlab").innerHTML=bi("กำลังฟัง","Listening");micMsg("Listening… speak now",false);$("trOut").insertAdjacentHTML("beforeend",'<canvas id="wave" aria-hidden="true"></canvas>');waveOn()};
+  r.onsoundstart=()=>waveKick(0.35);r.onspeechstart=()=>waveKick(0.7);r.onspeechend=()=>{WVA.tgt=0.06};
   r.onresult=ev=>{
     let txt="";for(let i=0;i<ev.results.length;i++)txt+=ev.results[i][0].transcript;
     $("trIn").value=txt;
+    if(txt.length!==WVA.len){waveKick(Math.min(1,0.55+(txt.length-WVA.len)*0.08));WVA.len=txt.length}
     if(ev.results[ev.results.length-1].isFinal)got=true;
   };
   r.onerror=ev=>{err=ev&&ev.error?ev.error:"unknown"};
   r.onend=()=>{
-    RECON=false;$("trMic").classList.remove("rec");whoLabels();
-    wavePause();
+    RECON=false;$("trMic").classList.remove("rec");whoLabels();waveOff();
     const txt=$("trIn").value.trim();
-    if(!got&&!r._user&&err!=="no-speech"&&err!=="not-allowed"&&Date.now()-t0<2500&&micRecover())return;
     if(txt&&(got||!err)){doTr();return}
     if(err==="not-allowed"||err==="service-not-allowed")micMsg("Voice input is blocked ("+err+"). On iPhone check Settings > Privacy & Security > Speech Recognition, Settings > General > Keyboard > Enable Dictation, and Safari's microphone permission (aA > Website Settings). The keyboard's microphone key also works.",true);
     else if(err==="audio-capture")micMsg("No microphone found.",true);
@@ -1723,7 +1713,7 @@ function startMic(){
     else micMsg("Voice input error: "+err+". The keyboard's microphone key also works.",true);
   };
   micMsg("Starting microphone…",false);
-  try{r.start()}catch(e){RECON=false;if(micRecover())return;micMsg("Couldn't start the microphone ("+(e&&e.name?e.name:"error")+"). Use the microphone key on your keyboard instead.",true);$("trIn").focus()}
+  try{r.start()}catch(e){RECON=false;micMsg("Couldn't start the microphone ("+(e&&e.name?e.name:"error")+"). Use the microphone key on your keyboard instead.",true);$("trIn").focus()}
 }
 $("trMic").style.display="";
 $("trMic").onclick=startMic;
