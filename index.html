@@ -166,6 +166,7 @@ input[type=checkbox]{width:26px;height:26px;accent-color:var(--accent);padding:0
 .bub{position:relative;background:var(--pill);color:var(--ink);border:0;border-radius:24px;padding:10px 18px;margin:4px 0 10px;box-shadow:none}
 .bub::before,.bub::after{display:none}
 .bub .rth{color:var(--ink);font-size:var(--fs-xl);font-weight:400;line-height:1.2;margin-top:0}
+#trOut .bub .rth{font-size:50px;overflow-wrap:anywhere}
 .bub .rro{color:var(--accent);font-size:var(--fs-l);font-weight:400;font-style:normal}
 .bub .ren{color:var(--mute);font-size:var(--fs-m);font-weight:400}
 .actrow{gap:10px;margin-top:10px;flex-wrap:nowrap}
@@ -380,7 +381,7 @@ html,body{overflow-x:hidden;max-width:100%}
 header{padding-bottom:10px}
 #bigReply{display:flex;gap:10px;padding:10px 12px 0;justify-content:center;flex-wrap:wrap}
 #bigReply .ib{flex:1 1 0;min-width:0;min-height:64px;display:inline-flex;align-items:center;justify-content:center;gap:10px;font-size:var(--fs-m);font-weight:700}
-#bigReply span{display:flex;flex-direction:column;line-height:1.1}
+#bigReply span{display:flex;flex-direction:column;line-height:1.1;min-width:0;overflow-wrap:anywhere}
 #bigReply small{font-size:14px;font-weight:500;opacity:.85}
 #bigReply svg{width:28px;height:28px;flex:none}
 @media (max-height:900px){.dirrow.who .ib{min-height:54px}.dirrow.who .ib small{font-size:13px}#bigReply .ib{min-height:54px}}
@@ -467,11 +468,11 @@ html[data-look="glass"] #nmTh{color:#fde68a}
 .grid[data-gc] .tile::before{display:none!important}
 .grid[data-gc] .tile .en{font-size:17px;line-height:1.3;padding:0!important;white-space:normal}
 .grid[data-gc] .tile .fav{display:none}
-.grid[data-gc] .tile .fav.on{display:inline;position:static;order:-1;width:auto;height:auto;font-size:15px;color:#fde68a}
+.grid[data-gc] .tile .fav.on{display:inline;position:static;order:-1;width:auto;height:auto;font-size:15px;color:#fde68a;pointer-events:none}
 .grid[data-gc] .tile .auto{display:none}
 .grid[data-gc] .tile.holder{opacity:.25}
 .edit .grid[data-gc] .tile{padding-right:30px!important}
-.edit .grid[data-gc] .tile .x{top:50%;transform:translateY(-50%);right:4px;width:24px;height:24px}
+.edit .grid[data-gc] .tile .x{top:2px;transform:none;right:2px;width:22px;height:22px}
 html[data-look="glass"] .grid[data-gc] .tile{background:rgba(15,23,60,.42)!important}
 html[data-look="glass"] .grid[data-gc] .tile.sel{box-shadow:inset 0 0 0 2px #fde68a!important}
 .board .sec{font-size:16px!important;margin:14px 0 6px!important}
@@ -728,7 +729,7 @@ html[data-look] #convAuto[aria-pressed="true"]{background:#fde68a!important;colo
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 17 Oct 2026, build 61</div>
+  <div class="hint">Version: 17 Oct 2026, build 62</div>
   <input type="file" id="file" accept=".json,application/json" hidden>
   <div id="bs" style="font-size:var(--fs-s);color:var(--mute);min-height:18px;margin-top:6px"></div>
   <div class="act" style="justify-content:space-between">
@@ -1285,7 +1286,7 @@ function ltWord(w,L){
 function ltWords(text,L){return String(text||"").replace(/-/g," ").split(/[\s,.!?;:"“”()…–—]+/).filter(Boolean).map(w=>ltWord(w,L)||w.toLowerCase())}
 function ltPron(text,L){return ltWords(text,L).join(" ")}
 const SOUNDS=["th","vi","ms","tl"];
-const GL_FIX={th:{"ครับ":"(polite)","ค่ะ":"(polite)","คะ":"(polite)","นะ":"(soft)","จ้ะ":"(friendly)","จ้า":"(friendly)","ไหม":"(question)","มั้ย":"(question)","ได้":"can","ไม่":"not","หน่อย":"please","ด้วย":"please","คับ":"(polite)","เหรอ":"(really?)","ล่ะ":"(then?)","สิ":"(do it)"},vi:{"ạ":"(polite)","nhé":"(ok?)","không":"no / (question)","ơi":"(hey)","nhỉ":"(right?)"},tl:{po:"(polite)",ho:"(polite)"},ms:{lah:"(emphasis)"}};
+const GL_FIX={th:{"ครับ":"(polite)","ค่ะ":"(polite)","คะ":"(polite)","นะ":"(soft)","จ้ะ":"(friendly)","จ้า":"(friendly)","ไหม":"(question)","มั้ย":"(question)","ได้":"can","ไม่":"not","หน่อย":"please","ด้วย":"please","คับ":"(polite)","เหรอ":"(really?)","ล่ะ":"(then?)","สิ":"(do it)","เลย":"(right now)"},vi:{"ạ":"(polite)","nhé":"(ok?)","không":"no / (question)","ơi":"(hey)","nhỉ":"(right?)"},tl:{po:"(polite)",ho:"(polite)"},ms:{lah:"(emphasis)"}};
 const VI_WORDS=new Set("cái này|cái kia|cái đó|cái gì|bao nhiêu|bao giờ|bao lâu|nhà vệ sinh|vệ sinh|cảm ơn|xin chào|xin lỗi|tạm biệt|khách sạn|nhà hàng|cà phê|sân bay|bệnh viện|nhà thuốc|hiệu thuốc|cảnh sát|ngân hàng|siêu thị|chợ đêm|đường phố|thành phố|xe buýt|xe máy|xe ôm|tắc xi|taxi|máy bay|tàu hỏa|ga tàu|vé tàu|hộ chiếu|điện thoại|máy quay|máy ảnh|diễn viên|đạo diễn|quay phim|bộ phim|hóa trang|trang điểm|hành động|ở đâu|ở đây|ở đó|bên trái|bên phải|đi thẳng|rẽ trái|rẽ phải|bây giờ|hôm nay|ngày mai|hôm qua|buổi sáng|buổi chiều|buổi tối|ban đêm|tuần sau|tháng sau|thời gian|mấy giờ|một chút|chút xíu|làm ơn|giúp đỡ|giúp tôi|được không|không sao|không có|không phải|có thể|có không|tại sao|như thế nào|thế nào|như vậy|vì sao|người việt|việt nam|tiếng việt|tiếng anh|người nước ngoài|nước ngoài|nước suối|nước đá|nước mía|bia hơi|thức ăn|đồ ăn|ăn sáng|ăn trưa|ăn tối|thực đơn|hóa đơn|tính tiền|tiền mặt|thẻ tín dụng|giảm giá|đắt quá|rẻ quá|ngon quá|rất ngon|bánh mì|phở bò|phở gà|cơm gà|cơm tấm|bún chả|nem rán|chả giò|gỏi cuốn|rau thơm|hải sản|thịt bò|thịt gà|thịt heo|thịt lợn|trứng gà|đồ uống|trà đá|sinh tố|ăn chay|dị ứng|đậu phộng|không cay|ít cay|ít đường|không đá|bác sĩ|đau bụng|đau đầu|cấp cứu|nguy hiểm|an toàn|khẩn cấp|đi bộ|chờ đợi|chờ một chút|đợi một chút|bắt đầu|kết thúc|nghỉ ngơi|làm việc|công việc|hiểu không|không hiểu|biết không|không biết|chụp ảnh|mua sắm|quần áo|giày dép|kích cỡ|màu sắc|phòng tắm|phòng ngủ|điều hòa|wifi|mật khẩu|ổ cắm|sạc pin|đẹp quá|vui vẻ|hạnh phúc|bạn bè|gia đình|anh ấy|chị ấy|cô ấy|ông ấy|bà ấy|chúng tôi|chúng ta|các bạn|mọi người|tất cả|cũng được|đúng rồi|sai rồi|xong rồi|chưa xong|sẵn sàng|chuẩn bị|lần nữa|một lần|hai lần|lần đầu|cẩn thận|chậm lại|nhanh lên|nói chậm|im lặng|yên lặng|đồng hồ|hôm nào|lúc nào|ai đó|cái nào|chỗ nào|đâu đó|tiếp theo|cảnh quay|máu giả|tóc giả|râu giả".split("|"));
 function glWords(th,L){
   let ws=[];try{ws=[...new Intl.Segmenter(L,{granularity:"word"}).segment(th)].filter(x=>x.isWordLike).map(x=>x.segment)}catch(e){ws=th.split(/\s+/)}
@@ -1299,16 +1300,21 @@ async function glFetch(L,words){
   const ac=new AbortController();setTimeout(()=>ac.abort(),8000);
   const r=await fetch("https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&sl="+encodeURIComponent(LANGS.find(l=>l.c===L).mm)+"&tl=en&q="+encodeURIComponent(words.join("\n")),{signal:ac.signal});
   const j=await r.json();const out={};
-  (j[0]||[]).forEach(seg=>{const o=String(seg[1]||"").trim(),t=String(seg[0]||"").trim().replace(/[.?!]+$/,"");if(o&&t)out[o]=t.length>1&&t===t[0].toUpperCase()+t.slice(1)&&!/^I\b/.test(t)?t[0].toLowerCase()+t.slice(1):t});
+  (j[0]||[]).forEach(seg=>{const o=String(seg[1]||"").trim(),t=glClean(seg[0]);if(o&&t)out[o]=t});
   return out;
 }
+function glClean(t){t=String(t||"").trim().replace(/[.?!]+$/,"");return t.length>1&&t===t[0].toUpperCase()+t.slice(1)&&!/^I\b/.test(t)?t[0].toLowerCase()+t.slice(1):t}
 function glGet(L,w){const f=GL_FIX[L]&&GL_FIX[L][w.toLowerCase()];if(f)return f;return(S.gl||{})[L+"|"+w.toLowerCase()]}
 async function glossIn(root){
   if(!SOUNDS.includes(S.lang)||S.ro===false)return;
   const L=S.lang,els=[...root.querySelectorAll(".tn[data-g]:not([data-gd])")];if(!els.length)return;
   const todo=[];els.forEach(el=>{el.dataset.gd="1";const W=glWords(el.dataset.g,L);el._W=W;W.forEach(x=>{if(glGet(L,x.w)==null&&!todo.includes(x.w))todo.push(x.w)})});
-  if(todo.length&&navigator.onLine!==false){try{const got=await glFetch(L,todo.slice(0,60));S.gl=S.gl||{};
-    todo.forEach(w=>{if(got[w])S.gl[L+"|"+w.toLowerCase()]=got[w]});const k=Object.keys(S.gl);if(k.length>3000)k.slice(0,k.length-3000).forEach(x=>delete S.gl[x]);save()}catch(e){}}
+  if(todo.length&&navigator.onLine!==false){S.gl=S.gl||{};
+    try{const got=await glFetch(L,todo.slice(0,60));todo.forEach(w=>{if(got[w])S.gl[L+"|"+w.toLowerCase()]=got[w]})}catch(e){}
+    // if Google didn't answer, look the words up one by one with the backup service
+    const miss=todo.filter(w=>glGet(L,w)==null).slice(0,12);
+    if(miss.length)await Promise.all(miss.map(w=>mm(w,LANGS.find(l=>l.c===L).mm+"|en").then(t=>{t=glClean(t);if(t&&t.toLowerCase()!==w.toLowerCase())S.gl[L+"|"+w.toLowerCase()]=t}).catch(()=>{})));
+    const k=Object.keys(S.gl);if(k.length>3000)k.slice(0,k.length-3000).forEach(x=>delete S.gl[x]);save()}
   if(S.lang!==L)return;
   els.forEach(el=>{const W=el._W;let ts=[...el.children].filter(c=>c.classList.contains("ts"));
     if(!W||!W.length||W.some(x=>!x.n))return;
@@ -1434,7 +1440,7 @@ function pickVoice(tts){
   const code=(tts||LG().tts).split("-")[0].toLowerCase();
   const list=allV.filter(v=>v.lang.toLowerCase().replace("_","-").startsWith(code));
   if(!tts&&LG().vx){const full=LG().tts.toLowerCase();return list.find(v=>v.lang.toLowerCase().replace("_","-")===full)}
-  if(!tts&&S.lang==="th"&&S.voice){const v=list.find(v=>v.voiceURI===S.voice);if(v)return v}
+  if(S.voice&&code==="th"){const v=list.find(v=>v.voiceURI===S.voice);if(v)return v}
   return list[0];
 }
 function loadVoices(){
@@ -1529,7 +1535,7 @@ function render(){
       h+=`<div class="sec" style="--c:${colr(c)}">${esc(c)}${mv}</div>`;
     }
     const cut=everywhere&&!ql&&!edit&&c!=="Numbers"&&list.length>PREVIEW;
-    h+=`<div class="grid" data-gc="${esc(c)}">`+(c==="Numbers"&&!edit?`<button class="tile numpill" data-numpad="1" type="button"><span class="en"><span class="npic" aria-hidden="true">🔢</span>Type any number</span></button>`:"")+(cut?list.slice(0,PREVIEW):list).map(tileHTML).join("")+`</div>`;
+    h+=`<div class="grid" data-gc="${esc(c)}">`+(c==="Numbers"&&!edit&&SOUNDS.includes(S.lang)?`<button class="tile numpill" data-numpad="1" type="button"><span class="en"><span class="npic" aria-hidden="true">🔢</span>Type any number</span></button>`:"")+(cut?list.slice(0,PREVIEW):list).map(tileHTML).join("")+`</div>`;
     if(cut)h+=`<button class="seeall" data-see="${esc(c)}">See all ${list.length} ${esc(c)} →</button>`;
   });
   const emptyMsg=cat==="__f"&&!ql?"No favourites yet. Hold a phrase, then tap ☆ Fav to keep it here.":cat==="__r"&&!ql?"Nothing yet. Phrases you tap will show up here, newest first.":cat==="__t"&&!ql?"Nothing yet. Everything you translate will be kept here so you can replay it and save it to your vocab.":"Nothing here. Tap Add to add a phrase.";
@@ -1544,11 +1550,7 @@ $("chips").onclick=e=>{const b=e.target.closest(".chip");if(b){cat=b.dataset.c;r
 $("q").oninput=e=>{qs=e.target.value.trim();render()};
 let selMode=false;const SEL=new Set();
 let UNDOFN=null,UNDOT=null;
-function showUndo(msg,fn){
-  UNDOFN=fn;$("undoMsg").textContent=msg;$("undoBar").hidden=false;
-  clearTimeout(UNDOT);UNDOT=setTimeout(()=>{$("undoBar").hidden=true;UNDOFN=null},9000);
-}
-$("undoBtn").onclick=()=>{const f=UNDOFN;$("undoBar").hidden=true;UNDOFN=null;if(f)f()};
+function showUndo(msg,fn){offerUndo(msg,fn)}
 function deleteMany(ids){
   const rem=[];S.items.forEach((x,n)=>{if(ids.includes(x.id))rem.push({it:x,n})});
   if(!rem.length)return;
@@ -1722,7 +1724,7 @@ function whoLabels(){
 function setDir(d){
   DIR=d;$("dirEn").classList.toggle("on",d==="en");$("dirTh").classList.toggle("on",d==="th");
   whoLabels();
-  $("trIn").lang=d==="th"?S.lang:"en";$("trIn").value="";$("trOut").innerHTML="";
+  $("trIn").lang=d==="th"?S.lang:"en";$("trIn").value="";$("trOut").innerHTML="";RES=null;
 }
 async function mm(q,pair){
   const ac=new AbortController();const to=setTimeout(()=>ac.abort(),9000);
@@ -1865,8 +1867,20 @@ function waveOn(){
 function waveOff(){WVA.on=false;cancelAnimationFrame(WVA.raf)}
 /* Some browsers (Chrome on iPhone) offer voice input but never actually start it; don't hang on "Starting microphone…". */
 const NOSR_MSG="Voice input didn't start in this browser. "+(/CriOS|FxiOS|EdgiOS/.test(navigator.userAgent)?"Chrome on iPhone often can't use it. Open the app in Safari, or ":"Try again, or ")+"use the microphone key on your keyboard.";
-let RECGUARD=0;
-function startMic(){
+let RECGUARD=0,MICWAIT=false;
+/* after an answer has played, the iPhone needs a moment to switch from speaker back to the mic, or the next Talk is cut off */
+async function startMic(){
+  if(RECON||(REC&&REC._wait)||!SR)return startMic2();
+  if(MICWAIT)return;
+  let busy=false;try{busy=!!(window.speechSynthesis&&(speechSynthesis.speaking||speechSynthesis.pending))||!!AC||Date.now()-lastAudio<1500;if(window.speechSynthesis)speechSynthesis.cancel()}catch(e){}
+  let closing=null;if(AC&&AC.close){try{closing=AC.close().catch(()=>{})}catch(e){}AC=null}audioOff();
+  if(!busy)return startMic2();
+  MICWAIT=true;micMsg("Starting microphone…",false);
+  const wait=ms=>new Promise(z=>setTimeout(z,ms));
+  if(closing)await Promise.race([closing,wait(600)]);
+  await wait(700);MICWAIT=false;startMic2();
+}
+function startMic2(){
   if(RECON){const r0=REC;try{r0.stop()}catch(e){}clearTimeout(RECGUARD);RECGUARD=setTimeout(()=>{if(RECON&&REC===r0&&r0.onend)r0.onend()},2500);return}
   if(REC&&REC._wait){try{REC.abort()}catch(e){}REC.onstart=REC.onend=REC.onresult=REC.onerror=null;REC=null}
   if(!SR){micMsg("Voice input isn't supported in this browser. Tap the microphone key on your keyboard to dictate instead.",false);$("trIn").focus();return}
@@ -1876,13 +1890,13 @@ function startMic(){
   try{r=new SR()}catch(e){micMsg("Couldn't start voice input. Use the microphone key on your keyboard instead.",true);$("trIn").focus();return}
   REC=r;
   r.lang=DIR==="th"?LG().tts:"en-US";r.interimResults=true;r.continuous=false;r.maxAlternatives=1;
-  let got=false,err=null;const t0=Date.now();
+  let got=false,err=null,heard=false;const t0=Date.now();
   r._wait=true;
   r.onstart=()=>{r._wait=false;clearTimeout(RECGUARD);if(REC!==r)return;RECON=true;$("trMic").classList.add("rec");$("trMic").querySelector(".mlab").innerHTML=bi("กำลังฟัง","Listening");micMsg("Listening… speak now",false);$("trOut").insertAdjacentHTML("beforeend",'<canvas id="wave" aria-hidden="true"></canvas>');waveOn()};
   r.onsoundstart=()=>waveKick(0.35);r.onspeechstart=()=>waveKick(0.7);r.onspeechend=()=>{WVA.tgt=0.06};
   r.onresult=ev=>{
     let txt="";for(let i=0;i<ev.results.length;i++)txt+=ev.results[i][0].transcript;
-    $("trIn").value=txt;
+    $("trIn").value=txt;if(txt.trim())heard=true;
     if(txt.length!==WVA.len){waveKick(Math.min(1,0.55+(txt.length-WVA.len)*0.08));WVA.len=txt.length}
     if(ev.results[ev.results.length-1].isFinal)got=true;
   };
@@ -1891,7 +1905,7 @@ function startMic(){
     r._wait=false;r.onend=null;clearTimeout(RECGUARD);if(REC!==r)return;
     RECON=false;$("trMic").classList.remove("rec");whoLabels();waveOff();
     const txt=$("trIn").value.trim();
-    if(txt&&(got||!err)){const before=RES;doTr().then(()=>{if(S.autoTalk!==false&&RES&&RES!==before)playRes()});return}
+    if(txt&&(got||!err||heard&&!/not-allowed/.test(err))){const before=RES;doTr().then(()=>{if(S.autoTalk!==false&&RES&&RES!==before)playRes()});return}
     if(err==="not-allowed"||err==="service-not-allowed")micMsg("Voice input is blocked ("+err+"). On iPhone check Settings > Privacy & Security > Speech Recognition, Settings > General > Keyboard > Enable Dictation, and Safari's microphone permission (aA > Website Settings). The keyboard's microphone key also works.",true);
     else if(err==="audio-capture")micMsg("No microphone found.",true);
     else if(err==="language-not-supported")micMsg("Voice input isn't available for "+(DIR==="th"?LG().n:"English")+" on this phone. Type it instead.",true);
@@ -1918,7 +1932,7 @@ function refreshLang(){
   whoLabels();
   const sw=$("polT").parentElement;if(sw)sw.style.display=S.lang==="th"?"":"none";
 }
-$("lang").onchange=e=>{S.lang=e.target.value;save();cat="All";qs="";$("q").value="";setDir("en");refreshLang();render();renderHist()};
+$("lang").onchange=e=>{S.lang=e.target.value;CONV=[];save();cat="All";qs="";$("q").value="";setDir("en");refreshLang();render();renderHist()};
 $("tabbar").onclick=e=>{
   const b=e.target.closest("[data-go]");if(!b)return;
   const g=b.dataset.go;
@@ -2062,14 +2076,14 @@ async function pumpTr(){
 }
 const VOCAB="My vocab";
 const histClean=t=>String(t||"").replace(/\s*(ครับ|ค่ะ|คะ)\s*$/,"").trim();
-function histSaved(x){const t=histClean(x.th);return S.items.some(i=>(i.th===t||(i.tr&&i.tr[S.lang]&&i.tr[S.lang].th===t)))}
+function histSaved(x){const t=histClean(x.th);return S.items.some(i=>(i.th===t||(i.tr&&i.tr[S.lang]&&i.tr[S.lang].t===t)))}
 function histTileHTML(x,n){
   const t=histClean(x.th),pr=S.ro?toneHTML(t,x.ro||"","",!x.ro):"",sv=histSaved(x);
   return `<div class="tile htile${x.en?" enonly":""}" data-hi="${n}" role="button" tabindex="0"><span class="th" lang="${S.lang}" dir="auto">${esc(t)}</span>${pr?`<small class="ro">${pr}</small>`:""}${x.en?`<small class="en">${esc(x.en)}</small>`:""}<button class="hsave${sv?" done":""}" data-hsave="${n}"${sv?" disabled":""}>${sv?"✓ Saved":"＋ Save"}</button></div>`;
 }
 function histSave(n){
   const x=S.hist[n];if(!x||histSaved(x))return;
-  S.items.push({id:uid(),th:histClean(x.th),ro:x.ro||"",en:x.en||"",cat:VOCAB,np:0,t:Date.now()});
+  S.items.push(newItem(histClean(x.th),x.ro||"",x.en||"",VOCAB,0,x.ph||""));
   save();render();toast("Saved to My vocab");
 }
 function tileHTML(i){
@@ -2286,7 +2300,9 @@ function bldPick(){
   const r=T.mk(...vals);BLD={...r,cat:T.cat};
   const f=full({th:r.th,ro:phonFromRo(r.ro),en:r.en,cat:"x",lang:"th"});
   $("bldOut").innerHTML=`<div class="bub"><div class="rth" lang="th">${esc(f.th)}</div><div class="rro">${esc(f.ro)}</div><div class="ren">${esc(r.en)}</div></div>`;
-  const cs=cats();$("bldCat").value=cs.includes(T.cat)?T.cat:cs[0];
+  const cs=cats(),want=cs.includes(T.cat)?T.cat:cs[0];
+  // rebuild the list with the right one selected: iPhone doesn't always redraw a picker changed by code
+  $("bldCat").innerHTML=cs.map(c=>`<option value="${esc(c)}"${c===want?" selected":""}>${esc(c)}</option>`).join("");$("bldCat").value=want;
 }
 function bldBuild(){
   const T=BUILD[+$("bldT").value];
@@ -2470,7 +2486,7 @@ $("sLight").onchange=e=>{S.light=e.target.checked;save();applyTheme()};
 $("sRo").onchange=e=>{S.ro=e.target.checked;save();render()};
 $("sEn").onchange=e=>{S.en=e.target.checked;save();render()};
 $("voice").onchange=e=>{S.voice=e.target.value;save();speak({th:"สวัสดี",cat:"Basics"})};
-$("reset").onclick=()=>{if(confirm("Replace all phrases with the defaults? Your added phrases will be lost.")){S.items=defaults();S.seen=Object.keys(D);S.applied=Object.keys(PATCHES);if(BAKED&&BAKED.items){fromBaked();S.bakedV=BAKED.v}applyPatches2();applyP3();applyP4();applyP5();applyP6();applyP7();applyP8();applyP9();applyP10();applyP11();applyP12();save();cat="All";render();$("setD").close()}};
+$("reset").onclick=()=>{if(confirm("Replace all phrases with the defaults? Your added phrases will be lost.")){S.items=defaults();S.seen=Object.keys(D);S.applied=Object.keys(PATCHES);if(BAKED&&BAKED.items){fromBaked();S.bakedV=BAKED.v}applyPatches2();applyP3();applyP4();applyP5();applyP6();applyP7();applyP8();applyP9();applyP10();applyP11();applyP12();applyP13();applyP14();applyP15();["tech1","pros1","blood1","call1","cof1","num2","numFirst"].forEach(k=>delete S[k]);save();location.reload()}};
 
 
 /* number keypad: digits -> Thai words, worked out on the phone (no internet needed) */
@@ -2722,22 +2738,24 @@ async function listenOnce(lang,onText){
   if(busy)await wait(700);
   const t0=Date.now();let r=await listen1(lang,onText);
   // iPhone sometimes fails a second listen straight away: try once more
-  for(let k=0;k<2&&!r.txt&&!r.manual&&(Date.now()-t0<1500||r.err==="aborted")&&!/not-allowed|unsupported|nostart|language/.test(r.err||"");k++){await wait(1200);const t1=Date.now();r=await listen1(lang,onText);if(Date.now()-t1>=1500&&r.err!=="aborted")break}
+  for(let k=0;k<2&&!r.txt&&!r.manual&&!r.quiet&&Date.now()-t0<(r.err==="aborted"?3000:1500)&&!/not-allowed|unsupported|nostart|language/.test(r.err||"");k++){await wait(1200);const t1=Date.now();r=await listen1(lang,onText);if(r.quiet||Date.now()-t1>=(r.err==="aborted"?3000:1500))break}
   return r;
 }
 function listen1(lang,onText){return new Promise(res=>{
   let r;try{r=new SR()}catch(e){res({err:"start",txt:""});return}
   LSN=r;LASTREC=r;r.lang=lang;r.interimResults=true;r.continuous=false;r.maxAlternatives=1;
-  let txt="",got=false,err=null,len=0,done=false,started=false,gs=0,ge=0,gq=0;
+  let txt="",got=false,err=null,len=0,done=false,started=false,gs=0,ge=0,gq=0,gx=0;
   // iPhone Safari can keep listening forever: stop by itself after a pause in speech, or if nothing is heard
-  const quiet=ms=>{clearTimeout(gq);gq=setTimeout(()=>{if(done)return;if(!txt.trim())err=err||"no-speech";try{r.stop()}catch(e){}r._stopGuard()},ms)};
-  const fin=o=>{if(done)return;done=true;o.manual=!!r._manual;clearTimeout(gs);clearTimeout(ge);clearTimeout(gq);if(LSN===r)LSN=null;waveOff();r.onstart=r.onend=r.onresult=r.onerror=null;res(o)};
+  const quiet=ms=>{clearTimeout(gq);gq=setTimeout(()=>{if(done)return;r._quiet=true;if(!txt.trim())err=err||"no-speech";try{r.stop()}catch(e){}r._stopGuard()},ms)};
+  const fin=o=>{if(done)return;done=true;o.manual=!!r._manual;o.quiet=!!r._quiet;clearTimeout(gx);clearTimeout(gs);clearTimeout(ge);clearTimeout(gq);if(LSN===r)LSN=null;waveOff();r.onstart=r.onend=r.onresult=r.onerror=null;res(o)};
   r._stopGuard=()=>{clearTimeout(ge);ge=setTimeout(()=>fin({txt:txt.trim(),err:txt.trim()?null:err||"aborted",got}),2500)};
   gs=setTimeout(()=>{if(!started){try{r.abort()}catch(e){}fin({txt:"",err:"nostart"})}},5000);
   r.onstart=()=>{started=true;clearTimeout(gs);waveOn();quiet(8000)};
   r.onsoundstart=()=>waveKick(0.35);r.onspeechstart=()=>waveKick(0.7);r.onspeechend=()=>{WVA.tgt=0.06};
   r.onresult=ev=>{txt="";for(let i=0;i<ev.results.length;i++)txt+=ev.results[i][0].transcript;if(ev.results[ev.results.length-1].isFinal)got=true;if(txt.length!==len){waveKick(Math.min(1,0.55+(txt.length-len)*0.08));len=txt.length;quiet(1600)}onText&&onText(txt)};
-  r.onerror=ev=>{err=ev&&ev.error?ev.error:"unknown"};
+  r.onerror=ev=>{const e=ev&&ev.error?ev.error:"unknown";err=r._quiet||r._manual?err||e:e};
+  // never listen for more than 25 seconds in one go
+  gx=setTimeout(()=>{if(done)return;try{r.abort()}catch(e){}fin({txt:txt.trim(),err:txt.trim()?null:"no-speech",got})},25000);
   r.onend=()=>{r._ended=true;fin({txt:txt.trim(),err:txt.trim()?null:err,got})};
   try{r.start()}catch(e){fin({err:"start",txt:""})}
 })}
@@ -2803,7 +2821,8 @@ function prItem(){return PR.list[PR.i]}
 function prPaint(){
   const it=prItem();const T=LG().c==="th";
   $("pracListen").innerHTML=SPK+"Listen";
-  if(!it){$("pracEn").textContent="";$("pracTh").textContent="No phrases to practise here.";$("pracRo").innerHTML="";$("pracRes").textContent="";return}
+  if(!it){$("pracEn").textContent="";$("pracTh").textContent="No phrases to practise here.";$("pracRo").innerHTML="";$("pracRes").textContent="";$("pracHead").textContent="🎯 Practice";["pracPrev","pracNext","pracSay","pracListen"].forEach(k=>$(k).disabled=true);return}
+  $("pracSay").disabled=false;$("pracListen").disabled=false;
   const v={...it,...vw(it)},f=full(v);
   $("pracHead").textContent="🎯 Practice "+(PR.i+1)+" / "+PR.list.length;
   $("pracEn").textContent=it.en||"";
@@ -2824,6 +2843,7 @@ async function prSay(){
   $("pracRes").innerHTML=`<canvas id="wave" aria-hidden="true"></canvas>`;
   const r=await listenOnce(LG().tts,t=>{});
   b.classList.remove("rec");b.textContent="🎤 Say it";
+  if(prItem()!==it||$("prac").hidden)return;
   if(!r.txt){$("pracRes").textContent=micErr(r.err,LG().n);return}
   const v={...it,...vw(it)};const tgt=prNorm(v.th),sp=prNorm(spokenTh(v.th)),h=prNorm(r.txt);
   const sc=Math.max(1-lev(h,tgt)/Math.max(h.length,tgt.length,1),1-lev(h,sp)/Math.max(h.length,sp.length,1));
