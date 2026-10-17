@@ -330,6 +330,7 @@ html,body{overflow-x:hidden;max-width:100%}
 :root{--mic:#f0566a;--onmic:#ffffff}
 .micbtn,.micbtn:active{width:auto;min-width:118px;min-height:58px;padding:0 20px 0 16px;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--mic);color:var(--onmic);border:0;border-radius:var(--r);box-shadow:0 0 0 4px var(--hl);font-weight:700;font-size:var(--fs-m)}
 .micbtn svg{width:28px;height:28px}
+#wave{display:block;width:100%;max-width:360px;height:56px;margin:10px auto 0;border-radius:14px;background:var(--pill)}
 #trMic.rec{background:var(--danger);color:#fff;animation:none;box-shadow:0 0 0 0 var(--danger);animation:micpulse 1.2s ease-out infinite}
 @keyframes micpulse{0%{box-shadow:0 0 0 0 rgba(240,86,106,.55)}100%{box-shadow:0 0 0 16px rgba(240,86,106,0)}}
 @media (max-height:900px){.micbtn,.micbtn:active{min-height:48px;min-width:108px}.micbtn svg{width:24px;height:24px}}
@@ -671,7 +672,7 @@ html .nmunits .ib.on,html[data-look] .nmunits .ib.on{background:#fde68a!importan
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 16 Oct 2026, build 45</div>
+  <div class="hint">Version: 17 Oct 2026, build 46</div>
   <label>Backup (everything on this device)</label>
   <div class="row"><button class="ib" id="exp" style="flex:1">Export backup</button><button class="ib" id="imp" style="flex:1">Import backup</button></div>
   <input type="file" id="file" accept=".json,application/json" hidden>
@@ -1244,6 +1245,7 @@ function toneHTML(th,ph,tn,force){
     if(P&&t.length!==sy.length&&(force||!sy.length))sy=P.ro.map(x=>phonFromRo(x)||x);
   }
   if(!t||t.length!==sy.length)return esc(ph||"");
+  if(regNow()==="friends"){const sp=spokenTh(th);if(sp!==th){const A=thPron(th),B=thPron(sp);if(A&&B&&A.tn.length===t.length&&B.tn.length===t.length)t=[...t].map((c,k)=>A.tn[k]!==B.tn[k]?B.tn[k]:c).join("")}}
   return `<span class="tn">${sy.map((x,k)=>`<span class="ts">${ticon(t[k])}${esc(x)}</span>`).join("")}</span>`;
 }
 function sx(r){return r.ph||(r.ro?(S.lang==="th"?phonFromRo(r.ro):r.ro):"")}
@@ -1289,11 +1291,14 @@ function audioAwake(){
 function audioOff(){clearTimeout(acStop);try{if(acSrc){acSrc.stop();acSrc.disconnect()}}catch(e){}acSrc=null;try{if(AC){AC.close()}}catch(e){}AC=null}
 function audioSleepSoon(){clearTimeout(acStop);lastAudio=Date.now();acStop=setTimeout(()=>{try{if(acSrc){acSrc.stop();acSrc.disconnect()}}catch(e){}acSrc=null},4000)}
 ["pointerdown","touchend","keydown"].forEach(ev=>document.addEventListener(ev,e=>{if(e.target&&e.target.closest&&e.target.closest("#trMic,#bigTalk"))return;audioAwake();audioSleepSoon()},{capture:true,once:true}));
+const SPOKEN_TTS=[[/หรือเปล่า/g,"รึเป่า"],[/ไม่เป็นไร/g,"ไม่เปงไร"],[/ครับ/g,"คับ"],[/(?<!ภู)เขา(?!ะ)/g,"เค้า"],[/(?<!ผ้า)ไหม(?!้)/g,"มั้ย"],[/ฉัน(?!ท์)/g,"ชั้น"],[/ใคร/g,"ไค"],[/เปล่า/g,"เป่า"],[/กลับ/g,"กับ"],[/ความ/g,"คาม"],[/ปลา/g,"ปา"],[/กลัว/g,"กัว"],
+ [/(?<![เแโ][กขคตปพบทด])ร(?=ู้|ัก|้อน|ถ|้าน|ีบ)/g,"ล"],[/เร(?=็ว|ียก|ื่อง|า(?!ะ))/g,"เล"]];
+function spokenTh(t){if(!t||!/[฀-๿]/.test(t))return t;let r=t;SPOKEN_TTS.forEach(([a,b])=>{r=r.replace(a,b)});return r}
 function speak(i,tts){
   const f=full(i);
   if(!("speechSynthesis" in window)){toast("Speech isn't supported in this browser.",true);return}
   const ss=window.speechSynthesis;
-  const u=new SpeechSynthesisUtterance(f.th);
+  const u=new SpeechSynthesisUtterance(regNow()==="friends"&&(!tts||/^th/.test(tts))&&/[฀-๿]/.test(f.th||"")?spokenTh(f.th):f.th);
   u.lang=tts||LG().tts;u.rate=S.rate||0.9;
   const v=pickVoice(tts);
   if(v){u.voice=v;u.lang=v.lang}
@@ -1660,8 +1665,27 @@ $("trOut").onclick=e=>{
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 let REC=null,RECON=false;
 function micMsg(m,bad){$("trOut").innerHTML=`<div style="margin-top:12px;font-weight:700;${bad?"color:#e5745f":""}">${esc(m)}</div>`}
+let WV=null,WVBAD=false;
+async function waveOn(){
+  if(WVBAD||WV||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return;
+  const w={on:true};WV=w;
+  try{
+    const st=await navigator.mediaDevices.getUserMedia({audio:true});
+    if(!w.on){st.getTracks().forEach(t=>t.stop());return}
+    const C=window.AudioContext||window.webkitAudioContext,ac=new C(),an=ac.createAnalyser();an.fftSize=1024;
+    ac.createMediaStreamSource(st).connect(an);w.st=st;w.ac=ac;w.t0=Date.now();
+    const d=new Uint8Array(an.fftSize);
+    const draw=()=>{if(!w.on)return;const c=$("wave");if(c){const r=c.getBoundingClientRect(),k=window.devicePixelRatio||1;if(c.width!==Math.round(r.width*k)){c.width=Math.round(r.width*k);c.height=Math.round(r.height*k)}
+      const x=c.getContext("2d"),W=c.width,H=c.height;an.getByteTimeDomainData(d);x.clearRect(0,0,W,H);
+      x.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue("--danger").trim()||"#e5745f";x.lineWidth=3*k;x.lineJoin="round";x.beginPath();
+      for(let i=0;i<d.length;i++){const px=i/(d.length-1)*W,py=H/2+(d[i]-128)/128*H*1.6;x[i?"lineTo":"moveTo"](px,Math.max(2,Math.min(H-2,py)))}x.stroke()}
+      w.raf=requestAnimationFrame(draw)};
+    draw();
+  }catch(e){waveOff()}
+}
+function waveOff(){const w=WV;WV=null;if(!w)return null;w.on=false;try{cancelAnimationFrame(w.raf)}catch(e){}try{w.st&&w.st.getTracks().forEach(t=>t.stop())}catch(e){}try{w.ac&&w.ac.close()}catch(e){}return w}
 function startMic(){
-  if(RECON){try{REC.stop()}catch(e){}return}
+  if(RECON){try{REC._user=1;REC.stop()}catch(e){}return}
   if(!SR){micMsg("Voice input isn't supported in this browser. Tap the microphone key on your keyboard to dictate instead.",false);$("trIn").focus();return}
   try{if(window.speechSynthesis)speechSynthesis.cancel()}catch(e){}
   audioOff();
@@ -1670,7 +1694,7 @@ function startMic(){
   REC=r;
   r.lang=DIR==="th"?LG().tts:"en-US";r.interimResults=true;r.continuous=false;r.maxAlternatives=1;
   let got=false,err=null;const t0=Date.now();
-  r.onstart=()=>{RECON=true;$("trMic").classList.add("rec");$("trMic").querySelector(".mlab").innerHTML=bi("กำลังฟัง","Listening");micMsg("Listening… speak now",false)};
+  r.onstart=()=>{RECON=true;$("trMic").classList.add("rec");$("trMic").querySelector(".mlab").innerHTML=bi("กำลังฟัง","Listening");micMsg("Listening… speak now",false);if(!WVBAD){$("trOut").insertAdjacentHTML("beforeend",'<canvas id="wave" aria-hidden="true"></canvas>');waveOn()}};
   r.onresult=ev=>{
     let txt="";for(let i=0;i<ev.results.length;i++)txt+=ev.results[i][0].transcript;
     $("trIn").value=txt;
@@ -1679,7 +1703,9 @@ function startMic(){
   r.onerror=ev=>{err=ev&&ev.error?ev.error:"unknown"};
   r.onend=()=>{
     RECON=false;$("trMic").classList.remove("rec");whoLabels();
+    const wv=waveOff();
     const txt=$("trIn").value.trim();
+    if(wv&&wv.t0&&!txt&&!r._user&&Date.now()-wv.t0<2500)WVBAD=true;
     if(txt&&(got||!err)){doTr();return}
     if(err==="not-allowed"||err==="service-not-allowed")micMsg("Voice input is blocked ("+err+"). On iPhone check Settings > Privacy & Security > Speech Recognition, Settings > General > Keyboard > Enable Dictation, and Safari's microphone permission (aA > Website Settings). The keyboard's microphone key also works.",true);
     else if(err==="audio-capture")micMsg("No microphone found.",true);
