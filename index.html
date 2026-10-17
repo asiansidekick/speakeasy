@@ -672,7 +672,7 @@ html .nmunits .ib.on,html[data-look] .nmunits .ib.on{background:#fde68a!importan
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 17 Oct 2026, build 49</div>
+  <div class="hint">Version: 17 Oct 2026, build 50</div>
   <label>Backup (everything on this device)</label>
   <div class="row"><button class="ib" id="exp" style="flex:1">Export backup</button><button class="ib" id="imp" style="flex:1">Import backup</button></div>
   <input type="file" id="file" accept=".json,application/json" hidden>
@@ -1111,7 +1111,7 @@ function phonFromRo(ro){
 // Tone lines: TLEX holds hand-checked words as "tones romanization" (tones: M mid, L low, F falling, H high, R rising,
 // one letter per syllable). thPron() uses it first and sounds out any other Thai with the spelling rules.
 const TLEX={
-"ฟิน":"M fin","แซ่บ":"F saep","ขำ":"R kham","ลำไย":"MM lam-yai","โดน":"M doon","แกง":"M gaeng","โป๊ะ":"H po","แตก":"L taek","เริ่ด":"F roet","ฟาด":"F faat","มอง":"M mong","บน":"M bon","อย่า":"L yaa","กรอบ":"L grop","เก็ต":"L get","อิน":"M in","เว่อร์":"F woe","โคตร":"F khot","เท่":"F the","สู้":"F suu","ส้ม":"F som","หล่น":"L lon","ปะ":"L pa","แล้วแต่":"HL laeo-tae","แหละ":"L lae","มะ":"H ma","เที่ยว":"F thiao","มั้ย":"H mai","บ้า":"F baa","ซวย":"M suay",
+"ฟิน":"M fin","แซ่บ":"F saep","ขำ":"R kham","ลำไย":"MM lam-yai","โดน":"M doon","แกง":"M gaeng","โป๊ะ":"H po","แตก":"L taek","เริ่ด":"F roet","ฟาด":"F faat","มอง":"M mong","บน":"M bon","อย่า":"L yaa","ขยี้":"LF kha yii","กรอบ":"L grop","เก็ต":"L get","อิน":"M in","เว่อร์":"F woe","โคตร":"F khot","เท่":"F the","สู้":"F suu","ส้ม":"F som","หล่น":"L lon","ปะ":"L pa","แล้วแต่":"HL laeo-tae","แหละ":"L lae","มะ":"H ma","เที่ยว":"F thiao","มั้ย":"H mai","บ้า":"F baa","ซวย":"M suay",
 "เจ๋ง":"R jeng","สุดยอด":"LF sut-yot","ปัง":"M pang","เป๊ะ":"H pe","โอ้โห":"FR oh-hoh","ดิ":"H di","อ่ะ":"L a","ตาย":"M taai","เออ":"M oe","โอเค":"MM oh-khe","จัด":"L jat","ลุย":"M lui","ชิล":"H chill","ตาม":"M taam","รู้":"H ruu","งง":"M ngong","ละ":"H la","จัง":"M jang","ไหว":"R wai","เบื่อ":"L buea","มันส์":"M man","ตลก":"LH ta-lok","น่ารัก":"FH naa-rak","ชน":"M chon","เมา":"M mao","พอ":"M phor","ขอบใจ":"LM khop-jai","เกรงใจ":"MM kreng-jai","คิดถึง":"HR khit-thueng","ฝัน":"R fan","โชค":"F chok","เหมือน":"R muean","เดิม":"M doem","ผงชูรส":"RMH phong-chuu-rot","ถึง":"R thueng","เฉย":"R choei","ไซซ์":"M sai","เยี่ยม":"F yiam","ลง":"M long",
 "สวัสดี":"LLM sa-wat-dee","ขอบคุณ":"LM khop-khun","ไม่":"F mai","เป็น":"M pen","ไร":"M rai","ขอโทษ":"RF khor-thot","ใช่":"F chai","ได้":"F dai",
 "ไป":"M pai","ก่อน":"L gon","นะ":"H na","เข้าใจ":"FM khao-jai","แล้ว":"H laeo","พูด":"F phuut","ช้า":"H chaa","หน่อย":"L noi",
