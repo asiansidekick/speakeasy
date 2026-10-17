@@ -725,7 +725,7 @@ html[data-look="glass"] .ovl{background:#1e3a8a}
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 17 Oct 2026, build 56</div>
+  <div class="hint">Version: 17 Oct 2026, build 57</div>
   <input type="file" id="file" accept=".json,application/json" hidden>
   <div id="bs" style="font-size:var(--fs-s);color:var(--mute);min-height:18px;margin-top:6px"></div>
   <div class="act" style="justify-content:space-between">
@@ -2712,13 +2712,15 @@ function listenOnce(lang,onText){return new Promise(res=>{
   audioOff();
   let r;try{r=new SR()}catch(e){res({err:"start",txt:""});return}
   LSN=r;r.lang=lang;r.interimResults=true;r.continuous=false;r.maxAlternatives=1;
-  let txt="",got=false,err=null,len=0,done=false,started=false,gs=0,ge=0;
-  const fin=o=>{if(done)return;done=true;clearTimeout(gs);clearTimeout(ge);if(LSN===r)LSN=null;waveOff();r.onstart=r.onend=r.onresult=r.onerror=null;res(o)};
-  r._stopGuard=()=>{clearTimeout(ge);ge=setTimeout(()=>fin({txt:txt.trim(),err:txt.trim()?null:"aborted",got}),2500)};
+  let txt="",got=false,err=null,len=0,done=false,started=false,gs=0,ge=0,gq=0;
+  // iPhone Safari can keep listening forever: stop by itself after a pause in speech, or if nothing is heard
+  const quiet=ms=>{clearTimeout(gq);gq=setTimeout(()=>{if(done)return;if(!txt.trim())err=err||"no-speech";try{r.stop()}catch(e){}r._stopGuard()},ms)};
+  const fin=o=>{if(done)return;done=true;clearTimeout(gs);clearTimeout(ge);clearTimeout(gq);if(LSN===r)LSN=null;waveOff();r.onstart=r.onend=r.onresult=r.onerror=null;res(o)};
+  r._stopGuard=()=>{clearTimeout(ge);ge=setTimeout(()=>fin({txt:txt.trim(),err:txt.trim()?null:err||"aborted",got}),2500)};
   gs=setTimeout(()=>{if(!started){try{r.abort()}catch(e){}fin({txt:"",err:"nostart"})}},5000);
-  r.onstart=()=>{started=true;clearTimeout(gs);waveOn()};
+  r.onstart=()=>{started=true;clearTimeout(gs);waveOn();quiet(8000)};
   r.onsoundstart=()=>waveKick(0.35);r.onspeechstart=()=>waveKick(0.7);r.onspeechend=()=>{WVA.tgt=0.06};
-  r.onresult=ev=>{txt="";for(let i=0;i<ev.results.length;i++)txt+=ev.results[i][0].transcript;if(ev.results[ev.results.length-1].isFinal)got=true;if(txt.length!==len){waveKick(Math.min(1,0.55+(txt.length-len)*0.08));len=txt.length}onText&&onText(txt)};
+  r.onresult=ev=>{txt="";for(let i=0;i<ev.results.length;i++)txt+=ev.results[i][0].transcript;if(ev.results[ev.results.length-1].isFinal)got=true;if(txt.length!==len){waveKick(Math.min(1,0.55+(txt.length-len)*0.08));len=txt.length;quiet(1600)}onText&&onText(txt)};
   r.onerror=ev=>{err=ev&&ev.error?ev.error:"unknown"};
   r.onend=()=>fin({txt:txt.trim(),err:txt.trim()?null:err,got});
   try{r.start()}catch(e){fin({err:"start",txt:""})}
