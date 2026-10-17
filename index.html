@@ -728,7 +728,7 @@ html[data-look] #convAuto[aria-pressed="true"]{background:#fde68a!important;colo
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 17 Oct 2026, build 60</div>
+  <div class="hint">Version: 17 Oct 2026, build 61</div>
   <input type="file" id="file" accept=".json,application/json" hidden>
   <div id="bs" style="font-size:var(--fs-s);color:var(--mute);min-height:18px;margin-top:6px"></div>
   <div class="act" style="justify-content:space-between">
@@ -1451,6 +1451,8 @@ function loadVoices(){
 let AC=null,acSrc=null,acStop=0,lastAudio=0;
 function audioAwake(){
   if(RECON)return;
+  // keep Web Audio out of Conversation: on iPhone it can make the next listen abort
+  if(window.CONVON)return;
   try{
     const C=window.AudioContext||window.webkitAudioContext;if(!C)return;
     if(!AC)AC=new C();
@@ -2720,7 +2722,7 @@ async function listenOnce(lang,onText){
   if(busy)await wait(700);
   const t0=Date.now();let r=await listen1(lang,onText);
   // iPhone sometimes fails a second listen straight away: try once more
-  if(!r.txt&&!r.manual&&Date.now()-t0<1500&&!/not-allowed|unsupported|nostart|language/.test(r.err||"")){await wait(900);r=await listen1(lang,onText)}
+  for(let k=0;k<2&&!r.txt&&!r.manual&&(Date.now()-t0<1500||r.err==="aborted")&&!/not-allowed|unsupported|nostart|language/.test(r.err||"");k++){await wait(1200);const t1=Date.now();r=await listen1(lang,onText);if(Date.now()-t1>=1500&&r.err!=="aborted")break}
   return r;
 }
 function listen1(lang,onText){return new Promise(res=>{
@@ -2782,8 +2784,11 @@ async function convTalk(who){
   catch(e){$("convMsg").textContent="Couldn't translate: "+why(e)+"."}
   CVBUSY=false;
 }
-$("convBtn").onclick=()=>{$("conv").hidden=false;$("convMsg").textContent="";convPaint()};
-$("convClose").onclick=()=>{stopListen();$("conv").hidden=true};
+$("convBtn").onclick=()=>{window.CONVON=true;audioOff();
+  // iPhone only lets auto-play speak after one speech call from a tap, so make a silent one now
+  try{if(window.speechSynthesis&&!window.SPKOK){const u=new SpeechSynthesisUtterance(" ");u.volume=0;speechSynthesis.speak(u);window.SPKOK=true}}catch(e){}
+  $("conv").hidden=false;$("convMsg").textContent="";convPaint()};
+$("convClose").onclick=()=>{stopListen();window.CONVON=false;$("conv").hidden=true};
 $("convClear").onclick=()=>{CONV=[];convPaint()};
 $("convAuto").onclick=()=>{S.convAuto=S.convAuto===false;save();convPaint()};
 $("convMe").onclick=()=>convTalk("me");
