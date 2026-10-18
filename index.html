@@ -166,7 +166,7 @@ input[type=checkbox]{width:26px;height:26px;accent-color:var(--accent);padding:0
 .bub{position:relative;background:var(--pill);color:var(--ink);border:0;border-radius:24px;padding:10px 18px;margin:4px 0 10px;box-shadow:none}
 .bub::before,.bub::after{display:none}
 .bub .rth{color:var(--ink);font-size:var(--fs-xl);font-weight:400;line-height:1.2;margin-top:0}
-#trOut .bub .rth{font-size:50px;overflow-wrap:anywhere}
+#trOut .bub .rth{font-size:66px;line-height:1.3;overflow-wrap:anywhere}
 .bub .rro{color:var(--accent);font-size:var(--fs-l);font-weight:400;font-style:normal}
 .bub .ren{color:var(--mute);font-size:var(--fs-m);font-weight:400}
 .actrow{gap:10px;margin-top:10px;flex-wrap:nowrap}
@@ -563,6 +563,8 @@ html[data-look] #convAuto[aria-pressed="true"]{background:#fde68a!important;colo
 .thinking .dots span{display:inline-block;width:7px;height:7px;margin:0 2px;border-radius:50%;background:currentColor;opacity:.25;animation:thk 1.2s infinite}
 .thinking .dots span:nth-child(2){animation-delay:.2s}.thinking .dots span:nth-child(3){animation-delay:.4s}
 @keyframes thk{0%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
+/* narrow phones: long Talk labels (Magsalita) must fit next to Translate */
+@media (max-width:360px){#trMic{min-width:0;padding:0 10px;gap:4px}#trMic .bth{font-size:.85em}}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@500&display=swap" rel="stylesheet">
 </head>
@@ -727,6 +729,10 @@ html[data-look] #convAuto[aria-pressed="true"]{background:#fde68a!important;colo
   <label class="ck"><input type="checkbox" id="sEn"> Show English</label>
   <label class="ck"><input type="checkbox" id="sAuto"> Play the translation automatically after Talk</label>
   <div class="hint">Work in progress: on iPhone, voice input can stop after the translation plays by itself, so this starts off.</div>
+  <label class="ck"><input type="checkbox" id="sVlog"> Voice log (records what the microphone does, to help fix problems)</label>
+  <div id="vlogBox" hidden><pre id="vlogTxt" style="white-space:pre-wrap;font-size:12px;max-height:220px;overflow:auto;margin:6px 0;padding:8px;border-radius:12px;background:rgba(0,0,0,.18)"></pre>
+  <div class="row" style="gap:8px"><button class="ib" id="vlogCopy" style="flex:1">Copy log</button><button class="ib" id="vlogClear">Clear</button></div>
+  <div class="hint">If voice fails, open this, tap Copy log and paste it to me.</div></div>
   <label>Changes for the next release</label>
   <div class="row" style="gap:8px"><button class="ib" id="expChg" style="flex:1">Export my changes</button><button class="ib" id="expCopy">Copy</button></div>
   <div class="hint">Your added phrases, edits, deletions and translations. Send me the file and I'll build them into the next version.</div>
@@ -749,7 +755,7 @@ html[data-look] #convAuto[aria-pressed="true"]{background:#fde68a!important;colo
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 18 Oct 2026, build 77</div>
+  <div class="hint">Version: 18 Oct 2026, build 78</div>
   <input type="file" id="file" accept=".json,application/json" hidden>
   <div id="bs" style="font-size:var(--fs-s);color:var(--mute);min-height:18px;margin-top:6px"></div>
   <div class="act" style="justify-content:space-between">
@@ -5103,6 +5109,7 @@ function speak(i,tts){
   if(v){u.voice=v;u.lang=v.lang}
   u.onerror=e=>{audioSleepSoon();if(e&&e.error&&e.error!=="canceled"&&e.error!=="interrupted")toast("Speech error: "+e.error,true)};
   u.onend=audioSleepSoon;
+  if(S.vlog){try{const L=u.lang;u.addEventListener("start",()=>vlog("Speak start "+L));u.addEventListener("end",()=>vlog("Speak end"));u.addEventListener("error",e=>vlog("Speak error "+(e&&e.error)))}catch(e){}}
   const cold=!acSrc||Date.now()-lastAudio>3000;
   audioAwake();
   // a delayed start must not fire once the mic has been tapped
@@ -5150,7 +5157,7 @@ function render(){
     }
     const cut=everywhere&&!ql&&!edit&&c!=="Numbers"&&list.length>PREVIEW;
     h+=`<div class="grid" data-gc="${esc(c)}">`+(c==="Numbers"&&!edit&&SOUNDS.includes(S.lang)?`<button class="tile numpill" data-numpad="1" type="button"><span class="en"><span class="npic" aria-hidden="true">🔢</span>Type any number</span></button>`:"")+(cut?list.slice(0,PREVIEW):list).map(tileHTML).join("")+`</div>`;
-    if(cut)h+=`<button class="seeall" data-see="${esc(c)}">See all ${list.length} ${esc(c)} →</button>`;
+    if(cut)h+=`<button class="seeall" data-see="${esc(c)}">See all ${list.length} ${esc(catName(c))} →</button>`;
   });
   const emptyMsg=cat==="__f"&&!ql?"No favourites yet. Hold a phrase, then tap ☆ Fav to keep it here.":cat==="__r"&&!ql?"Nothing yet. Phrases you tap will show up here, newest first.":cat==="__t"&&!ql?"Nothing yet. Everything you translate will be kept here so you can replay it and save it to your vocab.":"Nothing here. Tap Add to add a phrase.";
   $("main").className=edit?"edit":"";
@@ -5328,7 +5335,7 @@ async function translate(){
   $("trs").textContent="Couldn't translate. You can type the translation yourself.";
   return false;
 }
-let DIR="en",RES=null;
+let DIR="en",RES=null,TRTOK=0;
 function whoLabels(){
   const th=DIR==="th",L=LG(),T=L.c==="th";
   $("trIn").placeholder=!th?"Type English, or tap Talk…":TU()?UW("ty"):T?"พิมพ์ภาษาไทยที่นี่ หรือกด พูด":"Type or speak "+L.n+"…";
@@ -5337,7 +5344,7 @@ function whoLabels(){
   $("tool").classList.toggle("thside",th);
 }
 function setDir(d){
-  DIR=d;$("dirEn").classList.toggle("on",d==="en");$("dirTh").classList.toggle("on",d==="th");
+  DIR=d;TRTOK++;$("dirEn").classList.toggle("on",d==="en");$("dirTh").classList.toggle("on",d==="th");
   whoLabels();
   $("trIn").lang=d==="th"?S.lang:"en";$("trIn").value="";$("trOut").innerHTML="";RES=null;
 }
@@ -5417,11 +5424,12 @@ async function doTr(depth){
     }
   }
   $("trOut").innerHTML=thinking(TALKHEARD);TALKHEARD=false;
+  const tok=++TRTOK;
   try{
     if(DIR==="en"){
-      const r=await aiTr(q,"en",S.lang);
+      const r=await aiTr(q,"en",S.lang);if(tok!==TRTOK)return;
       if(r){showRes(r.t,r.ro,q,"",false,false,r.ph,r.alts,r.tn);return}
-      const b=await webTrBoth(q,"en",LG().mm,S.lang,"en");
+      const b=await webTrBoth(q,"en",LG().mm,S.lang,"en");if(tok!==TRTOK)return;
       const clean=x=>{if(S.lang==="th"){x=x.replace(/\s*(ครับ|ค่ะ|คะ)\s*$/,"").trim();if(!/[\u0e00-\u0e7f]/.test(x))return""}return x};
       const t=clean(b.t);if(!t)throw new Error("the answer wasn't in "+LG().n);
       const alt=b.alt?clean(b.alt):"";
@@ -5430,9 +5438,9 @@ async function doTr(depth){
       const alts=alt&&alt.toLowerCase()!==t.toLowerCase()?[{label:"Second opinion",t:alt,ro:"",ph:""}]:[];
       showRes(t,ro,q,"Automatic translation: please check it before relying on it.",true,false,ph,alts);
     }else{
-      const r=await aiTr(q,S.lang,"en");
+      const r=await aiTr(q,S.lang,"en");if(tok!==TRTOK)return;
       if(r){showRes(q,"",r.t,"",false);return}
-      const b=await webTrBoth(q,"auto","en","en",LG().mm);
+      const b=await webTrBoth(q,"auto","en","en",LG().mm);if(tok!==TRTOK)return;
       if(b.sameLang){
         if(depth!==1){toast("That's already English. Translating it into "+LG().n+" instead.");setDir("en");$("trIn").value=q;await doTr(1);return}
         throw new Error("the text looks like English");
@@ -5443,11 +5451,11 @@ async function doTr(depth){
       if(det&&det!==mine){const dl=LANGS.find(l=>l.mm.split("-")[0].toLowerCase()===det||l.c===det);note="Detected "+(dl?dl.n:det.toUpperCase())+" (you had "+LG().n+" selected). "+note}
       showRes(q,"",b.t,note,true);
     }
-  }catch(e){$("trOut").innerHTML=`<div style="margin-top:12px;color:#ff6b6b">Couldn't translate. ${esc(why(e))}.${esc(hintHost())} Try again, or type the translation yourself.</div>`}
+  }catch(e){if(tok!==TRTOK)return;$("trOut").innerHTML=`<div style="margin-top:12px;color:#ff6b6b">Couldn't translate. ${esc(why(e))}.${esc(hintHost())} Try again, or type the translation yourself.</div>`}
 }
 // the direction buttons also switch the interface: their language with English underneath, or plain English
-$("dirEn").onclick=()=>{if(S.thUser&&NATIVE_LANGS.includes(S.lang))setThai(false);else setDir("en")};
-$("dirTh").onclick=()=>{if(!S.thUser&&NATIVE_LANGS.includes(S.lang))setThai(true);else setDir("th")};
+$("dirEn").onclick=()=>{talkDrop();if(S.thUser&&NATIVE_LANGS.includes(S.lang))setThai(false);else setDir("en")};
+$("dirTh").onclick=()=>{talkDrop();if(!S.thUser&&NATIVE_LANGS.includes(S.lang))setThai(true);else setDir("th")};
 $("trGo").onclick=doTr;
 $("trOut").onclick=e=>{
   const sy=e.target.closest("[data-say]");if(sy){speak({th:sy.dataset.say,ro:"",en:"",cat:"x",np:1,lang:"th"},"th-TH");return}
@@ -5466,6 +5474,14 @@ $("trOut").onclick=e=>{
   }
 };
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+/* Voice log (Settings, off by default): records what the mic and speech did, for troubleshooting on the phone */
+let VLOG=[],VLT0=0;
+function vlog(m){if(!S.vlog)return;try{const t=Date.now();if(!VLT0||t-VLT0>600000)VLT0=t;VLOG.push(new Date(t).toTimeString().slice(0,8)+" +"+((t-VLT0)/1000).toFixed(1)+"s "+m);if(VLOG.length>150)VLOG.splice(0,VLOG.length-150);const el=$("vlogTxt");if(el&&!$("vlogBox").hidden)el.textContent=VLOG.join("\n")}catch(e){}}
+function vlogRec(r,who){if(!S.vlog||!r)return;try{VLT0=Date.now();vlog(who+" new mic"+(S.autoTalk===true?", auto-play on":""));
+  ["start","audiostart","soundstart","speechstart","speechend","soundend","audioend","nomatch","end"].forEach(e=>r.addEventListener(e,()=>vlog(who+" "+e)));
+  r.addEventListener("result",ev=>{try{let t="";for(let i=0;i<ev.results.length;i++)t+=ev.results[i][0].transcript;vlog(who+" heard "+t.length+" chars"+(ev.results[ev.results.length-1].isFinal?" (final)":""))}catch(e){}});
+  r.addEventListener("error",ev=>vlog(who+" ERROR "+(ev&&ev.error)));
+  ["start","stop","abort"].forEach(f=>{const o=r[f];r[f]=function(){vlog(who+" "+f+"() called"+(f==="start"?" lang "+r.lang:"")+(f!=="start"?(r._quiet?" (pause detected)":r._user||r._manual?" (you tapped)":""):""));return o.apply(this,arguments)}})}catch(e){}}
 let REC=null,RECON=false;
 let TALKHEARD=false;
 function thinking(heard){return `<div class="thinking">${heard?'<span class="tick">✓</span>':""}<span>${heard?"Got it, translating":"Translating"}</span><span class="dots" aria-hidden="true"><span></span><span></span><span></span></span></div>`}
@@ -5509,7 +5525,7 @@ function startMic2(retry){
   try{if(window.speechSynthesis&&(speechSynthesis.speaking||speechSynthesis.pending))speechSynthesis.cancel()}catch(e){}
   if(AC||acSrc)audioOff();
   let r;
-  try{r=new SR()}catch(e){micMsg("Couldn't start voice input. Use the microphone key on your keyboard instead.",true);$("trIn").focus();return}
+  try{r=new SR();vlogRec(r,"Talk")}catch(e){micMsg("Couldn't start voice input. Use the microphone key on your keyboard instead.",true);$("trIn").focus();return}
   REC=r;
   r.lang=DIR==="th"?LG().tts:"en-US";r.interimResults=true;r.continuous=false;r.maxAlternatives=1;
   let got=false,err=null,heard=false;const t0=Date.now();
@@ -5549,6 +5565,7 @@ function startMic2(retry){
   clearTimeout(RECGUARD);RECGUARD=setTimeout(()=>{if(REC===r&&r._wait){r._wait=false;try{r.abort()}catch(e){}r.onstart=r.onend=r.onresult=r.onerror=null;REC=null;RECON=false;$("trMic").classList.remove("rec");whoLabels();if(micRetry(r,retry,true))return;micMsg(NOSR_MSG,true)}},5000);
   try{r.start()}catch(e){clearTimeout(RECGUARD);r._wait=false;r.onstart=r.onend=r.onresult=r.onerror=null;RECON=false;if(micRetry(r,retry,true))return;micMsg("Couldn't start the microphone ("+(e&&e.name?e.name:"error")+"). Use the microphone key on your keyboard instead.",true);$("trIn").focus()}
 }
+function talkDrop(){const r=REC;if(!r||!(RECON||r._wait))return;r.onstart=r.onend=r.onresult=r.onerror=null;clearTimeout(r._g1);clearTimeout(r._g2);clearTimeout(r._q);clearTimeout(RECGUARD);try{r.abort()}catch(e){}REC=null;RECON=false;$("trMic").classList.remove("rec");waveOff();whoLabels();$("trOut").innerHTML=""}
 $("trMic").style.display="";
 $("trMic").onclick=startMic;
 function refreshLang(){
@@ -5563,7 +5580,7 @@ function refreshLang(){
   whoLabels();
   const sw=$("polT").parentElement;if(sw)sw.style.display=S.lang==="th"?"":"none";
 }
-$("lang").onchange=e=>{S.lang=e.target.value;CONV=[];save();cat="All";qs="";$("q").value="";setDir(TU()?"th":"en");thLabels();refreshLang();render();renderHist()};
+$("lang").onchange=e=>{talkDrop();S.lang=e.target.value;CONV=[];save();cat="All";qs="";$("q").value="";setDir(TU()?"th":"en");thLabels();refreshLang();render();renderHist()};
 $("tabbar").onclick=e=>{
   const b=e.target.closest("[data-go]");if(!b)return;
   const g=b.dataset.go;
@@ -5656,7 +5673,7 @@ async function webTr(q,from,to){
   throw new Error(LASTERR);
 }
 async function aiTr(q,from,to){
-  const prompt=`Translate this ${to==="en"?"text (probably "+nm(from)+", but detect the language if it is different)":nm(from)+" text"} into ${nm(to)} the way a native speaker would actually say it out loud on a film set or while travelling: everyday spoken register, not textbook or word-for-word. Drop pronouns when obvious, use the loanwords crews really use (in Thai: เทค, ซีน, คอลไทม์), and add softeners (in Thai: หน่อย, ด้วย, นะ) where natural.${S.reg==="formal"?" For Thai, use polite, respectful spoken Thai for strangers, elders, officials and clients: full forms like อะไร, ไหม, อย่างไร or ยังไง, no slang, and ผม for a male speaker or ดิฉัน/ฉัน for a female one. Keep it natural, not stiff written Thai.":` For Thai, write it the way Thais really talk, not how they write: use spoken forms like ไร for อะไร, ยังไง/ไง for อย่างไร, นึง for หนึ่ง after a classifier, มั้ย for ไหม, ป่ะ or รึเปล่า for หรือไม่, เท่าไหร่, เดี๋ยว, แป๊บนึง, and casual endings like อ่ะ, ดิ, เนอะ, ละ when they fit. Use ผม for a male speaker and ฉัน or เรา for a female one, or drop it.`}${S.reg!=="formal"&&(to==="fr"||to==="es")?(to==="fr"?" For French, talk like friends: use tu, not vous, and everyday spoken French.":" For Spanish, talk like friends: use tú, not usted, and everyday spoken Spanish."):""}${to==="ms"?(S.reg==="formal"?" For Malay, use polite Malaysian Malay.":" For Malay, use everyday Malaysian Malay the way friends talk: tak, nak, dah, je, and lah where natural."):""}${to==="tl"?(S.reg==="formal"?" For Filipino, be polite and add po where natural.":" For Filipino, use everyday spoken Tagalog the way friends talk, Taglish words where Filipinos really use them."):""} No politeness particle at the end. Reply with ONLY JSON: {"t":"the translation","ro":"standard romanization if the translation is not written in Latin letters, with syllables separated by hyphens or spaces, otherwise an empty string","tn":"only for Thai: the spoken tone of each syllable in ro, one letter per syllable in order (M mid, L low, F falling, H high, R rising); otherwise an empty string","ph":"how an English speaker should say the translation, written with plain English letters and spaces only: no symbols, no accents, no hyphens, no tone marks, no IPA. Empty string if the translation is English","alts":[{"label":"Formal or Casual or similar","t":"another natural way to say it","ro":"","ph":""}]}\nGive 0 to 2 alternatives: usually one labelled "Slang" with how Thai friends would say it among themselves (current slang is fine if it fits), and one labelled "Polite" for strangers or elders, and an empty alts array if there is no useful alternative.\nText: ${q}`;
+  const prompt=`Translate this ${to==="en"?"text (probably "+nm(from)+", but detect the language if it is different)":nm(from)+" text"} into ${nm(to)} the way a native speaker would actually say it out loud on a film set or while travelling: everyday spoken register, not textbook or word-for-word. Drop pronouns when obvious, use the loanwords crews really use (in Thai: เทค, ซีน, คอลไทม์), and add softeners (in Thai: หน่อย, ด้วย, นะ) where natural.${S.reg==="formal"?" For Thai, use polite, respectful spoken Thai for strangers, elders, officials and clients: full forms like อะไร, ไหม, อย่างไร or ยังไง, no slang, and ผม for a male speaker or ดิฉัน/ฉัน for a female one. Keep it natural, not stiff written Thai.":` For Thai, write it the way Thais really talk, not how they write: use spoken forms like ไร for อะไร, ยังไง/ไง for อย่างไร, นึง for หนึ่ง after a classifier, มั้ย for ไหม, ป่ะ or รึเปล่า for หรือไม่, เท่าไหร่, เดี๋ยว, แป๊บนึง, and casual endings like อ่ะ, ดิ, เนอะ, ละ when they fit. Use ผม for a male speaker and ฉัน or เรา for a female one, or drop it.`}${regNow()==="friends"&&(to==="fr"||to==="es")?(to==="fr"?" For French, talk like friends: use tu, not vous, and everyday spoken French.":" For Spanish, talk like friends: use tú, not usted, and everyday spoken Spanish."):(to==="fr"?" For French, use vous: polite everyday French.":to==="es"?" For Spanish, use usted: polite everyday Spanish.":"")}${to==="ms"?(regNow()!=="friends"?" For Malay, use polite Malaysian Malay.":" For Malay, use everyday Malaysian Malay the way friends talk: tak, nak, dah, je, and lah where natural."):""}${to==="tl"?(regNow()!=="friends"?" For Filipino, be polite and add po where natural.":" For Filipino, use everyday spoken Tagalog the way friends talk, Taglish words where Filipinos really use them."):""} No politeness particle at the end. Reply with ONLY JSON: {"t":"the translation","ro":"standard romanization if the translation is not written in Latin letters, with syllables separated by hyphens or spaces, otherwise an empty string","tn":"only for Thai: the spoken tone of each syllable in ro, one letter per syllable in order (M mid, L low, F falling, H high, R rising); otherwise an empty string","ph":"how an English speaker should say the translation, written with plain English letters and spaces only: no symbols, no accents, no hyphens, no tone marks, no IPA. Empty string if the translation is English","alts":[{"label":"Formal or Casual or similar","t":"another natural way to say it","ro":"","ph":""}]}\nGive 0 to 2 alternatives: usually one labelled "Slang" with how Thai friends would say it among themselves (current slang is fine if it fits), and one labelled "Polite" for strangers or elders, and an empty alts array if there is no useful alternative.\nText: ${q}`;
   let r=null;
   if(SM){r=await SM.json(prompt)}
   else if(S.aiKey){
@@ -6116,7 +6133,7 @@ $("setBtn").onclick=()=>{
   $("mmEmail").value=S.mmEmail||"";$("sLight").checked=!!S.light;$("sLook").value=S.look||"";$("pol").value=S.pol;$("sRo").checked=S.ro;$("tLeg").innerHTML=S.lang==="th"||S.lang==="vi"?(S.lang==="th"?"MLHRF":"afsrxj").split("").map(t=>`<span>${ticon(t)}${TNAME[t]}</span>`).join(""):"";$("sEn").checked=S.en;$("sThai").checked=!!S.thUser;$("sThaiRow").style.display=NATIVE_LANGS.includes(S.lang)?"":"none";if(NATIVE_LANGS.includes(S.lang))$("sThaiTx").innerHTML=`<span lang="${S.lang}">${esc(U().learn)}</span> · I speak ${esc(LG().n)} and want to learn English`;$("setD").showModal()};
 function setThai(on){S.thUser=on;save();setDir(TU()?"th":"en");thLabels();refreshLang();render();renderHist()}
 $("sThai").onchange=e=>setThai(e.target.checked);
-$("thTop").onclick=()=>setThai(!S.thUser);
+$("thTop").onclick=()=>{talkDrop();setThai(!S.thUser)};
 $("setClose").onclick=()=>$("setD").close();
 $("pol").onchange=e=>{S.pol=e.target.value;save();render()};
 const LOOKFONT={"glass":"Prompt:wght@400;500"};
@@ -6125,8 +6142,8 @@ $("sLook").onchange=e=>{S.look=e.target.value;save();applyTheme()};
 $("sLight").onchange=e=>{S.light=e.target.checked;save();applyTheme()};
 $("sRo").onchange=e=>{S.ro=e.target.checked;save();render()};
 $("sEn").onchange=e=>{S.en=e.target.checked;save();render()};
-$("voice").onchange=e=>{S.voice=e.target.value;save();speak({th:"สวัสดี",cat:"Basics"})};
-$("reset").onclick=()=>{if(confirm("Replace all phrases with the defaults? Your added phrases will be lost.")){S.items=defaults();S.seen=Object.keys(D);S.applied=Object.keys(PATCHES);if(BAKED&&BAKED.items){fromBaked();S.bakedV=BAKED.v}applyPatches2();applyP3();applyP4();applyP5();applyP6();applyP7();applyP8();applyP9();applyP10();applyP11();applyP12();applyP13();applyP14();applyP15();applyP16();applyP17();applyP18();applyP19();applyPH_vi();applyPH_ko();["tech1","pros1","blood1","call1","cof1","num2","numFirst"].forEach(k=>delete S[k]);save();location.reload()}};
+$("voice").onchange=e=>{S.voice=e.target.value;save();speak({th:"สวัสดี",cat:"Basics"},"th-TH")};
+$("reset").onclick=()=>{if(confirm("Replace all phrases with the defaults? Your added phrases will be lost.")){S.items=defaults();S.deleted=[];S.seen=Object.keys(D);S.applied=Object.keys(PATCHES);if(BAKED&&BAKED.items){fromBaked();S.bakedV=BAKED.v}applyPatches2();applyP3();applyP4();applyP5();applyP6();applyP7();applyP8();applyP9();applyP10();applyP11();applyP12();applyP13();applyP14();applyP15();applyP16();applyP17();applyP18();applyP19();applyPH_vi();applyPH_ko();["tech1","pros1","blood1","call1","cof1","num2","numFirst"].forEach(k=>delete S[k]);save();location.reload()}};
 
 
 /* number keypad: digits -> Thai words, worked out on the phone (no internet needed) */
@@ -6209,7 +6226,7 @@ function enNum(v,u){
   if(!n)w.push("zero");
   for(const[sz,nm]of[[1e9,"billion"],[1e6,"million"],[1e3,"thousand"],[1,""]]){const k=Math.floor(n/sz);if(k){w.push(h(k)+(nm?" "+nm:""));n%=sz}}
   let t=w.join(" ");if(b!==undefined)t+=" point "+[...b].map(d=>O[+d]).join(" ");
-  if(u){const one=v==="1";t+=" "+(u==="baht"?"baht":u==="beer"?(one?"beer":"beers"):(one?"coffee":"coffees"))}
+  if(u){const one=v==="1";t+=" "+(u==="baht"?({vi:"dong",ms:"ringgit",tl:one?"peso":"pesos"}[S.lang]||"baht"):u==="beer"?(one?"beer":"beers"):(one?"coffee":"coffees"))}
   return{th:t,ro:"",tn:""};
 }
 function numFor(v,u){if(TU())return enNum(v,u);return S.lang==="vi"?viNum(v,u):S.lang==="ms"||S.lang==="tl"?ltNum(v,u,S.lang):thNum(v,u)}
@@ -6330,7 +6347,7 @@ function updReg(){const n=regNow();document.querySelectorAll("#regSeg [data-r]")
 const REGTIP={friends:"Friends: casual, no ครับ/ค่ะ",polite:"Polite: everyday Thai with ครับ/ค่ะ",formal:"Formal: full wording with ครับ/ค่ะ"};
 document.querySelectorAll("#regSeg [data-r]").forEach(b=>b.onclick=()=>{
   const r=b.dataset.r;S.reg=r==="formal"?"formal":"casual";S.polite=r!=="friends";$("polT").checked=S.polite;
-  save();updatePol();render();reshow();toast(REGTIP[r]);
+  save();updatePol();render();reshow();toast(S.lang==="th"?REGTIP[r]:{friends:"Friends: casual, everyday wording",polite:"Polite: polite everyday wording",formal:"Formal: full, respectful wording"}[r]);
   if($("trIn").value.trim()&&$("trOut").innerHTML)doTr();
 });
 $("polT").onchange=e=>{S.polite=e.target.checked;save();updatePol();render();reshow()};
@@ -6348,7 +6365,7 @@ $("file").onchange=async e=>{
       if(!i||!(i.th||i.en))return;
       const c=i.cat||"Custom";
       if(have.has(c+"|"+(i.th||i.en)))return;
-      S.items.push({id:uid(),th:i.th||"",ro:i.ro||"",en:i.en||"",cat:c,t:i.t,np:i.np,tr:i.tr,edited:i.edited,orig:i.orig,auto:i.auto});n++;
+      S.items.push({id:uid(),th:i.th||"",ro:i.ro||"",ph:i.ph||"",en:i.en||"",cat:c,t:i.t,np:i.np,tr:i.tr,edited:i.edited,orig:i.orig,auto:i.auto});n++;
     });
     save();render();
     $("bkOut").textContent="✓ Added "+n+" new phrase"+(n===1?"":"s")+(d.items.length>n?" ("+(d.items.length-n)+" you already had were skipped).":".");bkFill();
@@ -6358,6 +6375,11 @@ $("file").onchange=async e=>{
 /* Settings switch: play after Talk */
 $("sAuto").checked=S.autoTalk===true;
 $("sAuto").onchange=e=>{S.autoTalk=e.target.checked;save()};
+$("sVlog").checked=!!S.vlog;$("vlogBox").hidden=!S.vlog;
+const vlogShow=()=>{$("vlogTxt").textContent=VLOG.length?VLOG.join("\n"):"Nothing yet. Use Talk, Conversation or Practice, then come back here."};vlogShow();
+$("sVlog").onchange=e=>{S.vlog=e.target.checked;save();$("vlogBox").hidden=!S.vlog;if(S.vlog)vlog("Voice log on, "+navigator.userAgent.replace(/^.*?\(/,"(").slice(0,80));vlogShow()};
+$("vlogCopy").onclick=()=>copyText("Speakeasy voice log ("+($("vlogTxt").textContent?VLOG.length:0)+" lines)\n"+VLOG.join("\n")).then(()=>toast("Copied. Paste it to Claude.")).catch(()=>toast("Couldn't copy. Select the text and copy it instead.",true));
+$("vlogClear").onclick=()=>{VLOG=[];vlogShow()};
 
 /* Back up, share and restore phrases */
 function bkFill(){const cs=cats();$("bkWhat").innerHTML=`<option value="">All my phrases (${S.items.length})</option>`+cs.map(c=>`<option value="${esc(c)}">${esc(c)} (${S.items.filter(i=>i.cat===c).length})</option>`).join("")}
@@ -6393,7 +6415,7 @@ async function listenOnce(lang,onText){
   return r;
 }
 function listen1(lang,onText){return new Promise(res=>{
-  clearTimeout(SPT);SPT=0;let r;try{r=new SR()}catch(e){res({err:"start",txt:""});return}
+  clearTimeout(SPT);SPT=0;let r;try{r=new SR();vlogRec(r,"Listen")}catch(e){res({err:"start",txt:""});return}
   LSN=r;LASTREC=r;r.lang=lang;r.interimResults=true;r.continuous=false;r.maxAlternatives=1;
   let txt="",got=false,err=null,len=0,done=false,started=false,gs=0,ge=0,gq=0,gx=0;
   // iPhone Safari can keep listening forever: stop by itself after a pause in speech, or if nothing is heard
@@ -6414,7 +6436,7 @@ function stopListen(){if(LSN){const r=LSN;r._manual=true;try{r.stop()}catch(e){}
 function micErr(err,ln){return err==="not-allowed"||err==="service-not-allowed"?"Voice input is blocked. Check Safari's microphone permission (aA › Website Settings).":err==="no-speech"?"I didn't hear anything. Tap and speak again.":err==="network"?"Voice input needs an internet connection.":err==="unsupported"?"Voice input isn't supported in this browser.":err==="nostart"?NOSR_MSG:err==="language-not-supported"?"Voice input isn't available for this language on this phone. Type it instead.":"I didn't catch that. Tap and try again."+(err?" ("+err+")":"")}
 
 /* Conversation mode */
-let CONV=[],CVBUSY=false;
+let CONV=[],CVBUSY=false,CVGEN=0;
 async function convTranslate(q,dir){
   if(dir==="en"){
     const m=savedFor(q);if(m){const x=getText(m,S.lang);return{t:x.t,ro:x.ro||"",ph:x.ph||""}}
@@ -6442,30 +6464,31 @@ function convPaint(){
 function convPlay(c){if(c.who==="me")speak({th:c.out,ro:c.ro||"",en:c.inp,cat:"x",np:0});else speak({th:c.out,ro:"",en:c.inp,cat:"x",np:1,lang:"en"},"en-US")}
 async function convTalk(who){
   if(stopListen())return;
-  if(CVBUSY)return;CVBUSY=true;
+  if(CVBUSY)return;CVBUSY=true;const g=CVGEN;
   const btn=$(who==="me"?"convMe":"convThem");btn.classList.add("rec");
   $("convMsg").innerHTML=`<span>Listening… speak now</span><canvas id="wave" aria-hidden="true"></canvas>`;
   const r=await listenOnce(who==="me"?"en-US":LG().tts,t=>{const s=$("convMsg").querySelector("span");if(s)s.textContent=t});
   btn.classList.remove("rec");
+  if(g!==CVGEN)return;
   if(!r.txt){$("convMsg").textContent=micErr(r.err,who==="me"?"English":LG().n);CVBUSY=false;return}
   $("convMsg").textContent="Translating…";
-  try{const o=await convTranslate(r.txt,who==="me"?"en":"th");const c={who,inp:r.txt,out:o.t,ro:o.ro||"",ph:o.ph||"",tn:o.tn||""};CONV.push(c);$("convMsg").textContent="";convPaint();if(S.convAuto!==false)setTimeout(()=>{if(!LSN)convPlay(c)},800)}
-  catch(e){$("convMsg").textContent="Couldn't translate: "+why(e)+"."}
-  CVBUSY=false;
+  try{const o=await convTranslate(r.txt,who==="me"?"en":"th");if(g!==CVGEN)return;const c={who,inp:r.txt,out:o.t,ro:o.ro||"",ph:o.ph||"",tn:o.tn||""};CONV.push(c);$("convMsg").textContent="";convPaint();if(S.convAuto!==false)setTimeout(()=>{if(!LSN)convPlay(c)},800)}
+  catch(e){if(g===CVGEN)$("convMsg").textContent="Couldn't translate: "+why(e)+"."}
+  if(g===CVGEN)CVBUSY=false;
 }
 $("convBtn").onclick=()=>{window.CONVON=true;audioOff();
   // iPhone only lets auto-play speak after one speech call from a tap, so make a silent one now
   try{if(window.speechSynthesis&&!window.SPKOK){const u=new SpeechSynthesisUtterance(" ");u.volume=0;speechSynthesis.speak(u);window.SPKOK=true}}catch(e){}
   $("conv").hidden=false;$("convMsg").textContent="";convPaint()};
-$("convClose").onclick=()=>{stopListen();window.CONVON=false;$("conv").hidden=true};
-$("convClear").onclick=()=>{CONV=[];convPaint()};
+$("convClose").onclick=()=>{stopListen();CVGEN++;CVBUSY=false;$("convMsg").textContent="";$("convMe").classList.remove("rec");$("convThem").classList.remove("rec");window.CONVON=false;$("conv").hidden=true};
+$("convClear").onclick=()=>{stopListen();CVGEN++;CVBUSY=false;$("convMsg").textContent="";$("convMe").classList.remove("rec");$("convThem").classList.remove("rec");CONV=[];convPaint()};
 $("convAuto").onclick=()=>{S.convAuto=S.convAuto===false;save();convPaint()};
 $("convMe").onclick=()=>convTalk("me");
 $("convThem").onclick=()=>convTalk("them");
 $("convLog").onclick=e=>{const b=e.target.closest("[data-k]");if(b&&CONV[+b.dataset.k])convPlay(CONV[+b.dataset.k])};
 
 /* Practice mode */
-let PR={list:[],i:0};
+let PR={list:[],i:0};const PRQ=new Set();
 function prNorm(t){return String(t||"").replace(/[\s.,!?'"()\-–—…:;\/ๆ]+/g,"").replace(/(ครับ|ค่ะ|คะ|นะ|จ้ะ|จ้า)+$/,"").toLowerCase()}
 function lev(a,b){a=[...a];b=[...b];let p=[...Array(b.length+1).keys()];for(let i=1;i<=a.length;i++){const q=[i];for(let j=1;j<=b.length;j++)q[j]=Math.min(p[j]+1,q[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=q}return p[b.length]}
 function prItem(){return PR.list[PR.i]}
@@ -6475,6 +6498,7 @@ function prPaint(){
   if(!it){$("pracEn").textContent="";$("pracTh").textContent="No phrases to practise here.";$("pracRo").innerHTML="";$("pracRes").textContent="";$("pracHead").textContent="🎯 Practice";["pracPrev","pracNext","pracSay","pracListen"].forEach(k=>$(k).disabled=true);return}
   $("pracSay").disabled=false;$("pracListen").disabled=false;
   const v={...it,...vw(it)},f=full(v);
+  if(TU()&&!v.th&&!PRQ.has(it.id+S.lang)){PRQ.add(it.id+S.lang);const L0=S.lang;translateItem(it,L0).then(ok=>{if(ok){save();paintTile(it.id);if(prItem()===it&&S.lang===L0&&!$("prac").hidden)prPaint()}}).catch(()=>{})}
   if(TU()){$("pracHead").textContent="🎯 "+U().prh+" "+(PR.i+1)+" / "+PR.list.length;$("pracListen").innerHTML=SPK+bi("ฟัง","Listen");
     $("pracEn").textContent=v.th||"";$("pracEn").lang=S.lang;$("pracTh").textContent=it.en;$("pracTh").lang="en";$("pracRo").innerHTML=enHTML(it.en);$("pracRes").textContent="";
     $("pracPrev").disabled=PR.i===0;$("pracNext").disabled=PR.i>=PR.list.length-1;return}
