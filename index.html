@@ -557,6 +557,12 @@ html[data-look] #convAuto[aria-pressed="true"]{background:#fde68a!important;colo
 .prbtns .ib.rec{background:var(--danger);color:#fff;border-color:var(--danger)}
 .bkrow{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
 .bkrow .ib{flex:1 1 100%;min-width:0}
+/* heard you, now translating: tick plus gently pulsing dots */
+.thinking{margin-top:12px;font-weight:700;display:flex;align-items:center;gap:8px}
+.thinking .tick{color:#7bd88f;font-size:1.2em}
+.thinking .dots span{display:inline-block;width:7px;height:7px;margin:0 2px;border-radius:50%;background:currentColor;opacity:.25;animation:thk 1.2s infinite}
+.thinking .dots span:nth-child(2){animation-delay:.2s}.thinking .dots span:nth-child(3){animation-delay:.4s}
+@keyframes thk{0%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@500&display=swap" rel="stylesheet">
 </head>
@@ -743,7 +749,7 @@ html[data-look] #convAuto[aria-pressed="true"]{background:#fde68a!important;colo
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 18 Oct 2026, build 76</div>
+  <div class="hint">Version: 18 Oct 2026, build 77</div>
   <input type="file" id="file" accept=".json,application/json" hidden>
   <div id="bs" style="font-size:var(--fs-s);color:var(--mute);min-height:18px;margin-top:6px"></div>
   <div class="act" style="justify-content:space-between">
@@ -3359,7 +3365,955 @@ const JA_PH={
 "Hide":{f:"隠れて！",p:"隠れてください！"},
 "One more":"もう一個。"
 };
-const PH_TABLES={fr:FR_PH,zh:ZH_PH,zt:ZT_PH,yue:YUE_PH,ja:JA_PH};
+/* Built-in Korean for Speakeasy's phrase board.
+   Key: the exact English (`en`) a phone ends up with after D + every patch (PATCHES, P2-P17, tech1/pros1/blood1/call1/cof1).
+   The key set mirrors JA_PH / FR_PH one to one (same 420 phrases in b79, same overrides, same legacy keys).
+   Value: a string (same in every register) or {f, p}:
+     f = Friends: casual 반말, e.g. 고마워, 잠깐만
+     p = Polite and Formal: 해요체, e.g. 감사합니다, 잠깐만요, 〜해 주세요
+   Service phrases (waiter, taxi, shop) are single strings in 해요체 (고수 빼 주세요, 공항으로 가 주세요),
+   which is what Korean customers say to staff whatever their mood.
+   On-set calls to the whole crew (슛 들어갑니다, 카메라 이동합니다, 오늘 촬영 여기까지입니다) use 합쇼체,
+   the announcing style Korean ADs use, and are the same in every mode.
+   Film words follow Korean crew usage (슛, 컷, 오케이, 레디 액션, 콜타임, 일촬표, 촬영팀/조명팀/그립팀/동시녹음팀,
+   연출부/제작부, 특효팀, 핀마이크, 붐 마이크, 포커스 나갔다, 강우기).
+   A "Category|English" key (only "SFX|Turn left/right") wins over the plain key for that category.
+   Digit-only Numbers tiles are left out. A LEGACY block at the end covers D rows that P2 removed
+   and English that later patches renamed. */
+const KO_PH={
+/* ---------- Basics ---------- */
+"Hello":{f:"안녕!",p:"안녕하세요."},
+"Thank you":{f:"고마워!",p:"감사합니다."},
+"You're welcome / no problem":{f:"에이, 뭘!",p:"별말씀을요."},
+"Sorry / excuse me":{f:"미안!",p:"죄송합니다."},
+"Yes (that's right)":{f:"응, 맞아.",p:"네, 맞아요."},
+"No (that's not it)":{f:"아니, 그거 아니야.",p:"아니요, 그게 아니에요."},
+"OK / can do":{f:"응, 돼!",p:"네, 할 수 있어요."},
+"Can't / not allowed":{f:"안 돼.",p:"그건 안 돼요."},
+"Bye, I'm off":{f:"나 간다, 안녕!",p:"먼저 들어가 보겠습니다."},
+"I understand":{f:"알겠어.",p:"알겠어요."},
+"I don't understand":{f:"무슨 말인지 모르겠어.",p:"잘 모르겠어요."},
+"Can you speak slowly?":{f:"천천히 말해 줄래?",p:"천천히 말씀해 주시겠어요?"},
+"Can you say it again?":{f:"다시 말해 줄래?",p:"다시 한번 말씀해 주시겠어요?"},
+"I speak a little Thai":{f:"나 태국어 조금 할 줄 알아.",p:"태국어 조금 할 줄 알아요."},
+"Do you speak English?":{f:"영어 할 줄 알아?",p:"영어 하실 줄 아세요?"},
+"No thanks (I don't want it)":{f:"아냐, 괜찮아.",p:"괜찮아요, 감사합니다."},
+
+/* ---------- Eating ---------- */
+"Menu, please":"메뉴판 좀 주세요.",
+"Water, please":"물 좀 주세요.",
+"Check, please":"계산해 주세요.",
+"Delicious":{f:"완전 맛있어!",p:"정말 맛있어요!"},
+"Not spicy":"안 맵게 해 주세요.",
+"A little spicy":"조금만 맵게 해 주세요.",
+"No coriander":"고수 빼 주세요.",
+"I don't eat meat (vegetarian)":{f:"나 고기 안 먹어. 채식주의자야.",p:"저는 고기를 안 먹어요. 채식주의자예요."},
+"I'm allergic to peanuts":"땅콩 알레르기가 있어요.",
+"One more, please":"하나 더 주세요.",
+"Takeaway, please":"포장해 주세요.",
+"Egg":"달걀",
+"Duck egg":"오리알",
+"Grilled chicken":"닭구이",
+"Boiled egg":"삶은 달걀",
+"Fried egg":"달걀 프라이",
+"Sweet":"달아요",
+"Not sweet":"덜 달게 해 주세요.",
+"Spicy":"매워요",
+"Not too spicy":"너무 맵지 않게 해 주세요.",
+"Crab":"게",
+"Fish":"생선",
+"Squid":"오징어",
+"Lobster":"랍스터",
+"Shrimp":"새우",
+"Is it spicy?":"이거 매워요?",
+"Same as usual":"늘 먹던 걸로 주세요.",
+"To take away":"포장이요.",
+"Eat here":"먹고 갈게요.",
+"I'm full":{f:"배불러! 더는 못 먹겠어.",p:"배불러요. 잘 먹었습니다."},
+"Can I get more?":{f:"더 먹어도 돼?",p:"좀 더 주실 수 있어요?"},
+"No MSG":"조미료 넣지 말아 주세요.",
+
+/* ---------- Getting around ---------- */
+"Where's the toilet?":{f:"화장실 어디야?",p:"화장실이 어디예요?"},
+"To the airport":"공항으로 가 주세요.",
+"To the hotel":"호텔로 가 주세요.",
+"Can you use the meter?":"미터기 켜 주시겠어요?",
+"Stop here":"여기서 세워 주세요.",
+"Turn left":"좌회전해 주세요.",
+"Turn right":"우회전해 주세요.",
+"Straight ahead":"쭉 직진해 주세요.",
+"Is it far?":"멀어요?",
+"Where's the skytrain station?":{f:"BTS 역 어디야?",p:"BTS 역이 어디예요?"},
+"We're here":{f:"다 왔다!",p:"다 왔어요."},
+"Is it much further?":"아직 많이 남았어요?",
+"Hurry a bit, please":{f:"좀 서둘러 줄래?",p:"조금만 서둘러 주시겠어요?"},
+"Traffic's terrible":{f:"차 진짜 막힌다!",p:"차가 엄청 막히네요."},
+
+/* ---------- Shopping ---------- */
+"How much is this?":{f:"이거 얼마야?",p:"이거 얼마예요?"},
+"Too expensive":{f:"너무 비싸!",p:"좀 비싸네요."},
+"Can you discount it?":"좀 깎아 주실 수 있어요?",
+"Can I see this one?":"이거 좀 보여 주세요.",
+"I'll take this":"이걸로 할게요.",
+"Can I pay by card?":"카드 돼요?",
+"Do you have a bigger size?":"더 큰 사이즈 있어요?",
+"Can I pay by QR scan?":"QR 결제 돼요?",
+"Just looking":"그냥 구경하는 거예요.",
+"Any more discount?":"조금만 더 깎아 주세요.",
+"Other sizes?":"다른 사이즈 있어요?",
+
+/* ---------- Social ---------- */
+"How's it going?":{f:"잘 지내?",p:"잘 지내세요?"},
+"I'm fine":{f:"잘 지내. 너는?",p:"잘 지내요. 그쪽은요?"},
+"Nice to meet you":{f:"만나서 반가워!",p:"만나서 반갑습니다."},
+"What's your name?":{f:"이름이 뭐야?",p:"성함이 어떻게 되세요?"},
+"Really fun":{f:"진짜 재밌다!",p:"정말 재밌어요!"},
+"Beautiful":{f:"예쁘다!",p:"정말 예쁘네요!"},
+"See you again":{f:"또 보자!",p:"다음에 또 봬요."},
+"Congratulations":{f:"축하해!",p:"축하드려요!"},
+"Don't be shy / no need to be formal":{f:"편하게 해!",p:"편하게 하세요."},
+"Miss you":"보고 싶어.",
+"Sweet dreams":{f:"잘 자, 좋은 꿈 꿔.",p:"안녕히 주무세요. 좋은 꿈 꾸세요."},
+"Good luck":{f:"화이팅!",p:"잘 되길 바랄게요!"},
+"See you soon":{f:"곧 보자!",p:"곧 봬요."},
+
+/* ---------- Emergency ---------- */
+"Help!":"도와주세요!",
+"Please call the police":{f:"경찰 불러!",p:"경찰 좀 불러 주세요!"},
+"Please call an ambulance":{f:"구급차 불러!",p:"구급차 좀 불러 주세요!"},
+"Where's the hospital?":{f:"병원 어디야?",p:"병원이 어디예요?"},
+"I feel unwell":{f:"나 몸이 안 좋아.",p:"몸이 안 좋아요."},
+"I'm lost":{f:"나 길 잃었어.",p:"길을 잃었어요."},
+
+/* ---------- Film production ---------- */
+"Quiet, please":"현장 정숙해 주세요!",
+"Ready":"준비됐습니다!",
+"Take a break":"잠시 쉬었다 가겠습니다!",
+"That's a wrap":"오늘 촬영 여기까지입니다! 수고하셨습니다!",
+"Film set":"촬영 현장",
+"Filming / shooting":"촬영",
+"Shooting schedule":"촬영 스케줄",
+"Script":"대본",
+"Director":"감독님",
+"Cinematographer (DP)":"촬영감독",
+"Assistant director":"조감독",
+"Producer":"프로듀서",
+"Actor":"배우",
+"Crew":"스태프",
+"Camera":"카메라",
+"Move the camera":"카메라 이동합니다!",
+"Light":"조명",
+"The light is too bright":"조명이 너무 밝아요.",
+"Microphone":"마이크",
+"Too loud":"소리가 너무 커요.",
+"Can I see the monitor?":"모니터 좀 봐도 될까요?",
+"Costume / wardrobe":"의상",
+"Makeup":"분장",
+"Props":"소품",
+"Editing":"편집",
+"Camera department":"촬영팀",
+"Lighting department":"조명팀",
+"Sound department":"동시녹음팀",
+"Grip department":"그립팀",
+"Art department":"미술팀",
+"Costume / wardrobe department":"의상팀",
+"Makeup department":"분장팀",
+"Set construction":"세트팀",
+"Production department":"제작부",
+"Editing department":"편집팀",
+"Camera operator":"카메라 오퍼레이터",
+"Camera assistant":"촬영 조수",
+"Gaffer (head electrician)":"조명감독",
+"Electrician":"조명팀 스태프",
+"Grip":"그립 기사",
+"Sound recordist":"동시녹음 기사",
+"Boom operator":"붐 오퍼레이터",
+"Production designer":"미술감독",
+"Art director":"아트 디렉터",
+"Costume designer":"의상 실장",
+"Makeup artist":"분장 실장",
+"Script supervisor (continuity)":"스크립터",
+"Production manager":"제작실장",
+"Production coordinator":"제작부장",
+"Production assistant (PA)":"제작부 막내",
+"Editor":"편집 기사",
+"Still photographer":"스틸 작가",
+"Which department are you in?":{f:"너 무슨 팀이야?",p:"어느 팀이세요?"},
+"I'm in the camera department":{f:"나 촬영팀이야.",p:"저는 촬영팀이에요."},
+"Who's the head of this department?":{f:"여기 팀장 누구야?",p:"여기 팀장님이 누구세요?"},
+"Can I talk to the assistant director?":{f:"조감독이랑 얘기할 수 있어?",p:"조감독님이랑 얘기할 수 있을까요?"},
+
+/* ---------- On set ---------- */
+"Next set-up":"다음 컷 가겠습니다!",
+"Moving on":"넘어가겠습니다!",
+"Scene one, take two":"씬 일, 테이크 이.",
+"Set up the camera":"카메라 세팅해 주세요!",
+"Set up the lights":"조명 세팅해 주세요!",
+"Camera angle":"카메라 앵글",
+"Wide shot":"풀샷",
+"Pan the camera":"카메라 패닝합니다.",
+"Zoom in":"줌 인",
+"Zoom out":"줌 아웃",
+"Focus":"포커스",
+"Out of focus":"포커스 나갔어요.",
+"Boom mic":"붐 마이크",
+"Sound check, please":"사운드 체크 부탁드립니다!",
+"Silence your phones, please":"휴대폰 무음으로 해 주세요!",
+"Do not enter":"출입 금지",
+"Lunch break":"점심시간",
+"Where's craft services (crafty)?":{f:"간식 테이블 어디야?",p:"간식 테이블 어디예요?"},
+"Where's the snack table?":{f:"간식 어디 있어?",p:"간식 어디 있어요?"},
+"Call time":"콜타임",
+"Your call time":{f:"너 콜타임",p:"본인 콜타임"},
+"My call time":"제 콜타임",
+"What's your call time?":{f:"너 콜타임 몇 시야?",p:"콜타임 몇 시세요?"},
+"I need a moment to set up the scene":"세팅할 시간 좀 주세요.",
+"Can we shoot here?":{f:"여기서 찍어도 돼?",p:"여기서 촬영해도 될까요?"},
+"Do we need a filming permit?":{f:"촬영 허가 받아야 돼?",p:"촬영 허가가 필요한가요?"},
+"Thanks, everyone":"모두 감사합니다!",
+"One more time":"한 번 더 가겠습니다!",
+"Great job":{f:"잘했어, 완벽해!",p:"정말 잘하셨어요!"},
+"Again, from the top":"처음부터 다시 갈게요!",
+"A bit quicker":"조금만 더 빠르게요.",
+"Slow down a bit":"조금만 천천히요.",
+"Five-minute break":"5분 쉬었다 가겠습니다!",
+
+/* ---------- Technical ---------- */
+"Lens":"렌즈",
+"Tripod":"삼각대",
+"Dolly":"달리",
+"Steadicam":"스테디캠",
+"Light stand":"조명 스탠드",
+"LED light":"LED 조명",
+"Filter":"필터",
+"Generator":"발전기",
+"Power cable":"전원 케이블",
+"Powerboard / extension cord":"멀티탭",
+"Battery":"배터리",
+"Memory card":"메모리 카드",
+"Headphones":"헤드폰",
+"Walkie-talkie":"무전기",
+"Wireless mic":"무선 마이크",
+"Lavalier mic":"핀마이크",
+"Aperture":"조리개",
+"ISO":"ISO 감도",
+"Shutter speed":"셔터 스피드",
+"Frame rate":"프레임 레이트",
+"White balance":"화이트 밸런스",
+"Depth of field":"심도",
+"Audio level":"오디오 레벨",
+"Which lens are you using?":{f:"렌즈 뭐 써?",p:"렌즈 뭐 쓰세요?"},
+"What's the frame rate set to?":"프레임 레이트 몇으로 돼 있어요?",
+"The battery's dead":"배터리 나갔어요.",
+"I need more batteries":"배터리 더 필요해요.",
+"There's background noise":"잡음이 들어가요.",
+"There's an echo":"소리가 울려요.",
+"The signal dropped":"신호가 끊겼어요.",
+"The power's out":{f:"전기 나갔어!",p:"전기가 나갔어요."},
+"Adapter (plug)":"변환 플러그",
+"Power adapter":"전원 어댑터",
+
+/* ---------- SFX ---------- */
+"More smoke, please":{f:"스모크 더 깔아 줘!",p:"스모크 더 깔아 주세요!"},
+"Less smoke, please":{f:"스모크 좀 줄여 줘!",p:"스모크 좀 줄여 주세요!"},
+"Hide / get out of sight":{f:"숨어!",p:"숨으세요!"},
+"Clear the frame":"화면에서 빠져 주세요!",
+"It's safe there":{f:"거기는 안전해.",p:"거기는 안전해요."},
+"Get out of shot":{f:"화면에 걸려! 빠져!",p:"화면에 걸려요. 빠져 주세요!"},
+"Edge of frame":"화면 끝",
+"Too much smoke":"스모크가 너무 많아요.",
+"Not enough smoke":"스모크가 부족해요.",
+"All clear, it's safe now":"안전 확인 완료! 이제 안전합니다!",
+"Stand back":{f:"뒤로 물러나!",p:"뒤로 물러나 주세요!"},
+"Everyone stand back":"모두 뒤로 물러나 주세요!",
+"Careful!":"조심하세요!",
+"Careful, hot":"뜨거우니까 조심하세요!",
+"Careful, slippery":"미끄러우니까 조심하세요!",
+"Danger":"위험해요!",
+"Stop right now":"스톱! 당장 멈춰요!",
+"Wait":{f:"잠깐만!",p:"잠깐만요!"},
+"Standing by":"스탠바이 됐습니다.",
+"Turn it on":{f:"켜!",p:"켜 주세요!"},
+"Turn it off":{f:"꺼!",p:"꺼 주세요!"},
+"Turn on the fan to clear the smoke":{f:"선풍기 틀어서 스모크 좀 빼 줘.",p:"선풍기 틀어서 스모크 좀 빼 주세요."},
+"Smoke":"스모크",
+"Fog / haze":"포그",
+"Smoke machine":"스모크 머신",
+"Fog machine":"포그 머신",
+"Rain effect":"강우 효과",
+"Smoke fluid":"스모크 액",
+"I need a moment to refill the fluid":"액 보충할 시간 좀 주세요.",
+"Fire extinguisher":"소화기",
+"Safety officer":"안전 담당자",
+"Special effects department":"특효팀",
+"SFX technician":"특효 기사",
+"Forklift":"지게차",
+"Crane":"크레인",
+"Rain on":"비 뿌립니다!",
+"Rain off":"비 멈춥니다!",
+"3-phase power":"삼상 전원",
+"Take away (remove it)":{f:"그거 치워.",p:"그것 좀 치워 주세요."},
+"Beer":"맥주",
+"Motorcycle":"오토바이",
+"First aid kit":"구급상자",
+"Flame bar":"화염 바",
+"Flame gel":"연소용 젤",
+"Lighter":"라이터",
+"One more (item)":"하나 더.",
+"90 degrees":"90도",
+"Gloves":"장갑",
+"Safety glasses":"보안경",
+/* "Turn left/right" exists twice: Getting around (เลี้ยว, to a driver) and SFX (หัน, turn it / turn yourself).
+   A "Category|English" key overrides the plain English key for that category only. */
+"SFX|Turn left":{f:"왼쪽으로 돌려!",p:"왼쪽으로 돌려 주세요!"},
+"SFX|Turn right":{f:"오른쪽으로 돌려!",p:"오른쪽으로 돌려 주세요!"},
+
+/* ---------- Schedule & meals ---------- */
+"Coffee":"커피",
+"Where's the coffee?":{f:"커피 어디 있어?",p:"커피 어디 있어요?"},
+"One coffee, please":"커피 한 잔 주세요.",
+"Where's the drinking water?":{f:"마실 물 어디 있어?",p:"마실 물 어디 있어요?"},
+"Where's breakfast?":{f:"아침 어디서 먹어?",p:"아침은 어디서 먹어요?"},
+"When's lunch?":{f:"점심 몇 시야?",p:"점심 몇 시예요?"},
+"How long is the break?":{f:"쉬는 시간 몇 분이야?",p:"쉬는 시간 몇 분이에요?"},
+"What's my call time?":"제 콜타임 몇 시예요?",
+"What time do I need to arrive?":"몇 시까지 오면 돼요?",
+"What's tomorrow's call time?":{f:"내일 콜타임 몇 시야?",p:"내일 콜타임 몇 시예요?"},
+"What time do we wrap today?":"오늘 몇 시에 끝나요?",
+"What time did we wrap yesterday?":"어제 몇 시에 끝났어요?",
+"What time do we finish filming?":"촬영 몇 시에 끝나요?",
+"What time is it now?":{f:"지금 몇 시야?",p:"지금 몇 시예요?"},
+"How many scenes are there today?":"오늘 몇 씬 찍어요?",
+"Where are we filming tomorrow?":"내일 어디서 촬영해요?",
+"Where's the meeting point?":{f:"집합 장소 어디야?",p:"집합 장소가 어디예요?"},
+"Where's the parking?":{f:"주차장 어디야?",p:"주차장이 어디예요?"},
+"Where's the dressing room?":{f:"대기실 어디야?",p:"대기실이 어디예요?"},
+"Who's the assistant director?":{f:"조감독 누구야?",p:"조감독님이 누구세요?"},
+"Can I see the shooting schedule?":{f:"일촬표 좀 보여 줄래?",p:"일촬표 좀 볼 수 있을까요?"},
+"What should I wear?":{f:"뭐 입으면 돼?",p:"뭐 입으면 돼요?"},
+"Last week":"지난주",
+
+/* ---------- Casual talk (Friends-register slang; the same text in every mode unless split) ---------- */
+"Cool! / Awesome":"멋지다!",
+"Amazing! / The best":"최고야!",
+"Killer! (slang: awesome)":"대박!",
+"Spot on / perfect":"딱이야!",
+"Wow!":"우와!",
+"Seriously? / For real?":"진짜? 실화야?",
+"No way!":"에이, 설마!",
+"Oh my god!":"헐, 세상에!",
+"Yeah (very casual)":"응.",
+"Sure thing":"당연하지!",
+"Sure, all good":"오케이, 괜찮아!",
+"Let's do it / go for it":"좋아, 해 보자!",
+"Let's go!":"가자!",
+"Go ahead":{f:"응, 해!",p:"네, 하세요."},
+"Chill / no stress":"편하게 해, 스트레스 받지 마.",
+"Take it easy":"무리하지 마.",
+"Make yourself at home / as you like":{f:"편한 대로 해.",p:"편하게 계세요."},
+"Forget it / whatever":"됐어, 그냥 넘어가.",
+"Don't worry about it":{f:"신경 쓰지 마!",p:"신경 쓰지 마세요."},
+"Dunno":"몰라.",
+"I'm confused":"헷갈려.",
+"Wait a sec":"잠깐만.",
+"Just a moment":{f:"잠깐만 기다려!",p:"잠시만 기다려 주세요."},
+"Be right back":"금방 올게.",
+"I'm off then":"그럼 나 간다!",
+"What's up?":"요즘 어때?",
+"What are you up to?":"뭐 해?",
+"Where've you been? (casual hello)":"어디 갔다 왔어?",
+"Eaten yet? (casual hello)":"밥 먹었어?",
+"Already ate":"먹었어.",
+"Not yet":"아직.",
+"I'm so hungry":"배고파 죽겠어!",
+"I'm so sleepy":"너무 졸려.",
+"It's so hot":"너무 덥다!",
+"I'm exhausted":{f:"완전 녹초야.",p:"너무 피곤해요."},
+"I can't take any more":"더는 못 하겠어.",
+"I'm bored / fed up":"지겨워.",
+"So much fun":"완전 재밌어!",
+"So funny":"웃겨 죽겠어!",
+"So cute":"귀여워!",
+"Cheers!":"건배!",
+"I'm drunk":"나 취했어.",
+"That's enough":"이제 됐어.",
+"Thanks (to a friend)":"고마워!",
+"So satisfying! / Pure bliss":"완전 행복해!",
+"So tasty! (spicy-good)":"맵지만 너무 맛있어!",
+"Just for fun / just joking":"농담이야!",
+"Annoying! (slang)":"아, 짜증 나!",
+"Got played / got tricked":"당했다!",
+"Absolutely stunning":"진짜 예쁘다!",
+"Busted! Cat's out of the bag":"들켰다!",
+"Fabulous":"멋져!",
+"Nailed it / killed it":"완벽해! 역시!",
+"*eye roll*":"아, 네네. 됐거든.",
+"Don't even think about it":"꿈도 꾸지 마!",
+"I'm broke":"나 돈 없어. 거지야.",
+"Got it / I get it":"오케이, 알겠어!",
+"I'm so into it":"완전 빠졌어!",
+"Over the top / exaggerating":"오버하지 마!",
+"Super cool":"완전 멋있어!",
+"You got this! Keep going":"할 수 있어! 파이팅!",
+"Just a sec":"잠깐만 기다려 봐!",
+"Lucky break":"운 좋았다!",
+"Really? / Is that true?":"정말이야?",
+"Right?":"그치?",
+"What? / What's that?":"뭐? 그게 뭔데?",
+"What should we do?":"어떡하지?",
+"Whatever works":"아무거나 괜찮아.",
+"Up to you":{f:"너 하고 싶은 대로 해.",p:"편하신 대로 하세요."},
+"OK then / fine":"그래, 알았어.",
+"Exactly!":"바로 그거야!",
+"That's it / exactly":"그거 그거!",
+"No need":"필요 없어.",
+"I'll sort it out":"내가 알아서 할게.",
+"Give me a hand, come on":"좀 도와줘!",
+"Wanna eat together?":"같이 밥 먹을래?",
+"Wanna go out?":"놀러 갈래?",
+"It's fine, right?":"괜찮지?",
+"That's crazy":"말도 안 돼!",
+"Uh oh, we're in trouble":"아, 큰일 났다!",
+
+/* ---------- Prosthetics & makeup ---------- */
+"Makeup touch-up, please":"분장 수정 부탁드립니다!",
+"Time for makeup":"분장할 시간이에요.",
+"Hold still, please":{f:"움직이지 마.",p:"움직이지 마세요."},
+"Close your eyes":{f:"눈 감아.",p:"눈 감아 주세요."},
+"Open your eyes":{f:"눈 떠.",p:"눈 떠 주세요."},
+"Look up":{f:"위 봐.",p:"위를 봐 주세요."},
+"Look down":{f:"아래 봐.",p:"아래를 봐 주세요."},
+"Relax your face":{f:"얼굴에 힘 빼.",p:"얼굴에 힘 빼 주세요."},
+"Does it hurt?":{f:"아파?",p:"아프세요?"},
+"Is it itchy?":{f:"가려워?",p:"가려우세요?"},
+"Is it too hot?":{f:"너무 더워?",p:"너무 더우세요?"},
+"Tell me if it hurts":{f:"아프면 말해.",p:"아프시면 말씀해 주세요."},
+"Any allergies?":{f:"알레르기 있어?",p:"알레르기 있으세요?"},
+"Don't touch your face":{f:"얼굴 만지지 마.",p:"얼굴 만지지 마세요."},
+"Don't rub it":{f:"문지르지 마.",p:"문지르지 마세요."},
+"Don't eat or drink yet":{f:"아직 먹거나 마시지 마.",p:"아직 드시거나 마시지 마세요."},
+"Use a straw":{f:"빨대 써.",p:"빨대 쓰세요."},
+"We need to take the prosthetic off":"특수분장 떼야 돼요.",
+"It takes about an hour":"한 시간 정도 걸려요.",
+"Fake blood":"가짜 피",
+"More blood, please":{f:"피 더 발라 줘!",p:"피 좀 더 발라 주세요."},
+"Less blood, please":{f:"피 좀 줄여 줘!",p:"피 좀 줄여 주세요."},
+"Blood":"피",
+"Glue / adhesive":"접착제",
+"Remover":"리무버",
+"Silicone piece":"실리콘 피스",
+"Wig":"가발",
+"Mirror":"거울",
+"Sponge":"스펀지",
+"Brush":"브러시",
+"Tissue":"휴지",
+"Sweat":"땀",
+"Sink":"세면대",
+"Water":"물",
+"Wash":"씻다",
+"Clean":"깨끗이 닦다",
+"Hose":"호스",
+"Towel":"수건",
+
+/* ---------- LEGACY: D rows removed by P2, and English renamed by P13 / pros1 ---------- */
+"Action!":"레디, 액션!",
+"Cut!":"컷!",
+"Good, approved":"오케이! 좋았습니다!",
+"One more take":"한 테이크 더 가겠습니다!",
+"Everyone to your positions":"모두 제자리로 가 주세요!",
+"Next scene":"다음 씬 가겠습니다!",
+"Start shooting":"슛 들어갑니다!",
+"Rehearse first":"리허설 먼저 가겠습니다.",
+"Reshoot / retake":"다시 찍겠습니다.",
+"Stand here":{f:"여기 서.",p:"여기 서 주세요."},
+"Look at the camera":{f:"카메라 봐.",p:"카메라 봐 주세요."},
+"Don't look at the camera":{f:"카메라 보지 마.",p:"카메라 보지 마세요."},
+"Speak louder":{f:"더 크게 말해.",p:"조금 더 크게 말씀해 주세요."},
+"Slower":"더 천천히.",
+"Faster":"더 빨리.",
+"Do it again":"다시 한번 갈게요.",
+"Very good":"아주 좋아요!",
+"Costume department":"의상팀",
+"Extension cord":"연장선",
+"Hide":{f:"숨어!",p:"숨으세요!"},
+"One more":"하나 더."
+};
+/* Built-in Vietnamese for Speakeasy's phrase board.
+   Key: the exact English (`en`) a phone ends up with after D + every patch (PATCHES, P2-P17, tech1/pros1/blood1/call1/cof1).
+   The key set mirrors KO_PH / JA_PH / FR_PH one to one (same 420 phrases in b79, same overrides, same legacy keys),
+   and the {f,p} splits sit on exactly the same keys as in KO_PH and JA_PH.
+   Value: a string (same in every register) or {f, p}:
+     f = Friends: mình / bạn, nhé, đi, ừ; no ạ.  e.g. Cảm ơn nhé!, Nhà vệ sinh ở đâu thế?
+     p = Polite and Formal: the speaker is em, the listener anh chị or left out, with ạ, vâng, dạ, làm ơn.
+         e.g. Em cảm ơn ạ., Cho em hỏi nhà vệ sinh ở đâu ạ?
+   Service phrases (waiter, taxi, shop) are single polite strings in the everyday customer style
+   (Cho em tính tiền ạ., Không cho rau mùi ạ., Cho em ra sân bay ạ.).
+   On-set calls to the whole crew (Giữ trật tự!, Chuyển máy!, Hôm nay đến đây thôi) are the same in every mode.
+   Vocabulary is standard Northern (Hà Nội), avoiding words Southerners would not follow; where the regions
+   differ sharply the Southern word is in notes.md. Film words follow Vietnamese crew usage (máy quay, đạo diễn,
+   phó đạo diễn, diễn viên, Diễn!, Cắt!, lọt khung, mất nét, micro cài áo, giờ tập trung, lịch quay, tổ ...).
+   A "Category|English" key (only "SFX|Turn left/right") wins over the plain key for that category.
+   Digit-only Numbers tiles are left out. A LEGACY block at the end covers D rows that P2 removed
+   and English that later patches renamed. */
+const VI_PH={
+/* ---------- Basics ---------- */
+"Hello":{f:"Chào bạn!",p:"Xin chào ạ."},
+"Thank you":{f:"Cảm ơn nhé!",p:"Em cảm ơn ạ."},
+"You're welcome / no problem":{f:"Không có gì đâu!",p:"Dạ, không có gì ạ."},
+"Sorry / excuse me":{f:"Xin lỗi nhé!",p:"Em xin lỗi ạ."},
+"Yes (that's right)":{f:"Ừ, đúng rồi.",p:"Vâng, đúng rồi ạ."},
+"No (that's not it)":{f:"Không, không phải cái đó.",p:"Dạ không, không phải ạ."},
+"OK / can do":{f:"Ừ, được!",p:"Vâng, được ạ."},
+"Can't / not allowed":{f:"Không được đâu.",p:"Cái đó không được ạ."},
+"Bye, I'm off":{f:"Mình về trước nhé!",p:"Em xin phép về trước ạ."},
+"I understand":{f:"Hiểu rồi.",p:"Em hiểu rồi ạ."},
+"I don't understand":{f:"Mình không hiểu.",p:"Em không hiểu ạ."},
+"Can you speak slowly?":{f:"Nói chậm thôi được không?",p:"Nói chậm giúp em được không ạ?"},
+"Can you say it again?":{f:"Nói lại được không?",p:"Nhắc lại giúp em được không ạ?"},
+"I speak a little Thai":{f:"Mình nói được một chút tiếng Thái.",p:"Em nói được một chút tiếng Thái ạ."},
+"Do you speak English?":{f:"Bạn nói được tiếng Anh không?",p:"Anh chị có nói được tiếng Anh không ạ?"},
+"No thanks (I don't want it)":{f:"Thôi, không cần đâu.",p:"Dạ thôi, em cảm ơn ạ."},
+
+/* ---------- Eating ---------- */
+"Menu, please":"Cho em xin thực đơn ạ.",
+"Water, please":"Cho em xin nước lọc ạ.",
+"Check, please":"Cho em tính tiền ạ.",
+"Delicious":{f:"Ngon quá!",p:"Ngon lắm ạ!"},
+"Not spicy":"Đừng cho cay ạ.",
+"A little spicy":"Cay ít thôi ạ.",
+"No coriander":"Không cho rau mùi ạ.",
+"I don't eat meat (vegetarian)":{f:"Mình không ăn thịt, mình ăn chay.",p:"Em không ăn thịt, em ăn chay ạ."},
+"I'm allergic to peanuts":"Em bị dị ứng lạc, đậu phộng ạ.",
+"One more, please":"Cho em thêm một cái nữa ạ.",
+"Takeaway, please":"Cho em mang về ạ.",
+"Egg":"Trứng",
+"Duck egg":"Trứng vịt",
+"Grilled chicken":"Gà nướng",
+"Boiled egg":"Trứng luộc",
+"Fried egg":"Trứng ốp la",
+"Sweet":"Ngọt quá",
+"Not sweet":"Ít ngọt thôi ạ.",
+"Spicy":"Cay quá",
+"Not too spicy":"Đừng cay quá ạ.",
+"Crab":"Cua",
+"Fish":"Cá",
+"Squid":"Mực",
+"Lobster":"Tôm hùm",
+"Shrimp":"Tôm",
+"Is it spicy?":"Món này có cay không ạ?",
+"Same as usual":"Cho em như mọi khi ạ.",
+"To take away":"Mang về ạ.",
+"Eat here":"Ăn ở đây ạ.",
+"I'm full":{f:"No quá, không ăn nổi nữa!",p:"Em no rồi ạ, ngon lắm."},
+"Can I get more?":{f:"Lấy thêm được không?",p:"Cho em thêm được không ạ?"},
+"No MSG":"Không cho mì chính, bột ngọt ạ.",
+
+/* ---------- Getting around ---------- */
+"Where's the toilet?":{f:"Nhà vệ sinh ở đâu thế?",p:"Cho em hỏi nhà vệ sinh ở đâu ạ?"},
+"To the airport":"Cho em ra sân bay ạ.",
+"To the hotel":"Cho em về khách sạn ạ.",
+"Can you use the meter?":"Bật đồng hồ tính tiền giúp em được không ạ?",
+"Stop here":"Cho em xuống ở đây ạ.",
+"Turn left":"Rẽ trái ạ.",
+"Turn right":"Rẽ phải ạ.",
+"Straight ahead":"Cứ đi thẳng ạ.",
+"Is it far?":"Có xa không ạ?",
+"Where's the skytrain station?":{f:"Ga tàu điện trên cao ở đâu thế?",p:"Cho em hỏi ga tàu điện trên cao ở đâu ạ?"},
+"We're here":{f:"Đến rồi!",p:"Đến nơi rồi ạ."},
+"Is it much further?":"Còn xa nữa không ạ?",
+"Hurry a bit, please":{f:"Nhanh lên chút được không?",p:"Đi nhanh giúp em một chút ạ."},
+"Traffic's terrible":{f:"Tắc đường kinh khủng!",p:"Tắc đường quá ạ."},
+
+/* ---------- Shopping ---------- */
+"How much is this?":{f:"Cái này bao nhiêu tiền?",p:"Cái này bao nhiêu tiền ạ?"},
+"Too expensive":{f:"Đắt quá!",p:"Hơi đắt ạ."},
+"Can you discount it?":"Bớt cho em một chút được không ạ?",
+"Can I see this one?":"Cho em xem cái này ạ.",
+"I'll take this":"Em lấy cái này ạ.",
+"Can I pay by card?":"Trả bằng thẻ được không ạ?",
+"Do you have a bigger size?":"Có cỡ to hơn không ạ?",
+"Can I pay by QR scan?":"Quét mã QR được không ạ?",
+"Just looking":"Em xem thôi ạ.",
+"Any more discount?":"Bớt thêm chút nữa đi ạ.",
+"Other sizes?":"Có cỡ khác không ạ?",
+
+/* ---------- Social ---------- */
+"How's it going?":{f:"Dạo này thế nào?",p:"Dạo này anh chị khỏe không ạ?"},
+"I'm fine":{f:"Mình ổn. Còn bạn?",p:"Em khỏe ạ. Còn anh chị thì sao ạ?"},
+"Nice to meet you":{f:"Rất vui được gặp bạn!",p:"Rất vui được gặp anh chị ạ."},
+"What's your name?":{f:"Bạn tên là gì?",p:"Cho em hỏi anh chị tên là gì ạ?"},
+"Really fun":{f:"Vui thật đấy!",p:"Vui quá ạ!"},
+"Beautiful":{f:"Đẹp quá!",p:"Đẹp quá ạ!"},
+"See you again":{f:"Gặp lại sau nhé!",p:"Hẹn gặp lại ạ."},
+"Congratulations":{f:"Chúc mừng nhé!",p:"Xin chúc mừng ạ!"},
+"Don't be shy / no need to be formal":{f:"Cứ thoải mái đi!",p:"Cứ tự nhiên ạ, đừng ngại."},
+"Miss you":"Nhớ bạn lắm.",
+"Sweet dreams":{f:"Ngủ ngon nhé!",p:"Chúc anh chị ngủ ngon ạ."},
+"Good luck":{f:"Cố lên nhé!",p:"Chúc may mắn ạ!"},
+"See you soon":{f:"Sớm gặp lại nhé!",p:"Hẹn sớm gặp lại ạ."},
+
+/* ---------- Emergency ---------- */
+"Help!":"Cứu với!",
+"Please call the police":{f:"Gọi công an đi!",p:"Làm ơn gọi công an giúp em!"},
+"Please call an ambulance":{f:"Gọi cấp cứu đi!",p:"Làm ơn gọi cấp cứu giúp em!"},
+"Where's the hospital?":{f:"Bệnh viện ở đâu?",p:"Cho em hỏi bệnh viện ở đâu ạ?"},
+"I feel unwell":{f:"Mình thấy không khỏe.",p:"Em thấy không khỏe ạ."},
+"I'm lost":{f:"Mình bị lạc rồi.",p:"Em bị lạc đường ạ."},
+
+/* ---------- Film production ---------- */
+"Quiet, please":"Giữ trật tự!",
+"Ready":"Sẵn sàng!",
+"Take a break":"Nghỉ một chút nhé mọi người!",
+"That's a wrap":"Hôm nay đến đây thôi! Cảm ơn cả đoàn đã vất vả!",
+"Film set":"Phim trường",
+"Filming / shooting":"Quay phim",
+"Shooting schedule":"Lịch quay",
+"Script":"Kịch bản",
+"Director":"Đạo diễn",
+"Cinematographer (DP)":"Đạo diễn hình ảnh",
+"Assistant director":"Phó đạo diễn",
+"Producer":"Nhà sản xuất",
+"Actor":"Diễn viên",
+"Crew":"Đoàn phim",
+"Camera":"Máy quay",
+"Move the camera":"Chuyển máy!",
+"Light":"Đèn",
+"The light is too bright":"Đèn sáng quá.",
+"Microphone":"Micro",
+"Too loud":"Tiếng to quá.",
+"Can I see the monitor?":"Cho em xem màn hình được không ạ?",
+"Costume / wardrobe":"Phục trang",
+"Makeup":"Hóa trang",
+"Props":"Đạo cụ",
+"Editing":"Dựng phim",
+"Camera department":"Tổ quay phim",
+"Lighting department":"Tổ ánh sáng",
+"Sound department":"Tổ âm thanh",
+"Grip department":"Tổ máy",
+"Art department":"Tổ mỹ thuật",
+"Costume / wardrobe department":"Tổ phục trang",
+"Makeup department":"Tổ hóa trang",
+"Set construction":"Tổ dựng cảnh",
+"Production department":"Tổ sản xuất",
+"Editing department":"Tổ dựng phim",
+"Camera operator":"Người quay phim",
+"Camera assistant":"Phụ quay",
+"Gaffer (head electrician)":"Trưởng tổ ánh sáng",
+"Electrician":"Thợ điện",
+"Grip":"Thợ máy grip",
+"Sound recordist":"Thu âm hiện trường",
+"Boom operator":"Người cầm boom",
+"Production designer":"Thiết kế mỹ thuật",
+"Art director":"Chỉ đạo mỹ thuật",
+"Costume designer":"Thiết kế phục trang",
+"Makeup artist":"Chuyên viên hóa trang",
+"Script supervisor (continuity)":"Thư ký trường quay",
+"Production manager":"Quản lý sản xuất",
+"Production coordinator":"Điều phối sản xuất",
+"Production assistant (PA)":"Trợ lý sản xuất",
+"Editor":"Dựng phim",
+"Still photographer":"Chụp ảnh hậu trường",
+"Which department are you in?":{f:"Bạn ở tổ nào?",p:"Anh chị ở tổ nào ạ?"},
+"I'm in the camera department":{f:"Mình ở tổ quay phim.",p:"Em ở tổ quay phim ạ."},
+"Who's the head of this department?":{f:"Ai là tổ trưởng ở đây?",p:"Cho em hỏi tổ trưởng ở đây là ai ạ?"},
+"Can I talk to the assistant director?":{f:"Mình nói chuyện với phó đạo diễn được không?",p:"Em xin gặp phó đạo diễn một chút được không ạ?"},
+
+/* ---------- On set ---------- */
+"Next set-up":"Chuyển góc máy!",
+"Moving on":"Chuyển nhé!",
+"Scene one, take two":"Cảnh một, lần hai.",
+"Set up the camera":"Dựng máy đi!",
+"Set up the lights":"Dựng đèn đi!",
+"Camera angle":"Góc máy",
+"Wide shot":"Toàn cảnh",
+"Pan the camera":"Lia máy!",
+"Zoom in":"Zoom vào",
+"Zoom out":"Zoom ra",
+"Focus":"Lấy nét",
+"Out of focus":"Mất nét rồi.",
+"Boom mic":"Micro boom",
+"Sound check, please":"Kiểm tra âm thanh nhé!",
+"Silence your phones, please":"Mọi người để điện thoại im lặng nhé!",
+"Do not enter":"Không phận sự miễn vào",
+"Lunch break":"Nghỉ ăn trưa",
+"Where's craft services (crafty)?":{f:"Bàn đồ ăn vặt ở đâu thế?",p:"Cho em hỏi bàn đồ ăn vặt ở đâu ạ?"},
+"Where's the snack table?":{f:"Đồ ăn vặt ở đâu thế?",p:"Đồ ăn vặt để ở đâu ạ?"},
+"Call time":"Giờ tập trung",
+"Your call time":{f:"Giờ tập trung của bạn",p:"Giờ tập trung của anh chị"},
+"My call time":"Giờ tập trung của tôi",
+"What's your call time?":{f:"Bạn tập trung lúc mấy giờ?",p:"Anh chị tập trung lúc mấy giờ ạ?"},
+"I need a moment to set up the scene":"Cho em ít phút để dựng cảnh ạ.",
+"Can we shoot here?":{f:"Quay ở đây được không?",p:"Bọn em quay ở đây được không ạ?"},
+"Do we need a filming permit?":{f:"Có cần giấy phép quay không?",p:"Có cần xin giấy phép quay phim không ạ?"},
+"Thanks, everyone":"Cảm ơn mọi người!",
+"One more time":"Thêm một lần nữa nhé!",
+"Great job":{f:"Tuyệt lắm, hoàn hảo!",p:"Làm tốt lắm ạ!"},
+"Again, from the top":"Làm lại từ đầu nhé!",
+"A bit quicker":"Nhanh hơn một chút.",
+"Slow down a bit":"Chậm lại một chút.",
+"Five-minute break":"Nghỉ năm phút nhé!",
+
+/* ---------- Technical ---------- */
+"Lens":"Ống kính",
+"Tripod":"Chân máy",
+"Dolly":"Xe dolly",
+"Steadicam":"Steadicam",
+"Light stand":"Chân đèn",
+"LED light":"Đèn LED",
+"Filter":"Kính lọc",
+"Generator":"Máy phát điện",
+"Power cable":"Dây nguồn",
+"Powerboard / extension cord":"Ổ cắm kéo dài",
+"Battery":"Pin",
+"Memory card":"Thẻ nhớ",
+"Headphones":"Tai nghe",
+"Walkie-talkie":"Bộ đàm",
+"Wireless mic":"Micro không dây",
+"Lavalier mic":"Micro cài áo",
+"Aperture":"Khẩu độ",
+"ISO":"Độ nhạy sáng",
+"Shutter speed":"Tốc độ màn trập",
+"Frame rate":"Tốc độ khung hình",
+"White balance":"Cân bằng trắng",
+"Depth of field":"Độ sâu trường ảnh",
+"Audio level":"Mức âm lượng",
+"Which lens are you using?":{f:"Đang dùng ống kính nào thế?",p:"Anh chị đang dùng ống kính nào ạ?"},
+"What's the frame rate set to?":"Tốc độ khung hình đang để bao nhiêu ạ?",
+"The battery's dead":"Hết pin rồi.",
+"I need more batteries":"Em cần thêm pin ạ.",
+"There's background noise":"Bị lẫn tạp âm.",
+"There's an echo":"Tiếng bị vang.",
+"The signal dropped":"Mất tín hiệu rồi.",
+"The power's out":{f:"Mất điện rồi!",p:"Mất điện rồi ạ."},
+"Adapter (plug)":"Đầu chuyển ổ cắm",
+"Power adapter":"Bộ đổi nguồn",
+
+/* ---------- SFX ---------- */
+"More smoke, please":{f:"Thêm khói đi!",p:"Cho thêm khói ạ!"},
+"Less smoke, please":{f:"Bớt khói đi!",p:"Cho bớt khói ạ!"},
+"Hide / get out of sight":{f:"Nấp đi!",p:"Nấp đi ạ!"},
+"Clear the frame":"Ra khỏi khung hình!",
+"It's safe there":{f:"Chỗ đó an toàn.",p:"Chỗ đó an toàn ạ."},
+"Get out of shot":{f:"Lọt khung rồi! Ra đi!",p:"Đang lọt khung, ra ngoài giúp em ạ!"},
+"Edge of frame":"Mép khung hình",
+"Too much smoke":"Khói nhiều quá.",
+"Not enough smoke":"Khói chưa đủ.",
+"All clear, it's safe now":"Kiểm tra xong! An toàn rồi!",
+"Stand back":{f:"Lùi lại!",p:"Lùi lại giúp em ạ!"},
+"Everyone stand back":"Mọi người lùi lại!",
+"Careful!":"Cẩn thận!",
+"Careful, hot":"Cẩn thận, nóng đấy!",
+"Careful, slippery":"Cẩn thận, trơn đấy!",
+"Danger":"Nguy hiểm!",
+"Stop right now":"Dừng lại ngay!",
+"Wait":{f:"Chờ chút!",p:"Chờ em một chút ạ!"},
+"Standing by":"Sẵn sàng rồi.",
+"Turn it on":{f:"Bật lên!",p:"Bật lên giúp em ạ!"},
+"Turn it off":{f:"Tắt đi!",p:"Tắt đi giúp em ạ!"},
+"Turn on the fan to clear the smoke":{f:"Bật quạt cho tan khói đi.",p:"Bật quạt cho tan khói giúp em ạ."},
+"Smoke":"Khói",
+"Fog / haze":"Sương mù",
+"Smoke machine":"Máy khói",
+"Fog machine":"Máy tạo sương",
+"Rain effect":"Hiệu ứng mưa",
+"Smoke fluid":"Dung dịch tạo khói",
+"I need a moment to refill the fluid":"Cho em ít phút để châm thêm dung dịch ạ.",
+"Fire extinguisher":"Bình cứu hỏa",
+"Safety officer":"Phụ trách an toàn",
+"Special effects department":"Tổ hiệu ứng đặc biệt",
+"SFX technician":"Kỹ thuật viên hiệu ứng",
+"Forklift":"Xe nâng",
+"Crane":"Cần cẩu",
+"Rain on":"Cho mưa!",
+"Rain off":"Tắt mưa!",
+"3-phase power":"Điện ba pha",
+"Take away (remove it)":{f:"Dẹp cái đó đi.",p:"Mang cái đó đi giúp em ạ."},
+"Beer":"Bia",
+"Motorcycle":"Xe máy",
+"First aid kit":"Hộp cứu thương",
+"Flame bar":"Thanh đốt lửa",
+"Flame gel":"Gel bắt lửa",
+"Lighter":"Bật lửa",
+"One more (item)":"Thêm một cái.",
+"90 degrees":"Chín mươi độ",
+"Gloves":"Găng tay",
+"Safety glasses":"Kính bảo hộ",
+/* "Turn left/right" exists twice: Getting around (เลี้ยว, to a driver) and SFX (หัน, turn it / turn yourself).
+   A "Category|English" key overrides the plain English key for that category only. */
+"SFX|Turn left":{f:"Xoay sang trái!",p:"Xoay sang trái giúp em ạ!"},
+"SFX|Turn right":{f:"Xoay sang phải!",p:"Xoay sang phải giúp em ạ!"},
+
+/* ---------- Schedule & meals ---------- */
+"Coffee":"Cà phê",
+"Where's the coffee?":{f:"Cà phê ở đâu thế?",p:"Cà phê để ở đâu ạ?"},
+"One coffee, please":"Cho em một cà phê ạ.",
+"Where's the drinking water?":{f:"Nước uống ở đâu thế?",p:"Nước uống để ở đâu ạ?"},
+"Where's breakfast?":{f:"Ăn sáng ở đâu thế?",p:"Ăn sáng ở đâu ạ?"},
+"When's lunch?":{f:"Mấy giờ ăn trưa?",p:"Mấy giờ ăn trưa ạ?"},
+"How long is the break?":{f:"Nghỉ bao lâu thế?",p:"Nghỉ bao lâu ạ?"},
+"What's my call time?":"Mấy giờ em phải tập trung ạ?",
+"What time do I need to arrive?":"Mấy giờ em phải có mặt ạ?",
+"What's tomorrow's call time?":{f:"Mai mấy giờ tập trung?",p:"Ngày mai mấy giờ tập trung ạ?"},
+"What time do we wrap today?":"Hôm nay mấy giờ xong ạ?",
+"What time did we wrap yesterday?":"Hôm qua mấy giờ xong ạ?",
+"What time do we finish filming?":"Mấy giờ quay xong ạ?",
+"What time is it now?":{f:"Mấy giờ rồi?",p:"Bây giờ là mấy giờ rồi ạ?"},
+"How many scenes are there today?":"Hôm nay quay mấy cảnh ạ?",
+"Where are we filming tomorrow?":"Ngày mai quay ở đâu ạ?",
+"Where's the meeting point?":{f:"Điểm tập trung ở đâu thế?",p:"Điểm tập trung ở đâu ạ?"},
+"Where's the parking?":{f:"Bãi đỗ xe ở đâu thế?",p:"Bãi đỗ xe ở đâu ạ?"},
+"Where's the dressing room?":{f:"Phòng thay đồ ở đâu thế?",p:"Phòng thay đồ ở đâu ạ?"},
+"Who's the assistant director?":{f:"Ai là phó đạo diễn thế?",p:"Cho em hỏi phó đạo diễn là ai ạ?"},
+"Can I see the shooting schedule?":{f:"Cho mình xem lịch quay với.",p:"Cho em xem lịch quay được không ạ?"},
+"What should I wear?":{f:"Mình nên mặc gì?",p:"Em nên mặc gì ạ?"},
+"Last week":"Tuần trước",
+
+/* ---------- Casual talk (Friends-register slang; the same text in every mode unless split) ---------- */
+"Cool! / Awesome":"Ngầu quá!",
+"Amazing! / The best":"Nhất luôn!",
+"Killer! (slang: awesome)":"Đỉnh quá!",
+"Spot on / perfect":"Chuẩn luôn!",
+"Wow!":"Ôi chà!",
+"Seriously? / For real?":"Thật á? Thật không đấy?",
+"No way!":"Làm gì có chuyện đó!",
+"Oh my god!":"Trời ơi!",
+"Yeah (very casual)":"Ừ.",
+"Sure thing":"Tất nhiên rồi!",
+"Sure, all good":"Được, ổn cả mà!",
+"Let's do it / go for it":"Làm thôi!",
+"Let's go!":"Đi thôi!",
+"Go ahead":{f:"Ừ, làm đi!",p:"Vâng, cứ tự nhiên ạ."},
+"Chill / no stress":"Thoải mái đi, đừng căng thẳng.",
+"Take it easy":"Từ từ thôi, đừng cố quá.",
+"Make yourself at home / as you like":{f:"Cứ tự nhiên nhé.",p:"Cứ tự nhiên như ở nhà ạ."},
+"Forget it / whatever":"Thôi, kệ đi.",
+"Don't worry about it":{f:"Đừng lo!",p:"Không sao đâu ạ, đừng lo."},
+"Dunno":"Không biết nữa.",
+"I'm confused":"Mình rối quá.",
+"Wait a sec":"Chờ chút.",
+"Just a moment":{f:"Đợi mình chút nhé!",p:"Xin chờ một chút ạ."},
+"Be right back":"Mình quay lại ngay.",
+"I'm off then":"Thôi, mình đi đây!",
+"What's up?":"Dạo này sao rồi?",
+"What are you up to?":"Đang làm gì đấy?",
+"Where've you been? (casual hello)":"Đi đâu về đấy?",
+"Eaten yet? (casual hello)":"Ăn cơm chưa?",
+"Already ate":"Ăn rồi.",
+"Not yet":"Chưa.",
+"I'm so hungry":"Đói quá đi mất!",
+"I'm so sleepy":"Buồn ngủ quá.",
+"It's so hot":"Nóng quá!",
+"I'm exhausted":{f:"Mệt rã rời luôn.",p:"Em mệt quá ạ."},
+"I can't take any more":"Hết chịu nổi rồi.",
+"I'm bored / fed up":"Chán quá.",
+"So much fun":"Vui quá đi!",
+"So funny":"Buồn cười chết mất!",
+"So cute":"Dễ thương quá!",
+"Cheers!":"Một, hai, ba, dô!",
+"I'm drunk":"Mình say rồi.",
+"That's enough":"Đủ rồi.",
+"Thanks (to a friend)":"Cảm ơn nhé!",
+"So satisfying! / Pure bliss":"Sướng quá!",
+"So tasty! (spicy-good)":"Cay mà ngon quá!",
+"Just for fun / just joking":"Đùa thôi mà!",
+"Annoying! (slang)":"Bực mình quá!",
+"Got played / got tricked":"Bị lừa rồi!",
+"Absolutely stunning":"Đẹp xuất sắc luôn!",
+"Busted! Cat's out of the bag":"Lộ rồi!",
+"Fabulous":"Tuyệt vời!",
+"Nailed it / killed it":"Đỉnh thật! Làm quá tốt!",
+"*eye roll*":"Ờ, rồi rồi, biết rồi.",
+"Don't even think about it":"Đừng hòng!",
+"I'm broke":"Mình cháy túi rồi.",
+"Got it / I get it":"Ok, hiểu rồi!",
+"I'm so into it":"Mê quá luôn!",
+"Over the top / exaggerating":"Lố quá rồi đấy!",
+"Super cool":"Ngầu hết sức!",
+"You got this! Keep going":"Cố lên! Bạn làm được mà!",
+"Just a sec":"Đợi một tí!",
+"Lucky break":"May quá!",
+"Really? / Is that true?":"Thật không?",
+"Right?":"Đúng không?",
+"What? / What's that?":"Hả? Cái gì thế?",
+"What should we do?":"Giờ làm sao đây?",
+"Whatever works":"Sao cũng được.",
+"Up to you":{f:"Tùy bạn.",p:"Tùy anh chị ạ."},
+"OK then / fine":"Ừ, được rồi.",
+"Exactly!":"Chính xác!",
+"That's it / exactly":"Đúng rồi, đúng rồi!",
+"No need":"Không cần đâu.",
+"I'll sort it out":"Để mình lo.",
+"Give me a hand, come on":"Giúp mình một tay đi!",
+"Wanna eat together?":"Đi ăn cùng không?",
+"Wanna go out?":"Đi chơi không?",
+"It's fine, right?":"Ổn mà, đúng không?",
+"That's crazy":"Không thể tin nổi!",
+"Uh oh, we're in trouble":"Thôi chết rồi!",
+
+/* ---------- Prosthetics & makeup ---------- */
+"Makeup touch-up, please":"Hóa trang dặm lại giúp em ạ!",
+"Time for makeup":"Đến giờ hóa trang rồi ạ.",
+"Hold still, please":{f:"Ngồi yên nhé.",p:"Ngồi yên giúp em ạ."},
+"Close your eyes":{f:"Nhắm mắt lại.",p:"Nhắm mắt lại giúp em ạ."},
+"Open your eyes":{f:"Mở mắt ra.",p:"Mở mắt ra giúp em ạ."},
+"Look up":{f:"Nhìn lên.",p:"Nhìn lên giúp em ạ."},
+"Look down":{f:"Nhìn xuống.",p:"Nhìn xuống giúp em ạ."},
+"Relax your face":{f:"Thả lỏng mặt ra.",p:"Thả lỏng mặt giúp em ạ."},
+"Does it hurt?":{f:"Có đau không?",p:"Có đau không ạ?"},
+"Is it itchy?":{f:"Có ngứa không?",p:"Có ngứa không ạ?"},
+"Is it too hot?":{f:"Có nóng quá không?",p:"Có nóng quá không ạ?"},
+"Tell me if it hurts":{f:"Đau thì nói mình nhé.",p:"Nếu đau thì nói em biết ạ."},
+"Any allergies?":{f:"Có bị dị ứng gì không?",p:"Anh chị có bị dị ứng gì không ạ?"},
+"Don't touch your face":{f:"Đừng chạm vào mặt.",p:"Đừng chạm vào mặt ạ."},
+"Don't rub it":{f:"Đừng chà vào.",p:"Đừng chà vào ạ."},
+"Don't eat or drink yet":{f:"Chưa được ăn uống gì nhé.",p:"Khoan ăn uống gì đã ạ."},
+"Use a straw":{f:"Dùng ống hút đi.",p:"Dùng ống hút giúp em ạ."},
+"We need to take the prosthetic off":"Phải tháo lớp hóa trang ra rồi ạ.",
+"It takes about an hour":"Mất khoảng một tiếng ạ.",
+"Fake blood":"Máu giả",
+"More blood, please":{f:"Thêm máu đi!",p:"Cho thêm máu ạ."},
+"Less blood, please":{f:"Bớt máu đi!",p:"Cho bớt máu ạ."},
+"Blood":"Máu",
+"Glue / adhesive":"Keo dán",
+"Remover":"Nước tẩy keo",
+"Silicone piece":"Miếng silicon",
+"Wig":"Tóc giả",
+"Mirror":"Gương",
+"Sponge":"Mút trang điểm",
+"Brush":"Cọ trang điểm",
+"Tissue":"Khăn giấy",
+"Sweat":"Mồ hôi",
+"Sink":"Bồn rửa",
+"Water":"Nước",
+"Wash":"Rửa",
+"Clean":"Lau sạch",
+"Hose":"Ống nước",
+"Towel":"Khăn tắm",
+
+/* ---------- LEGACY: D rows removed by P2, and English renamed by P13 / pros1 ---------- */
+"Action!":"Máy chạy! Diễn!",
+"Cut!":"Cắt!",
+"Good, approved":"Ok, được rồi! Tốt lắm!",
+"One more take":"Quay thêm một lần nữa!",
+"Everyone to your positions":"Mọi người về vị trí!",
+"Next scene":"Chuyển sang cảnh tiếp theo!",
+"Start shooting":"Bắt đầu quay!",
+"Rehearse first":"Tập thử trước nhé.",
+"Reshoot / retake":"Quay lại.",
+"Stand here":{f:"Đứng đây.",p:"Đứng ở đây giúp em ạ."},
+"Look at the camera":{f:"Nhìn vào máy quay.",p:"Nhìn vào máy quay giúp em ạ."},
+"Don't look at the camera":{f:"Đừng nhìn vào máy.",p:"Đừng nhìn vào máy quay ạ."},
+"Speak louder":{f:"Nói to lên.",p:"Nói to hơn một chút giúp em ạ."},
+"Slower":"Chậm hơn.",
+"Faster":"Nhanh hơn.",
+"Do it again":"Làm lại lần nữa.",
+"Very good":"Rất tốt!",
+"Costume department":"Tổ phục trang",
+"Extension cord":"Dây điện nối dài",
+"Hide":{f:"Nấp đi!",p:"Nấp đi ạ!"},
+"One more":"Thêm một cái nữa."
+};
+const PH_TABLES={fr:FR_PH,zh:ZH_PH,zt:ZT_PH,yue:YUE_PH,ja:JA_PH,ko:KO_PH,vi:VI_PH};
 // built-in text for item i in language L for the current register: {t, ph} or null
 function builtinFull(i,L){
   const T=PH_TABLES[L];if(!T||!i||!i.en)return null;
@@ -3382,6 +4336,14 @@ function applyP18(){if(!Array.isArray(S.applied))S.applied=[];if(S.applied.inclu
 function applyP19(){if(!Array.isArray(S.applied))S.applied=[];if(S.applied.includes('japh1'))return;
   S.items.forEach(i=>{const x=i.tr&&i.tr.ja;if(x&&x.auto&&builtinFor(i,"ja")){delete i.tr.ja;if(!Object.keys(i.tr).length)delete i.tr}});
   S.applied.push('japh1');save()}
+// one time: drop machine-made ko of built-in phrases, the table replaces it
+function applyPH_ko(){if(!Array.isArray(S.applied))S.applied=[];if(S.applied.includes('koph1'))return;
+  S.items.forEach(i=>{const x=i.tr&&i.tr.ko;if(x&&x.auto&&builtinFor(i,"ko")){delete i.tr.ko;if(!Object.keys(i.tr).length)delete i.tr}});
+  S.applied.push('koph1');save()}
+// one time: drop machine-made vi of built-in phrases, the table replaces it
+function applyPH_vi(){if(!Array.isArray(S.applied))S.applied=[];if(S.applied.includes('viph1'))return;
+  S.items.forEach(i=>{const x=i.tr&&i.tr.vi;if(x&&x.auto&&builtinFor(i,"vi")){delete i.tr.vi;if(!Object.keys(i.tr).length)delete i.tr}});
+  S.applied.push('viph1');save()}
 const OLD=["Basics","Eating","Getting around","Shopping","Numbers","Social","Casual talk","Emergency"];
 const bkey=i=>i.cat+"|"+(i.th||i.en);
 function fromBaked(){
@@ -3399,7 +4361,7 @@ function bakedMerge(){
   fromBaked();mine.forEach(i=>S.items.push(i));
   S.bakedV=BAKED.v;save();
 }
-function load(){try{const r=localStorage.getItem(KEY);if(r){const d=JSON.parse(r);if(d&&Array.isArray(d.items)){S=Object.assign(S,d);if(!("rate" in d))S.rate=d.slow?0.55:0.9;if(!("polite" in d)){S.polite=S.pol!=="";if(!S.pol)S.pol="m"}if(!Array.isArray(S.seen))S.seen=OLD.slice();const add=Object.keys(D).filter(c=>!S.seen.includes(c));if(add.length){defaults().filter(i=>add.includes(i.cat)).forEach(i=>S.items.push(i));S.seen=Object.keys(D);save()}bakedMerge();applyPatches();applyPatches2();applyP3();applyP4();applyP5();applyP6();applyP7();applyP8();applyP9();applyP10();applyP11();applyP12();applyP13();applyP14();applyP15();applyP16();applyP17();applyP18();applyP19();return}}}catch(e){}S.items=defaults();S.seen=Object.keys(D);S.applied=Object.keys(PATCHES);if(BAKED&&BAKED.items){fromBaked();S.bakedV=BAKED.v}applyPatches2();applyP3();applyP4();applyP5();applyP6();applyP7();applyP8();applyP9();applyP10();applyP11();applyP12();applyP13();applyP14();applyP15()}
+function load(){try{const r=localStorage.getItem(KEY);if(r){const d=JSON.parse(r);if(d&&Array.isArray(d.items)){S=Object.assign(S,d);if(!("rate" in d))S.rate=d.slow?0.55:0.9;if(!("polite" in d)){S.polite=S.pol!=="";if(!S.pol)S.pol="m"}if(!Array.isArray(S.seen))S.seen=OLD.slice();const add=Object.keys(D).filter(c=>!S.seen.includes(c));if(add.length){defaults().filter(i=>add.includes(i.cat)).forEach(i=>S.items.push(i));S.seen=Object.keys(D);save()}bakedMerge();applyPatches();applyPatches2();applyP3();applyP4();applyP5();applyP6();applyP7();applyP8();applyP9();applyP10();applyP11();applyP12();applyP13();applyP14();applyP15();applyP16();applyP17();applyP18();applyP19();applyPH_vi();applyPH_ko();return}}}catch(e){}S.items=defaults();S.seen=Object.keys(D);S.applied=Object.keys(PATCHES);if(BAKED&&BAKED.items){fromBaked();S.bakedV=BAKED.v}applyPatches2();applyP3();applyP4();applyP5();applyP6();applyP7();applyP8();applyP9();applyP10();applyP11();applyP12();applyP13();applyP14();applyP15()}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));return localStorage.getItem(KEY)!==null}catch(e){return false}}
 function testStore(){try{localStorage.setItem('__t','1');localStorage.removeItem('__t');return true}catch(e){return false}}
 const STORE_OK=testStore();
@@ -4454,7 +5416,7 @@ async function doTr(depth){
       if(m){showRes(q,"",m.en,"From your saved phrases.",false);RES.saved=true;return}
     }
   }
-  $("trOut").innerHTML=`<div style="margin-top:12px">Translating…</div>`;
+  $("trOut").innerHTML=thinking(TALKHEARD);TALKHEARD=false;
   try{
     if(DIR==="en"){
       const r=await aiTr(q,"en",S.lang);
@@ -4505,6 +5467,8 @@ $("trOut").onclick=e=>{
 };
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 let REC=null,RECON=false;
+let TALKHEARD=false;
+function thinking(heard){return `<div class="thinking">${heard?'<span class="tick">✓</span>':""}<span>${heard?"Got it, translating":"Translating"}</span><span class="dots" aria-hidden="true"><span></span><span></span><span></span></span></div>`}
 function micMsg(m,bad){$("trOut").innerHTML=`<div style="margin-top:12px;font-weight:700;${bad?"color:#e5745f":""}">${esc(m)}</div>`}
 /* Waveform while Talk listens. iPhone won't share the mic between speech input and a second recorder
    (Talk stopped working), so the wave is driven by the speech recognizer's own events: it rises when sound
@@ -4512,9 +5476,9 @@ function micMsg(m,bad){$("trOut").innerHTML=`<div style="margin-top:12px;font-we
 let WVA={on:false,lvl:0,tgt:0,ph:0,raf:0,len:0};
 function waveKick(v){WVA.tgt=Math.max(WVA.tgt,v);WVA.lvl=Math.max(WVA.lvl,v*0.8)}
 function waveOn(){
-  const w=WVA;w.on=true;w.lvl=0;w.tgt=0.06;w.len=0;cancelAnimationFrame(w.raf);
+  const w=WVA;w.on=true;w.lvl=0;w.tgt=0;w.len=0;cancelAnimationFrame(w.raf);
   const draw=()=>{if(!w.on)return;const c=$("wave");if(c){const r=c.getBoundingClientRect(),k=window.devicePixelRatio||1;if(c.width!==Math.round(r.width*k)){c.width=Math.round(r.width*k);c.height=Math.round(r.height*k)}
-    w.tgt=Math.max(0.06,w.tgt*0.95);w.lvl+=(w.tgt-w.lvl)*0.25;w.ph+=0.22;
+    w.tgt=w.tgt*0.95;if(w.tgt<0.01)w.tgt=0;w.lvl+=(w.tgt-w.lvl)*0.25;w.ph+=0.22;
     const x=c.getContext("2d"),W=c.width,H=c.height,n=96;x.clearRect(0,0,W,H);
     x.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue("--danger").trim()||"#e5745f";x.lineWidth=3*k;x.lineJoin="round";x.beginPath();
     for(let i=0;i<=n;i++){const u=i/n,env=Math.sin(Math.PI*u),y=Math.sin(u*22+w.ph)*0.6+Math.sin(u*37-w.ph*1.7)*0.3+Math.sin(u*9+w.ph*0.6)*0.25;
@@ -4556,21 +5520,23 @@ function startMic2(retry){
     // never sit on Listening forever: stop after 8 seconds with nothing heard, or 25 seconds in all
     const halt=()=>{if(REC!==r||!RECON)return;r._quiet=true;if(!heard)err=err||"no-speech";try{r.stop()}catch(e){}setTimeout(()=>{if(REC===r&&RECON&&r.onend)r.onend()},2500)};
     r._g1=setTimeout(()=>{if(!heard)halt()},8000);r._g2=setTimeout(halt,25000)};
-  r.onsoundstart=()=>waveKick(0.35);r.onspeechstart=()=>waveKick(0.7);r.onspeechend=()=>{WVA.tgt=0.06};
+  r.onspeechstart=()=>waveKick(0.5);r.onspeechend=()=>{WVA.tgt=0};
   r.onresult=ev=>{
     let txt="";for(let i=0;i<ev.results.length;i++)txt+=ev.results[i][0].transcript;
     $("trIn").value=txt;if(txt.trim())heard=true;
     if(txt.length!==WVA.len){waveKick(Math.min(1,0.55+(txt.length-WVA.len)*0.08));WVA.len=txt.length}
     if(ev.results[ev.results.length-1].isFinal)got=true;
+    // iPhone can keep listening after you stop talking (Japanese especially): stop by itself 1.6 seconds after the last new words
+    if(heard){clearTimeout(r._q);r._q=setTimeout(()=>{if(REC!==r||!RECON)return;r._quiet=true;waveOff();$("trOut").innerHTML=thinking(true);try{r.stop()}catch(e){}setTimeout(()=>{if(REC===r&&RECON&&r.onend)r.onend()},2500)},1600)}
   };
   r.onerror=ev=>{err=ev&&ev.error?ev.error:"unknown"};
   r.onend=()=>{
-    r._wait=false;r.onend=null;clearTimeout(RECGUARD);clearTimeout(r._g1);clearTimeout(r._g2);if(REC!==r)return;
+    r._wait=false;r.onend=null;clearTimeout(RECGUARD);clearTimeout(r._g1);clearTimeout(r._g2);clearTimeout(r._q);if(REC!==r)return;
     RECON=false;$("trMic").classList.remove("rec");whoLabels();waveOff();
     const txt=$("trIn").value.trim();
     // right after an answer has played the iPhone can end the next listen at once with nothing heard: try once more
     if(micRetry(r,retry,!txt&&!r._user&&(err==="aborted"||err==="audio-capture"||(!err||err==="no-speech")&&Date.now()-t0<4000)))return;
-    if(txt&&(got||!err||heard&&!/not-allowed/.test(err))){const before=RES;doTr().then(()=>{if(S.autoTalk===true&&RES&&RES!==before)playRes()});return}
+    if(txt&&(got||!err||heard&&!/not-allowed/.test(err))){const before=RES;TALKHEARD=true;doTr().then(()=>{if(S.autoTalk===true&&RES&&RES!==before)playRes()});return}
     if(err==="not-allowed"||err==="service-not-allowed")micMsg("Voice input is blocked ("+err+"). On iPhone check Settings > Privacy & Security > Speech Recognition, Settings > General > Keyboard > Enable Dictation, and Safari's microphone permission (aA > Website Settings). The keyboard's microphone key also works.",true);
     else if(err==="audio-capture")micMsg("No microphone found.",true);
     else if(err==="language-not-supported")micMsg("Voice input isn't available for "+(DIR==="th"?LG().n:"English")+" on this phone. Type it instead.",true);
@@ -5160,7 +6126,7 @@ $("sLight").onchange=e=>{S.light=e.target.checked;save();applyTheme()};
 $("sRo").onchange=e=>{S.ro=e.target.checked;save();render()};
 $("sEn").onchange=e=>{S.en=e.target.checked;save();render()};
 $("voice").onchange=e=>{S.voice=e.target.value;save();speak({th:"สวัสดี",cat:"Basics"})};
-$("reset").onclick=()=>{if(confirm("Replace all phrases with the defaults? Your added phrases will be lost.")){S.items=defaults();S.seen=Object.keys(D);S.applied=Object.keys(PATCHES);if(BAKED&&BAKED.items){fromBaked();S.bakedV=BAKED.v}applyPatches2();applyP3();applyP4();applyP5();applyP6();applyP7();applyP8();applyP9();applyP10();applyP11();applyP12();applyP13();applyP14();applyP15();applyP16();applyP17();applyP18();applyP19();["tech1","pros1","blood1","call1","cof1","num2","numFirst"].forEach(k=>delete S[k]);save();location.reload()}};
+$("reset").onclick=()=>{if(confirm("Replace all phrases with the defaults? Your added phrases will be lost.")){S.items=defaults();S.seen=Object.keys(D);S.applied=Object.keys(PATCHES);if(BAKED&&BAKED.items){fromBaked();S.bakedV=BAKED.v}applyPatches2();applyP3();applyP4();applyP5();applyP6();applyP7();applyP8();applyP9();applyP10();applyP11();applyP12();applyP13();applyP14();applyP15();applyP16();applyP17();applyP18();applyP19();applyPH_vi();applyPH_ko();["tech1","pros1","blood1","call1","cof1","num2","numFirst"].forEach(k=>delete S[k]);save();location.reload()}};
 
 
 /* number keypad: digits -> Thai words, worked out on the phone (no internet needed) */
@@ -5436,7 +6402,7 @@ function listen1(lang,onText){return new Promise(res=>{
   r._stopGuard=()=>{clearTimeout(ge);ge=setTimeout(()=>fin({txt:txt.trim(),err:txt.trim()?null:err||"aborted",got}),2500)};
   gs=setTimeout(()=>{if(!started){try{r.abort()}catch(e){}fin({txt:"",err:"nostart"})}},5000);
   r.onstart=()=>{started=true;clearTimeout(gs);waveOn();quiet(8000)};
-  r.onsoundstart=()=>waveKick(0.35);r.onspeechstart=()=>waveKick(0.7);r.onspeechend=()=>{WVA.tgt=0.06};
+  r.onspeechstart=()=>waveKick(0.5);r.onspeechend=()=>{WVA.tgt=0};
   r.onresult=ev=>{txt="";for(let i=0;i<ev.results.length;i++)txt+=ev.results[i][0].transcript;if(ev.results[ev.results.length-1].isFinal)got=true;if(txt.length!==len){waveKick(Math.min(1,0.55+(txt.length-len)*0.08));len=txt.length;quiet(1600)}onText&&onText(txt)};
   r.onerror=ev=>{const e=ev&&ev.error?ev.error:"unknown";err=r._quiet||r._manual?err||e:e};
   // never listen for more than 25 seconds in one go
