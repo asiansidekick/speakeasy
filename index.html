@@ -431,7 +431,7 @@ header h1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;
 .tile .th{font-size:15.5px;line-height:1.25;padding-right:14px}
 #chips{display:block}
 #chips .chrow1{display:flex;flex-wrap:wrap;gap:8px}
-#chips .chrow2{display:flex;flex-wrap:nowrap;gap:8px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;margin:8px -18px 0 0;padding:0 18px 4px 0}
+#chips .chrow2{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 0;padding:0 0 4px}
 #chips .chrow2::-webkit-scrollbar{display:none}
 #chips .chip{flex:none}
 .tile .ro{font-size:12.5px;line-height:1.2}
@@ -740,7 +740,7 @@ html[data-look] #convAuto[aria-pressed="true"]{background:#fde68a!important;colo
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 17 Oct 2026, build 69</div>
+  <div class="hint">Version: 17 Oct 2026, build 70</div>
   <input type="file" id="file" accept=".json,application/json" hidden>
   <div id="bs" style="font-size:var(--fs-s);color:var(--mute);min-height:18px;margin-top:6px"></div>
   <div class="act" style="justify-content:space-between">
@@ -1118,6 +1118,496 @@ function applyP15(){
   });
   S.applied.push(P15.key);save();
 }
+const P16={key:'cori1',add:[["Eating","ไม่ใส่ผักชี","mai sai phak chee","No coriander",0]]};
+function applyP16(){
+  if(!Array.isArray(S.applied))S.applied=[];
+  if(S.applied.includes(P16.key))return;
+  P16.add.forEach(([cat,t,ro,en,np])=>{
+    if(S.items.some(i=>i.th===t))return;
+    const it={id:uid(),th:t,ro,en,cat,np};
+    let at=-1;S.items.forEach((x,n)=>{if(x.cat===cat)at=n});
+    if(at<0)S.items.push(it);else S.items.splice(at+1,0,it);
+  });
+  S.applied.push(P16.key);save();
+}
+/* Built-in French for Speakeasy's phrase board.
+   Key: the exact English (`en`) a phone ends up with after D + every patch (PATCHES, P2-P16, tech1/pros1/blood1/call1/cof1).
+   Value: a string (same in every register) or {f, p}:
+     f = Friends (tu, everyday spoken French)
+     p = Polite and Formal (vous)
+   Service phrases (waiter, taxi, shop) stay "vous" even in Friends mode on purpose: tutoyer a stranger
+   serving you sounds rude in France. On-set orders use the impersonal "on" where crews do, which needs no register.
+   A "Category|English" key (only used for "SFX|Turn left/right") wins over the plain key for that category.
+   Digit-only Numbers tiles are left out. A short LEGACY block at the end covers D rows that P2 removed
+   and English that later patches renamed, for phones or user copies that still carry them. */
+const FR_PH={
+/* ---------- Basics ---------- */
+"Hello":{f:"Salut !",p:"Bonjour !"},
+"Thank you":"Merci !",
+"You're welcome / no problem":{f:"Pas de souci !",p:"Je vous en prie."},
+"Sorry / excuse me":{f:"Pardon !",p:"Excusez-moi."},
+"Yes (that's right)":"Oui, c'est ça.",
+"No (that's not it)":{f:"Non, c'est pas ça.",p:"Non, ce n'est pas ça."},
+"OK / can do":{f:"Ça marche !",p:"D'accord, pas de problème."},
+"Can't / not allowed":{f:"C'est pas possible.",p:"Ce n'est pas possible."},
+"Bye, I'm off":{f:"Allez, j'y vais. Salut !",p:"Bon, je vous laisse. Au revoir !"},
+"I understand":"J'ai compris.",
+"I don't understand":{f:"Je comprends pas.",p:"Je ne comprends pas."},
+"Can you speak slowly?":{f:"Tu peux parler plus lentement ?",p:"Vous pouvez parler plus lentement, s'il vous plaît ?"},
+"Can you say it again?":{f:"Tu peux répéter ?",p:"Vous pouvez répéter, s'il vous plaît ?"},
+"I speak a little Thai":"Je parle un peu thaï.",
+"Do you speak English?":{f:"Tu parles anglais ?",p:"Vous parlez anglais ?"},
+"No thanks (I don't want it)":"Non merci.",
+
+/* ---------- Eating ---------- */
+"Menu, please":"La carte, s'il vous plaît.",
+"Water, please":"Une carafe d'eau, s'il vous plaît.",
+"Check, please":"L'addition, s'il vous plaît.",
+"Delicious":{f:"Trop bon !",p:"C'est délicieux !"},
+"Not spicy":"Pas épicé, s'il vous plaît.",
+"A little spicy":"Un peu épicé, s'il vous plaît.",
+"No coriander":"Sans coriandre, s'il vous plaît.",
+"I don't eat meat (vegetarian)":{f:"Je mange pas de viande, je suis végétarien.",p:"Je ne mange pas de viande, je suis végétarien."},
+"I'm allergic to peanuts":"Je suis allergique aux cacahuètes.",
+"One more, please":"Encore un, s'il vous plaît.",
+"Takeaway, please":"À emporter, s'il vous plaît.",
+"Egg":"Œuf",
+"Duck egg":"Œuf de cane",
+"Grilled chicken":"Poulet grillé",
+"Boiled egg":"Œuf dur",
+"Fried egg":"Œuf au plat",
+"Sweet":"Sucré",
+"Not sweet":"Pas sucré, s'il vous plaît.",
+"Spicy":"Épicé",
+"Not too spicy":"Pas trop épicé, s'il vous plaît.",
+"Crab":"Crabe",
+"Fish":"Poisson",
+"Squid":"Calamar",
+"Lobster":"Langouste",
+"Shrimp":"Crevettes",
+"Is it spicy?":"C'est épicé ?",
+"Same as usual":"Comme d'habitude.",
+"To take away":"À emporter.",
+"Eat here":"Sur place.",
+"I'm full":{f:"J'en peux plus, j'ai trop mangé !",p:"Je n'ai plus faim, merci."},
+"Can I get more?":{f:"Je peux en reprendre ?",p:"Est-ce que je pourrais en reprendre ?"},
+"No MSG":"Sans glutamate, s'il vous plaît.",
+
+/* ---------- Getting around ---------- */
+"Where's the toilet?":{f:"Elles sont où, les toilettes ?",p:"Où sont les toilettes, s'il vous plaît ?"},
+"To the airport":"À l'aéroport, s'il vous plaît.",
+"To the hotel":"À l'hôtel, s'il vous plaît.",
+"Can you use the meter?":"Vous pouvez mettre le compteur, s'il vous plaît ?",
+"Stop here":"Arrêtez-vous ici, s'il vous plaît.",
+"Turn left":"Tournez à gauche.",
+"Turn right":"Tournez à droite.",
+"Straight ahead":"Tout droit.",
+"Is it far?":"C'est loin ?",
+"Where's the skytrain station?":{f:"C'est où, la station de Skytrain ?",p:"Où est la station de Skytrain, s'il vous plaît ?"},
+"We're here":"On est arrivés !",
+"Is it much further?":"C'est encore loin ?",
+"Hurry a bit, please":{f:"Dépêche-toi un peu, s'il te plaît.",p:"Vous pouvez aller un peu plus vite, s'il vous plaît ?"},
+"Traffic's terrible":"Il y a des bouchons partout !",
+
+/* ---------- Shopping ---------- */
+"How much is this?":{f:"C'est combien ?",p:"Ça coûte combien, s'il vous plaît ?"},
+"Too expensive":"C'est trop cher.",
+"Can you discount it?":"Vous pouvez me faire un prix ?",
+"Can I see this one?":"Je peux voir celui-ci, s'il vous plaît ?",
+"I'll take this":"Je prends celui-ci.",
+"Can I pay by card?":"Je peux payer par carte ?",
+"Do you have a bigger size?":"Vous l'avez en plus grand ?",
+"Can I pay by QR scan?":"Je peux payer par QR code ?",
+"Just looking":"Je regarde seulement, merci.",
+"Any more discount?":"Vous pouvez faire un petit effort ?",
+"Other sizes?":"Vous l'avez dans d'autres tailles ?",
+
+/* ---------- Social ---------- */
+"How's it going?":{f:"Ça va ?",p:"Comment allez-vous ?"},
+"I'm fine":{f:"Ça va bien, et toi ?",p:"Je vais bien, merci. Et vous ?"},
+"Nice to meet you":{f:"Enchanté !",p:"Enchanté de faire votre connaissance."},
+"What's your name?":{f:"Tu t'appelles comment ?",p:"Comment vous appelez-vous ?"},
+"Really fun":{f:"C'est trop bien !",p:"C'est vraiment très sympa !"},
+"Beautiful":"C'est magnifique !",
+"See you again":{f:"À la prochaine !",p:"Au plaisir de vous revoir !"},
+"Congratulations":{f:"Bravo, félicitations !",p:"Félicitations !"},
+"Don't be shy / no need to be formal":{f:"Fais pas de manières !",p:"Ne faites pas de manières, je vous en prie."},
+"Miss you":"Tu me manques.",
+"Sweet dreams":{f:"Fais de beaux rêves !",p:"Faites de beaux rêves !"},
+"Good luck":"Bonne chance !",
+"See you soon":"À bientôt !",
+
+/* ---------- Emergency ---------- */
+"Help!":"Au secours !",
+"Please call the police":{f:"Appelle la police !",p:"Appelez la police, s'il vous plaît !"},
+"Please call an ambulance":{f:"Appelle une ambulance !",p:"Appelez une ambulance, s'il vous plaît !"},
+"Where's the hospital?":{f:"Il est où, l'hôpital ?",p:"Où est l'hôpital, s'il vous plaît ?"},
+"I feel unwell":{f:"Je me sens pas bien.",p:"Je ne me sens pas bien."},
+"I'm lost":"Je suis perdu.",
+
+/* ---------- Film production ---------- */
+"Quiet, please":"Silence plateau, s'il vous plaît !",
+"Ready":"Prêt !",
+"Take a break":"On fait une pause.",
+"That's a wrap":"Fin de journée, on remballe !",
+"Film set":"Plateau",
+"Filming / shooting":"Tournage",
+"Shooting schedule":"Plan de travail",
+"Script":"Scénario",
+"Director":"Réalisateur",
+"Cinematographer (DP)":"Chef opérateur",
+"Assistant director":"Premier assistant réalisateur",
+"Producer":"Producteur",
+"Actor":"Comédien",
+"Crew":"Équipe technique",
+"Camera":"Caméra",
+"Move the camera":"On déplace la caméra.",
+"Light":"Lumière",
+"The light is too bright":"La lumière est trop forte.",
+"Microphone":"Micro",
+"Too loud":"C'est trop fort.",
+"Can I see the monitor?":"Je peux voir le retour vidéo ?",
+"Costume / wardrobe":"Costumes",
+"Makeup":"Maquillage",
+"Props":"Accessoires",
+"Editing":"Montage",
+"Camera department":"Équipe image",
+"Lighting department":"Équipe électro",
+"Sound department":"Équipe son",
+"Grip department":"Machinerie",
+"Art department":"Équipe déco",
+"Costume / wardrobe department":"Équipe costumes",
+"Makeup department":"Équipe maquillage",
+"Set construction":"Construction des décors",
+"Production department":"Production",
+"Editing department":"Équipe montage",
+"Camera operator":"Cadreur",
+"Camera assistant":"Assistant caméra",
+"Gaffer (head electrician)":"Chef électro",
+"Electrician":"Électro",
+"Grip":"Machino",
+"Sound recordist":"Chef opérateur son",
+"Boom operator":"Perchman",
+"Production designer":"Chef décorateur",
+"Art director":"Directeur artistique",
+"Costume designer":"Chef costumier",
+"Makeup artist":"Maquilleur",
+"Script supervisor (continuity)":"Scripte",
+"Production manager":"Directeur de production",
+"Production coordinator":"Coordinateur de production",
+"Production assistant (PA)":"Assistant de production",
+"Editor":"Monteur",
+"Still photographer":"Photographe de plateau",
+"Which department are you in?":{f:"T'es dans quelle équipe ?",p:"Vous êtes dans quelle équipe ?"},
+"I'm in the camera department":"Je suis à l'image.",
+"Who's the head of this department?":{f:"C'est qui, le chef de poste ?",p:"Qui est le chef de poste, s'il vous plaît ?"},
+"Can I talk to the assistant director?":{f:"Je peux parler au premier assistant ?",p:"Est-ce que je pourrais parler au premier assistant ?"},
+
+/* ---------- On set ---------- */
+"Next set-up":"Plan suivant !",
+"Moving on":"On passe à la suite !",
+"Scene one, take two":"Séquence un, prise deux.",
+"Set up the camera":"On installe la caméra.",
+"Set up the lights":"On installe la lumière.",
+"Camera angle":"Axe caméra",
+"Wide shot":"Plan large",
+"Pan the camera":"On fait un pano.",
+"Zoom in":"Zoom avant",
+"Zoom out":"Zoom arrière",
+"Focus":"Mise au point",
+"Out of focus":"C'est flou.",
+"Boom mic":"Perche",
+"Sound check, please":"Essai son, s'il vous plaît.",
+"Silence your phones, please":"Téléphones en silencieux, s'il vous plaît !",
+"Do not enter":"Ne pas entrer",
+"Lunch break":"Pause déjeuner",
+"Where's craft services (crafty)?":{f:"Elle est où, la table régie ?",p:"Où est la table régie, s'il vous plaît ?"},
+"Where's the snack table?":{f:"Il est où, le coin grignotage ?",p:"Où est le coin grignotage, s'il vous plaît ?"},
+"Call time":"Heure de convocation",
+"Your call time":{f:"Ton heure de convoc",p:"Votre heure de convocation"},
+"My call time":"Mon heure de convocation",
+"What's your call time?":{f:"T'es convoqué à quelle heure ?",p:"Vous êtes convoqué à quelle heure ?"},
+"I need a moment to set up the scene":"Il me faut deux minutes pour mettre en place.",
+"Can we shoot here?":{f:"On peut tourner ici ?",p:"Est-ce qu'on pourrait tourner ici ?"},
+"Do we need a filming permit?":{f:"Il faut une autorisation de tournage ?",p:"Est-ce qu'il nous faut une autorisation de tournage ?"},
+"Thanks, everyone":"Merci à tous !",
+"One more time":"On la refait !",
+"Great job":"Super boulot !",
+"Again, from the top":"On reprend du début !",
+"A bit quicker":"Un peu plus vite.",
+"Slow down a bit":"Un peu plus lentement.",
+"Five-minute break":"On fait cinq minutes de pause.",
+
+/* ---------- Technical ---------- */
+"Lens":"Objectif",
+"Tripod":"Trépied",
+"Dolly":"Dolly",
+"Steadicam":"Steadicam",
+"Light stand":"Pied de projo",
+"LED light":"Projecteur LED",
+"Filter":"Filtre",
+"Generator":"Groupe électrogène",
+"Power cable":"Câble d'alimentation",
+"Powerboard / extension cord":"Multiprise",
+"Battery":"Batterie",
+"Memory card":"Carte mémoire",
+"Headphones":"Casque",
+"Walkie-talkie":"Talkie-walkie",
+"Wireless mic":"Micro HF",
+"Lavalier mic":"Micro-cravate",
+"Aperture":"Diaph",
+"ISO":"ISO",
+"Shutter speed":"Vitesse d'obturation",
+"Frame rate":"Cadence",
+"White balance":"Balance des blancs",
+"Depth of field":"Profondeur de champ",
+"Audio level":"Niveau son",
+"Which lens are you using?":{f:"T'es sur quelle optique ?",p:"Vous êtes sur quelle optique ?"},
+"What's the frame rate set to?":"On tourne à quelle cadence ?",
+"The battery's dead":"La batterie est à plat.",
+"I need more batteries":"Il me faut des batteries en plus.",
+"There's background noise":"Il y a du bruit de fond.",
+"There's an echo":"Ça résonne.",
+"The signal dropped":"On a perdu le signal.",
+"The power's out":{f:"Y a plus de jus !",p:"Il n'y a plus de courant."},
+"Adapter (plug)":"Adaptateur de prise",
+"Power adapter":"Bloc d'alimentation",
+
+/* ---------- SFX ---------- */
+"More smoke, please":{f:"Un peu plus de fumée, s'il te plaît !",p:"Un peu plus de fumée, s'il vous plaît !"},
+"Less smoke, please":{f:"Un peu moins de fumée, s'il te plaît !",p:"Un peu moins de fumée, s'il vous plaît !"},
+"Hide / get out of sight":{f:"Cache-toi !",p:"Cachez-vous !"},
+"Clear the frame":"On dégage le champ !",
+"It's safe there":{f:"Là-bas, y a pas de danger.",p:"Là-bas, il n'y a pas de danger."},
+"Get out of shot":{f:"Sors du champ !",p:"Sortez du champ !"},
+"Edge of frame":"Bord cadre",
+"Too much smoke":"Trop de fumée.",
+"Not enough smoke":"Pas assez de fumée.",
+"All clear, it's safe now":"C'est bon, c'est sécurisé !",
+"Stand back":{f:"Recule !",p:"Reculez !"},
+"Everyone stand back":"Tout le monde recule !",
+"Careful!":"Attention !",
+"Careful, hot":"Attention, c'est chaud !",
+"Careful, slippery":"Attention, ça glisse !",
+"Danger":"Danger !",
+"Stop right now":"Stop ! On arrête tout !",
+"Wait":{f:"Attends !",p:"Attendez !"},
+"Standing by":"En stand-by.",
+"Turn it on":{f:"Allume !",p:"Allumez !"},
+"Turn it off":{f:"Éteins !",p:"Éteignez !"},
+"Turn on the fan to clear the smoke":{f:"Allume le ventilo pour chasser la fumée.",p:"Allumez le ventilateur pour chasser la fumée."},
+"Smoke":"Fumée",
+"Fog / haze":"Brume",
+"Smoke machine":"Machine à fumée",
+"Fog machine":"Machine à brouillard",
+"Rain effect":"Effet pluie",
+"Smoke fluid":"Liquide à fumée",
+"I need a moment to refill the fluid":"Il me faut une minute pour remettre du liquide.",
+"Fire extinguisher":"Extincteur",
+"Safety officer":"Responsable sécurité",
+"Special effects department":"Équipe effets spéciaux",
+"SFX technician":"Technicien effets spéciaux",
+"Forklift":"Chariot élévateur",
+"Crane":"Grue",
+"Rain on":"On envoie la pluie !",
+"Rain off":"On coupe la pluie !",
+"3-phase power":"Courant triphasé",
+"Take away (remove it)":{f:"Enlève ça.",p:"Enlevez ça, s'il vous plaît."},
+"Beer":"Bière",
+"Motorcycle":"Moto",
+"First aid kit":"Trousse de secours",
+"Flame bar":"Rampe à flammes",
+"Flame gel":"Gel inflammable",
+"Lighter":"Briquet",
+"One more (item)":"Encore un.",
+"90 degrees":"90 degrés",
+"Gloves":"Gants",
+"Safety glasses":"Lunettes de protection",
+/* "Turn left/right" exists twice: Getting around (เลี้ยว, to a driver) and SFX (หัน, turn it / turn yourself).
+   A "Category|English" key overrides the plain English key for that category only. */
+"SFX|Turn left":{f:"Tourne vers la gauche !",p:"Tournez vers la gauche !"},
+"SFX|Turn right":{f:"Tourne vers la droite !",p:"Tournez vers la droite !"},
+
+/* ---------- Schedule & meals ---------- */
+"Coffee":"Café",
+"Where's the coffee?":{f:"Il est où, le café ?",p:"Où est le café, s'il vous plaît ?"},
+"One coffee, please":{f:"Un café, s'il te plaît.",p:"Un café, s'il vous plaît."},
+"Where's the drinking water?":{f:"Elle est où, l'eau ?",p:"Où est-ce qu'on peut trouver de l'eau, s'il vous plaît ?"},
+"Where's breakfast?":{f:"Le petit-déj, c'est où ?",p:"Où est servi le petit-déjeuner ?"},
+"When's lunch?":{f:"On mange à quelle heure ?",p:"Le déjeuner est à quelle heure ?"},
+"How long is the break?":{f:"On a combien de temps de pause ?",p:"La pause dure combien de temps ?"},
+"What's my call time?":"Je suis convoqué à quelle heure ?",
+"What time do I need to arrive?":"Je dois arriver à quelle heure ?",
+"What's tomorrow's call time?":{f:"La convoc, c'est à quelle heure demain ?",p:"On est convoqués à quelle heure demain ?"},
+"What time do we wrap today?":"On finit à quelle heure aujourd'hui ?",
+"What time did we wrap yesterday?":"On a fini à quelle heure hier ?",
+"What time do we finish filming?":"Le tournage se termine à quelle heure ?",
+"What time is it now?":{f:"Il est quelle heure ?",p:"Vous avez l'heure, s'il vous plaît ?"},
+"How many scenes are there today?":"On a combien de séquences aujourd'hui ?",
+"Where are we filming tomorrow?":"On tourne où demain ?",
+"Where's the meeting point?":{f:"C'est où, le point de rendez-vous ?",p:"Où est le point de rendez-vous, s'il vous plaît ?"},
+"Where's the parking?":{f:"C'est où, le parking ?",p:"Où est le parking, s'il vous plaît ?"},
+"Where's the dressing room?":{f:"C'est où, les loges ?",p:"Où sont les loges, s'il vous plaît ?"},
+"Who's the assistant director?":{f:"C'est qui, le premier assistant ?",p:"Qui est le premier assistant, s'il vous plaît ?"},
+"Can I see the shooting schedule?":{f:"Je peux voir le plan de travail ?",p:"Est-ce que je pourrais voir le plan de travail ?"},
+"What should I wear?":{f:"Je mets quoi ?",p:"Qu'est-ce que je dois porter ?"},
+"Last week":"La semaine dernière",
+
+/* ---------- Casual talk (all Friends-register slang; the same text in every mode) ---------- */
+"Cool! / Awesome":"Trop cool !",
+"Amazing! / The best":"C'est génial !",
+"Killer! (slang: awesome)":"Ça déchire !",
+"Spot on / perfect":"Nickel !",
+"Wow!":"Waouh !",
+"Seriously? / For real?":"Sérieux ?",
+"No way!":"Non, c'est pas vrai !",
+"Oh my god!":"Oh là là !",
+"Yeah (very casual)":"Ouais.",
+"Sure thing":"Pas de souci !",
+"Sure, all good":"OK, tranquille !",
+"Let's do it / go for it":"Allez, on se lance !",
+"Let's go!":"C'est parti !",
+"Go ahead":{f:"Vas-y !",p:"Allez-y !"},
+"Chill / no stress":"Tranquille, pas de stress.",
+"Take it easy":"Relax, prends ton temps.",
+"Make yourself at home / as you like":{f:"Fais comme chez toi.",p:"Faites comme chez vous."},
+"Forget it / whatever":"Laisse tomber.",
+"Don't worry about it":{f:"T'inquiète !",p:"Ne vous inquiétez pas."},
+"Dunno":"Je sais pas.",
+"I'm confused":"Je suis un peu perdu, là.",
+"Wait a sec":"Attends deux secondes.",
+"Just a moment":{f:"Une seconde !",p:"Un instant, s'il vous plaît."},
+"Be right back":"Je reviens tout de suite.",
+"I'm off then":"Bon, j'y vais !",
+"What's up?":"Quoi de neuf ?",
+"What are you up to?":"Tu fais quoi ?",
+"Where've you been? (casual hello)":"Alors, t'étais où ?",
+"Eaten yet? (casual hello)":"T'as mangé ?",
+"Already ate":"J'ai déjà mangé.",
+"Not yet":"Pas encore.",
+"I'm so hungry":"Je meurs de faim !",
+"I'm so sleepy":"J'ai trop sommeil.",
+"It's so hot":"Qu'est-ce qu'il fait chaud !",
+"I'm exhausted":{f:"Je suis crevé.",p:"Je suis épuisé."},
+"I can't take any more":"J'en peux plus.",
+"I'm bored / fed up":"J'en ai marre.",
+"So much fun":"On s'éclate !",
+"So funny":"C'est trop drôle !",
+"So cute":"Trop mignon !",
+"Cheers!":"Santé !",
+"I'm drunk":"Je suis bourré !",
+"That's enough":"C'est bon, ça ira.",
+"Thanks (to a friend)":"Merci, c'est sympa !",
+"So satisfying! / Pure bliss":"C'est le pied !",
+"So tasty! (spicy-good)":"Ça arrache, mais c'est trop bon !",
+"Just for fun / just joking":"Pour rigoler !",
+"Annoying! (slang)":"Trop relou !",
+"Got played / got tricked":"Je me suis fait avoir !",
+"Absolutely stunning":"Sublime !",
+"Busted! Cat's out of the bag":"Grillé !",
+"Fabulous":"Trop classe !",
+"Nailed it / killed it":"T'as géré !",
+"*eye roll*":"Pff, n'importe quoi…",
+"Don't even think about it":"Même pas en rêve !",
+"I'm broke":"Je suis fauché.",
+"Got it / I get it":"Pigé !",
+"I'm so into it":"Je suis à fond dedans !",
+"Over the top / exaggerating":"T'exagères !",
+"Super cool":"Trop stylé !",
+"You got this! Keep going":"Allez, lâche rien !",
+"Just a sec":"Deux secondes !",
+"Lucky break":"Coup de bol !",
+"Really? / Is that true?":"Ah bon, c'est vrai ?",
+"Right?":"Pas vrai ?",
+"What? / What's that?":"Hein ? C'est quoi ?",
+"What should we do?":"On fait quoi ?",
+"Whatever works":"Peu importe, ça me va.",
+"Up to you":{f:"C'est toi qui vois.",p:"C'est comme vous voulez."},
+"OK then / fine":"Bon, d'accord.",
+"Exactly!":"Exactement !",
+"That's it / exactly":"Voilà !",
+"No need":"Pas la peine.",
+"I'll sort it out":"Je m'en occupe.",
+"Give me a hand, come on":"Allez, file-moi un coup de main !",
+"Wanna eat together?":"On mange ensemble ?",
+"Wanna go out?":"Ça te dit de sortir ?",
+"It's fine, right?":"C'est pas grave, hein ?",
+"That's crazy":"C'est dingue !",
+"Uh oh, we're in trouble":"Aïe, on est mal !",
+
+/* ---------- Prosthetics & makeup ---------- */
+"Makeup touch-up, please":"Raccord maquillage, s'il vous plaît !",
+"Time for makeup":"C'est l'heure du maquillage.",
+"Hold still, please":{f:"Bouge pas, s'il te plaît.",p:"Ne bougez pas, s'il vous plaît."},
+"Close your eyes":{f:"Ferme les yeux.",p:"Fermez les yeux."},
+"Open your eyes":{f:"Ouvre les yeux.",p:"Ouvrez les yeux."},
+"Look up":{f:"Regarde vers le haut.",p:"Regardez vers le haut."},
+"Look down":{f:"Regarde vers le bas.",p:"Regardez vers le bas."},
+"Relax your face":{f:"Détends ton visage.",p:"Détendez votre visage."},
+"Does it hurt?":{f:"Ça te fait mal ?",p:"Ça vous fait mal ?"},
+"Is it itchy?":{f:"Ça te gratte ?",p:"Ça vous gratte ?"},
+"Is it too hot?":{f:"T'as pas trop chaud ?",p:"Vous n'avez pas trop chaud ?"},
+"Tell me if it hurts":{f:"Dis-moi si ça fait mal.",p:"Dites-moi si ça fait mal."},
+"Any allergies?":{f:"T'as des allergies ?",p:"Vous avez des allergies ?"},
+"Don't touch your face":{f:"Touche pas ton visage.",p:"Ne touchez pas votre visage."},
+"Don't rub it":{f:"Frotte pas.",p:"Ne frottez pas."},
+"Don't eat or drink yet":{f:"Mange rien et bois rien pour l'instant.",p:"Ne mangez et ne buvez rien pour l'instant."},
+"Use a straw":{f:"Prends une paille.",p:"Prenez une paille."},
+"We need to take the prosthetic off":"Il faut retirer la prothèse.",
+"It takes about an hour":"Il faut compter une heure environ.",
+"Fake blood":"Faux sang",
+"More blood, please":{f:"Un peu plus de sang, s'il te plaît.",p:"Un peu plus de sang, s'il vous plaît."},
+"Less blood, please":{f:"Un peu moins de sang, s'il te plaît.",p:"Un peu moins de sang, s'il vous plaît."},
+"Blood":"Sang",
+"Glue / adhesive":"Colle",
+"Remover":"Dissolvant",
+"Silicone piece":"Prothèse silicone",
+"Wig":"Perruque",
+"Mirror":"Miroir",
+"Sponge":"Éponge",
+"Brush":"Pinceau",
+"Tissue":"Mouchoir",
+"Sweat":"Transpiration",
+"Sink":"Lavabo",
+"Water":"Eau",
+"Wash":"Laver",
+"Clean":"Nettoyer",
+"Hose":"Tuyau",
+"Towel":"Serviette",
+
+/* ---------- LEGACY: D rows removed by P2, and English renamed by P13 / pros1 ---------- */
+"Action!":"Action !",
+"Cut!":"Coupez !",
+"Good, approved":"C'est bon, on la garde !",
+"One more take":"On en refait une !",
+"Everyone to your positions":"En place, tout le monde !",
+"Next scene":"Séquence suivante !",
+"Start shooting":"Moteur !",
+"Rehearse first":"On répète d'abord.",
+"Reshoot / retake":"On la refait.",
+"Stand here":{f:"Mets-toi là.",p:"Mettez-vous ici, s'il vous plaît."},
+"Look at the camera":{f:"Regarde la caméra.",p:"Regardez la caméra."},
+"Don't look at the camera":{f:"Regarde pas la caméra.",p:"Ne regardez pas la caméra."},
+"Speak louder":{f:"Parle plus fort.",p:"Parlez plus fort, s'il vous plaît."},
+"Slower":"Plus lentement.",
+"Faster":"Plus vite.",
+"Do it again":"On recommence.",
+"Very good":"Très bien !",
+"Costume department":"Équipe costumes",
+"Extension cord":"Rallonge",
+"Hide":{f:"Cache-toi !",p:"Cachez-vous !"},
+"One more":"Encore un."
+};
+function frBuiltin(i){
+  if(!i||!i.en)return "";
+  const v=(i.cat&&FR_PH[i.cat+"|"+i.en])||FR_PH[i.en];
+  if(!v)return "";
+  return typeof v==="string"?v:(regNow()==="friends"?v.f:v.p);
+}
+// one time: drop machine-made French for built-in phrases, the list above replaces it
+function applyP17(){if(!Array.isArray(S.applied))S.applied=[];if(S.applied.includes('frph1'))return;
+  S.items.forEach(i=>{const x=i.tr&&i.tr.fr;if(x&&x.auto&&frBuiltin(i)){delete i.tr.fr;if(!Object.keys(i.tr).length)delete i.tr}});
+  S.applied.push('frph1');save()}
 const OLD=["Basics","Eating","Getting around","Shopping","Numbers","Social","Casual talk","Emergency"];
 const bkey=i=>i.cat+"|"+(i.th||i.en);
 function fromBaked(){
@@ -1135,7 +1625,7 @@ function bakedMerge(){
   fromBaked();mine.forEach(i=>S.items.push(i));
   S.bakedV=BAKED.v;save();
 }
-function load(){try{const r=localStorage.getItem(KEY);if(r){const d=JSON.parse(r);if(d&&Array.isArray(d.items)){S=Object.assign(S,d);if(!("rate" in d))S.rate=d.slow?0.55:0.9;if(!("polite" in d)){S.polite=S.pol!=="";if(!S.pol)S.pol="m"}if(!Array.isArray(S.seen))S.seen=OLD.slice();const add=Object.keys(D).filter(c=>!S.seen.includes(c));if(add.length){defaults().filter(i=>add.includes(i.cat)).forEach(i=>S.items.push(i));S.seen=Object.keys(D);save()}bakedMerge();applyPatches();applyPatches2();applyP3();applyP4();applyP5();applyP6();applyP7();applyP8();applyP9();applyP10();applyP11();applyP12();applyP13();applyP14();applyP15();return}}}catch(e){}S.items=defaults();S.seen=Object.keys(D);S.applied=Object.keys(PATCHES);if(BAKED&&BAKED.items){fromBaked();S.bakedV=BAKED.v}applyPatches2();applyP3();applyP4();applyP5();applyP6();applyP7();applyP8();applyP9();applyP10();applyP11();applyP12();applyP13();applyP14();applyP15()}
+function load(){try{const r=localStorage.getItem(KEY);if(r){const d=JSON.parse(r);if(d&&Array.isArray(d.items)){S=Object.assign(S,d);if(!("rate" in d))S.rate=d.slow?0.55:0.9;if(!("polite" in d)){S.polite=S.pol!=="";if(!S.pol)S.pol="m"}if(!Array.isArray(S.seen))S.seen=OLD.slice();const add=Object.keys(D).filter(c=>!S.seen.includes(c));if(add.length){defaults().filter(i=>add.includes(i.cat)).forEach(i=>S.items.push(i));S.seen=Object.keys(D);save()}bakedMerge();applyPatches();applyPatches2();applyP3();applyP4();applyP5();applyP6();applyP7();applyP8();applyP9();applyP10();applyP11();applyP12();applyP13();applyP14();applyP15();applyP16();applyP17();return}}}catch(e){}S.items=defaults();S.seen=Object.keys(D);S.applied=Object.keys(PATCHES);if(BAKED&&BAKED.items){fromBaked();S.bakedV=BAKED.v}applyPatches2();applyP3();applyP4();applyP5();applyP6();applyP7();applyP8();applyP9();applyP10();applyP11();applyP12();applyP13();applyP14();applyP15()}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));return localStorage.getItem(KEY)!==null}catch(e){return false}}
 function testStore(){try{localStorage.setItem('__t','1');localStorage.removeItem('__t');return true}catch(e){return false}}
 const STORE_OK=testStore();
@@ -1790,7 +2280,7 @@ const SPOKEN_TTS=[[/หรือเปล่า/g,"รึเป่า"],[/ไม
  [/(?<![เแโ][กขคตปพบทด])ร(?=ู้|ัก|้อน|ถ|้าน|ีบ)/g,"ล"],[/เร(?=็ว|ียก|ื่อง|า(?!ะ))/g,"เล"]];
 /* Casual spoken French and Spanish for Friends mode audio */
 const SPOKEN_FR=[[/\bce n'est\b/gi,"c'est"],[/\bje ne sais pas\b/gi,"chais pas"],[/\bje sais pas\b/gi,"chais pas"],[/\bil n'y a\b/gi,"y a"],[/\bil y a\b/gi,"y a"],[/\bje suis\b/gi,"chuis"],[/\btu es\b/gi,"t'es"],[/\btu as\b/gi,"t'as"],[/\btu avais\b/gi,"t'avais"],[/\bil faut\b/gi,"faut"],[/\bparce que\b/gi,"pasque"],[/\bcela\b/gi,"ça"],[/\bs'il te plaît\b/gi,"s'te plaît"],
- [/\bne\s+(\S+)\s+(pas|plus|jamais|rien|personne)\b/gi,"$1 $2"],[/\bn'(\S+)\s+(pas|plus|jamais|rien|personne)\b/gi,"$1 $2"],[/\b(j|c|m|t|s|l|d|qu)e\s+(?=[aeiouéèêàâîôû])/gi,"$1'"]];
+ [/\bne\s+(\S+)\s+(pas|plus|jamais|rien|personne)\b/gi,"$1 $2"],[/\bn'(\S+)\s+(pas|plus|jamais|rien|personne)\b/gi,"$1 $2"],[/(?<!\p{L})(j|c|m|t|s|l|d|qu)e\s+(?=[aeiouéèêàâîôû])/giu,"$1'"]];
 const SPOKEN_ES=[[/\bpara\b/gi,"pa"],[/\bnada\b/gi,"na"],[/\b([a-záéíóúñ]{2,})ado\b/gi,"$1ao"]];
 const SPOKEN_MS=[[/\btidak\b/gi,"tak"],[/\bsudah\b/gi,"dah"],[/\bhendak\b/gi,"nak"],[/\bmahu\b/gi,"nak"],[/\bsahaja\b/gi,"je"],[/\bsaja\b/gi,"je"],[/\bbegitu\b/gi,"gitu"],[/\bbegini\b/gi,"gini"],[/\bbagaimana\b/gi,"macam mana"],[/\bkenapa\b/gi,"apasal"],[/\bbetul\b/gi,"betul"]];
 function spokenRe(t,L){let r=t;L.forEach(([a,b])=>{r=r.replace(a,b)});return r}
@@ -2198,12 +2688,14 @@ async function startMic(){
   if(closing)await Promise.race([closing,wait(600)]);
   await wait(700);MICWAIT=false;startMic2();
 }
+// right after an answer has played the iPhone can cut the next listen off: try again, up to twice
+function micRetry(r,retry,bad){const n=retry||0;if(!bad||n>=2||Date.now()-LASTPLAY>60000)return false;if(REC===r)REC=null;RECON=false;$("trMic").classList.remove("rec");whoLabels();micMsg("Starting microphone…",false);setTimeout(()=>{if(!RECON&&!MICWAIT)startMic2(n+1)},n?2500:1200);return true}
 function startMic2(retry){
   if(RECON){const r0=REC;r0._user=true;try{r0.stop()}catch(e){}clearTimeout(RECGUARD);RECGUARD=setTimeout(()=>{if(RECON&&REC===r0&&r0.onend)r0.onend()},2500);return}
   if(REC&&REC._wait){try{REC.abort()}catch(e){}REC.onstart=REC.onend=REC.onresult=REC.onerror=null;REC=null}
   if(!SR){micMsg("Voice input isn't supported in this browser. Tap the microphone key on your keyboard to dictate instead.",false);$("trIn").focus();return}
-  try{if(window.speechSynthesis)speechSynthesis.cancel()}catch(e){}
-  audioOff();
+  try{if(window.speechSynthesis&&(speechSynthesis.speaking||speechSynthesis.pending))speechSynthesis.cancel()}catch(e){}
+  if(AC||acSrc)audioOff();
   let r;
   try{r=new SR()}catch(e){micMsg("Couldn't start voice input. Use the microphone key on your keyboard instead.",true);$("trIn").focus();return}
   REC=r;
@@ -2226,7 +2718,7 @@ function startMic2(retry){
     RECON=false;$("trMic").classList.remove("rec");whoLabels();waveOff();
     const txt=$("trIn").value.trim();
     // right after an answer has played the iPhone can end the next listen at once with nothing heard: try once more
-    if(!txt&&!retry&&!r._user&&(err==="aborted"||(!err||err==="no-speech")&&Date.now()-t0<4000)&&Date.now()-LASTPLAY<60000){micMsg("Starting microphone…",false);setTimeout(()=>{if(!RECON&&!MICWAIT)startMic2(1)},1200);return}
+    if(micRetry(r,retry,!txt&&!r._user&&(err==="aborted"||err==="audio-capture"||(!err||err==="no-speech")&&Date.now()-t0<4000)))return;
     if(txt&&(got||!err||heard&&!/not-allowed/.test(err))){const before=RES;doTr().then(()=>{if(S.autoTalk!==false&&RES&&RES!==before)playRes()});return}
     if(err==="not-allowed"||err==="service-not-allowed")micMsg("Voice input is blocked ("+err+"). On iPhone check Settings > Privacy & Security > Speech Recognition, Settings > General > Keyboard > Enable Dictation, and Safari's microphone permission (aA > Website Settings). The keyboard's microphone key also works.",true);
     else if(err==="audio-capture")micMsg("No microphone found.",true);
@@ -2237,8 +2729,8 @@ function startMic2(retry){
     else micMsg("Voice input error: "+err+". The keyboard's microphone key also works.",true);
   };
   micMsg("Starting microphone…",false);
-  clearTimeout(RECGUARD);RECGUARD=setTimeout(()=>{if(REC===r&&r._wait){r._wait=false;try{r.abort()}catch(e){}r.onstart=r.onend=r.onresult=r.onerror=null;REC=null;RECON=false;$("trMic").classList.remove("rec");whoLabels();micMsg(NOSR_MSG,true)}},5000);
-  try{r.start()}catch(e){clearTimeout(RECGUARD);r._wait=false;RECON=false;micMsg("Couldn't start the microphone ("+(e&&e.name?e.name:"error")+"). Use the microphone key on your keyboard instead.",true);$("trIn").focus()}
+  clearTimeout(RECGUARD);RECGUARD=setTimeout(()=>{if(REC===r&&r._wait){r._wait=false;try{r.abort()}catch(e){}r.onstart=r.onend=r.onresult=r.onerror=null;REC=null;RECON=false;$("trMic").classList.remove("rec");whoLabels();if(micRetry(r,retry,true))return;micMsg(NOSR_MSG,true)}},5000);
+  try{r.start()}catch(e){clearTimeout(RECGUARD);r._wait=false;r.onstart=r.onend=r.onresult=r.onerror=null;RECON=false;if(micRetry(r,retry,true))return;micMsg("Couldn't start the microphone ("+(e&&e.name?e.name:"error")+"). Use the microphone key on your keyboard instead.",true);$("trIn").focus()}
 }
 $("trMic").style.display="";
 $("trMic").onclick=startMic;
@@ -2270,6 +2762,7 @@ function mmCode(c){if(c==="en")return"en";const l=LANGS.find(x=>x.c===c);return 
 function getText(i,L){
   if(L==="th")return{t:i.th||"",ro:i.ro||"",ph:i.ph||"",auto:i.auto?1:0};
   const x=i.tr&&i.tr[L];
+  if(L==="fr"&&(!x||!x.t||x.auto)){const b=frBuiltin(i);if(b)return{t:b,ro:"",ph:"",auto:0}}
   return x?{t:x.t||"",ro:x.ro||"",ph:x.ph||"",auto:x.auto?1:0}:{t:"",ro:"",ph:"",auto:0};
 }
 function setText(i,L,t,ro,auto,ph){
@@ -2609,7 +3102,7 @@ const ITEMS=[{l:"Coffee",th:"กาแฟ",ro:"gaa-fae",en:"coffee",cl:"แก�
 const PLACES=[{l:"Toilet",th:"ห้องน้ำ",ro:"hong-nam",en:"the toilet"},{l:"Hotel",th:"โรงแรม",ro:"rong-raem",en:"the hotel"},{l:"Airport",th:"สนามบิน",ro:"sa-naam-bin",en:"the airport"},{l:"Skytrain station",th:"สถานีรถไฟฟ้า",ro:"sa-thaa-nii-rot-fai-faa",en:"the skytrain station"},{l:"Hospital",th:"โรงพยาบาล",ro:"rong-pha-yaa-baan",en:"the hospital"},{l:"Pharmacy",th:"ร้านขายยา",ro:"raan-khaai-yaa",en:"the pharmacy"},{l:"Parking",th:"ที่จอดรถ",ro:"thii-jot-rot",en:"the parking"},{l:"Film set",th:"กองถ่าย",ro:"gong-thaai",en:"the film set"},{l:"Craft services",th:"คราฟต์เซอร์วิส",ro:"khraap-soe-wit",en:"craft services"},{l:"Dressing room",th:"ห้องแต่งตัว",ro:"hong-taeng-tua",en:"the dressing room"},{l:"Meeting point",th:"จุดนัดพบ",ro:"jut-nat-phop",en:"the meeting point"}];
 const EVENTS=[{l:"Lunch",th:"พักกินข้าว",ro:"phak-gin-khaao",en:"lunch"},{l:"Call time",th:"คอลไทม์",ro:"khon-thaim",en:"call time"},{l:"Wrap",th:"เลิกกอง",ro:"loek-gong",en:"wrap"},{l:"Breakfast",th:"มื้อเช้า",ro:"meu-chao",en:"breakfast"},{l:"Finish filming",th:"ถ่ายเสร็จ",ro:"thaai-set",en:"we finish filming"}];
 const THISTHAT=[{l:"This one",th:"อันนี้",ro:"an-nii",en:"this one"},{l:"That one",th:"อันนั้น",ro:"an-nan",en:"that one"},{l:"All of it",th:"ทั้งหมด",ro:"thang-mot",en:"all of it"}];
-const DISHES=ITEMS.filter(x=>["Fried rice","Noodles"].includes(x.l));
+const DISHES=ITEMS.filter(x=>["Fried rice","Noodles"].includes(x.l)).concat([{l:"Any dish (just say how)",th:"ขอ",ro:"khor",en:""}]);
 const PREFS=[{l:"Not spicy",th:"ไม่เผ็ด",ro:"mai-phet",en:"not spicy"},{l:"A little spicy",th:"เผ็ดนิดหน่อย",ro:"phet-nit-noi",en:"a little spicy"},{l:"Not sweet",th:"ไม่หวาน",ro:"mai-waan",en:"not sweet"},{l:"No coriander",th:"ไม่ใส่ผักชี",ro:"mai-sai-phak-chii",en:"no coriander"}];
 const BUILD=[
  {n:"Order something",s:[["How many",NUM],["What",ITEMS]],mk:(a,b)=>({th:"ขอ"+b.th+a.th+b.cl,ro:["khor",b.ro,a.ro,b.clr].join(" "),en:a.en+" × "+b.en+", please"}),cat:"Eating"},
@@ -2617,7 +3110,7 @@ const BUILD=[
  {n:"Take me to…",s:[["Place",PLACES]],mk:p=>({th:"ไป"+p.th,ro:["pai",p.ro].join(" "),en:"Take me to "+p.en}),cat:"Getting around"},
  {n:"What time is…?",s:[["Event",EVENTS]],mk:e=>({th:e.th+"กี่โมง",ro:[e.ro,"gii","mohng"].join(" "),en:"What time is "+e.en+"?"}),cat:"Schedule & meals"},
  {n:"How much?",s:[["What",THISTHAT]],mk:t=>({th:t.th+"เท่าไหร่",ro:[t.ro,"thao","rai"].join(" "),en:"How much is "+t.en+"?"}),cat:"Shopping"},
- {n:"Dish the way I like it",s:[["Dish",DISHES],["How",PREFS]],mk:(d,p)=>({th:d.th+p.th,ro:[d.ro,p.ro].join(" "),en:d.en.charAt(0).toUpperCase()+d.en.slice(1)+", "+p.en}),cat:"Eating"}];
+ {n:"Dish the way I like it",s:[["Dish",DISHES],["How",PREFS]],mk:(d,p)=>({th:d.th+p.th,ro:[d.ro,p.ro].join(" "),en:d.en?d.en.charAt(0).toUpperCase()+d.en.slice(1)+", "+p.en:p.en.charAt(0).toUpperCase()+p.en.slice(1)+", please"}),cat:"Eating"}];
 let BLD=null;
 function bldPick(){
   const T=BUILD[+$("bldT").value];
@@ -2742,7 +3235,8 @@ $("edSave").onclick=()=>{
   if(c==="__new"){c=$("ecatNew").value.trim();if(!c){$("ecatNew").focus();return bad("Type a name for the new category.")}}
   const it=S.items[k],moved=it.cat!==c;
   if(!it.t&&!it.orig)it.orig={th:it.th,cat:it.cat,ro:it.ro||"",ph:it.ph||"",en:it.en||""};
-  setText(it,S.lang,th,$("ero").value.trim(),0,$("eph").value.trim());
+  const fb=S.lang==="fr"&&frBuiltin(it);
+  if(!(fb&&th===fb))setText(it,S.lang,th,$("ero").value.trim(),0,$("eph").value.trim());
   it.en=en;
   if(moved){
     it.cat=c;S.items.splice(k,1);
@@ -2814,7 +3308,7 @@ $("sLight").onchange=e=>{S.light=e.target.checked;save();applyTheme()};
 $("sRo").onchange=e=>{S.ro=e.target.checked;save();render()};
 $("sEn").onchange=e=>{S.en=e.target.checked;save();render()};
 $("voice").onchange=e=>{S.voice=e.target.value;save();speak({th:"สวัสดี",cat:"Basics"})};
-$("reset").onclick=()=>{if(confirm("Replace all phrases with the defaults? Your added phrases will be lost.")){S.items=defaults();S.seen=Object.keys(D);S.applied=Object.keys(PATCHES);if(BAKED&&BAKED.items){fromBaked();S.bakedV=BAKED.v}applyPatches2();applyP3();applyP4();applyP5();applyP6();applyP7();applyP8();applyP9();applyP10();applyP11();applyP12();applyP13();applyP14();applyP15();["tech1","pros1","blood1","call1","cof1","num2","numFirst"].forEach(k=>delete S[k]);save();location.reload()}};
+$("reset").onclick=()=>{if(confirm("Replace all phrases with the defaults? Your added phrases will be lost.")){S.items=defaults();S.seen=Object.keys(D);S.applied=Object.keys(PATCHES);if(BAKED&&BAKED.items){fromBaked();S.bakedV=BAKED.v}applyPatches2();applyP3();applyP4();applyP5();applyP6();applyP7();applyP8();applyP9();applyP10();applyP11();applyP12();applyP13();applyP14();applyP15();applyP16();applyP17();["tech1","pros1","blood1","call1","cof1","num2","numFirst"].forEach(k=>delete S[k]);save();location.reload()}};
 
 
 /* number keypad: digits -> Thai words, worked out on the phone (no internet needed) */
@@ -3078,7 +3572,8 @@ async function listenOnce(lang,onText){
   if(busy)await wait(700);
   const t0=Date.now();let r=await listen1(lang,onText);
   // iPhone sometimes fails a second listen straight away: try once more
-  for(let k=0;k<2&&!r.txt&&!r.manual&&!r.quiet&&Date.now()-t0<(r.err==="aborted"?3000:1500)&&!/not-allowed|unsupported|nostart|language/.test(r.err||"");k++){await wait(1200);const t1=Date.now();r=await listen1(lang,onText);if(r.quiet||Date.now()-t1>=(r.err==="aborted"?3000:1500))break}
+  const bad=(x,t)=>!x.txt&&!x.manual&&!x.quiet&&!/not-allowed|unsupported|language/.test(x.err||"")&&(/aborted|audio-capture|start/.test(x.err||"")||Date.now()-t<1500);
+  let ts=t0;for(let k=0;k<2&&bad(r,ts);k++){await wait(k?2500:1200);ts=Date.now();r=await listen1(lang,onText)}
   return r;
 }
 function listen1(lang,onText){return new Promise(res=>{
