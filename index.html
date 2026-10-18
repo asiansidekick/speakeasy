@@ -740,7 +740,7 @@ html[data-look] #convAuto[aria-pressed="true"]{background:#fde68a!important;colo
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 17 Oct 2026, build 68</div>
+  <div class="hint">Version: 17 Oct 2026, build 69</div>
   <input type="file" id="file" accept=".json,application/json" hidden>
   <div id="bs" style="font-size:var(--fs-s);color:var(--mute);min-height:18px;margin-top:6px"></div>
   <div class="act" style="justify-content:space-between">
@@ -2199,7 +2199,7 @@ async function startMic(){
   await wait(700);MICWAIT=false;startMic2();
 }
 function startMic2(retry){
-  if(RECON){const r0=REC;try{r0.stop()}catch(e){}clearTimeout(RECGUARD);RECGUARD=setTimeout(()=>{if(RECON&&REC===r0&&r0.onend)r0.onend()},2500);return}
+  if(RECON){const r0=REC;r0._user=true;try{r0.stop()}catch(e){}clearTimeout(RECGUARD);RECGUARD=setTimeout(()=>{if(RECON&&REC===r0&&r0.onend)r0.onend()},2500);return}
   if(REC&&REC._wait){try{REC.abort()}catch(e){}REC.onstart=REC.onend=REC.onresult=REC.onerror=null;REC=null}
   if(!SR){micMsg("Voice input isn't supported in this browser. Tap the microphone key on your keyboard to dictate instead.",false);$("trIn").focus();return}
   try{if(window.speechSynthesis)speechSynthesis.cancel()}catch(e){}
@@ -2226,7 +2226,7 @@ function startMic2(retry){
     RECON=false;$("trMic").classList.remove("rec");whoLabels();waveOff();
     const txt=$("trIn").value.trim();
     // right after an answer has played the iPhone can end the next listen at once with nothing heard: try once more
-    if(!txt&&!retry&&(!err||err==="aborted"||err==="no-speech")&&Date.now()-t0<4000&&Date.now()-LASTPLAY<60000){micMsg("Starting microphone…",false);setTimeout(()=>{if(!RECON&&!MICWAIT)startMic2(1)},1200);return}
+    if(!txt&&!retry&&!r._user&&(err==="aborted"||(!err||err==="no-speech")&&Date.now()-t0<4000)&&Date.now()-LASTPLAY<60000){micMsg("Starting microphone…",false);setTimeout(()=>{if(!RECON&&!MICWAIT)startMic2(1)},1200);return}
     if(txt&&(got||!err||heard&&!/not-allowed/.test(err))){const before=RES;doTr().then(()=>{if(S.autoTalk!==false&&RES&&RES!==before)playRes()});return}
     if(err==="not-allowed"||err==="service-not-allowed")micMsg("Voice input is blocked ("+err+"). On iPhone check Settings > Privacy & Security > Speech Recognition, Settings > General > Keyboard > Enable Dictation, and Safari's microphone permission (aA > Website Settings). The keyboard's microphone key also works.",true);
     else if(err==="audio-capture")micMsg("No microphone found.",true);
