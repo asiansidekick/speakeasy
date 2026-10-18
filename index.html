@@ -762,7 +762,7 @@ html[data-look] #convAuto[aria-pressed="true"]{background:#fde68a!important;colo
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 18 Oct 2026, build 81</div>
+  <div class="hint">Version: 18 Oct 2026, build 82</div>
   <input type="file" id="file" accept=".json,application/json" hidden>
   <div id="bs" style="font-size:var(--fs-s);color:var(--mute);min-height:18px;margin-top:6px"></div>
   <div class="act" style="justify-content:space-between">
@@ -5724,13 +5724,15 @@ async function gtx2(q,from,to){
 }
 // Microsoft Translator, the same free service Microsoft Edge uses
 const MSC={"zh-CN":"zh-Hans","zh-TW":"zh-Hant",tl:"fil",jw:"jv",iw:"he"};
-let MSTOK=null;
+let MSPLAIN=false;
 async function mstr(q,from,to){
   const ac=new AbortController();const tm=setTimeout(()=>ac.abort(),9000);
   try{
-    if(!MSTOK||Date.now()-MSTOK.at>8*60000){const a=await fetch("https://edge.microsoft.com/translate/auth",{signal:ac.signal});if(!a.ok)throw new Error("HTTP "+a.status);const k=(await a.text()).trim();if(!k)throw new Error("no access");MSTOK={k,at:Date.now()}}
-    const r=await fetch("https://api-edge.cognitive.microsofttranslator.com/translate?api-version=3.0&to="+encodeURIComponent(MSC[to]||to)+(from&&from!=="auto"?"&from="+encodeURIComponent(MSC[from]||from):""),{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+MSTOK.k},body:JSON.stringify([{Text:q}]),signal:ac.signal});
-    if(r.status===401)MSTOK=null;
+    const u="https://edge.microsoft.com/translate/translatetext?from="+(from&&from!=="auto"?encodeURIComponent(MSC[from]||from):"")+"&to="+encodeURIComponent(MSC[to]||to)+"&isEnterpriseClient=false";
+    const go=plain=>fetch(u,{method:"POST",headers:{"Content-Type":plain?"text/plain":"application/json"},body:JSON.stringify([q]),signal:ac.signal});
+    let r;
+    // a plain-text body skips the browser's permission check, in case Microsoft doesn't answer it
+    if(MSPLAIN)r=await go(true);else{try{r=await go(false)}catch(e){if(e&&e.name==="AbortError")throw e;r=await go(true);MSPLAIN=true}}
     if(!r.ok)throw new Error("HTTP "+r.status);
     const d=await r.json(),x=d&&d[0];
     const t=String((x&&x.translations&&x.translations[0]&&x.translations[0].text)||"").trim();
