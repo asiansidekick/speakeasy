@@ -383,6 +383,8 @@ html,body{overflow-x:hidden;max-width:100%}
 .dirrow.who .ib b{font-size:var(--fs-m)}
 .dirrow.who .ib small{font-size:15px;font-weight:500;color:var(--mute)}
 .dirrow.who #dirTh.on{border-color:var(--mic)}
+/* selected direction: light blue border that stands out on the blue background */
+.dirrow .ib.on,.dirrow.who #dirTh.on{border-color:#9fe8ff!important;box-shadow:0 0 0 2px rgba(159,232,255,.45)}
 .tool.thside #trIn{border:2px solid var(--mic)}
 .setq{margin:10px 0 14px;display:flex;flex-wrap:wrap;gap:10px 18px}
 #setD .langbar{margin:12px 0 4px}
@@ -718,6 +720,7 @@ html[data-look] #convAuto[aria-pressed="true"]{background:#fde68a!important;colo
   <div class="tlg" id="tLeg"></div>
   <label class="ck"><input type="checkbox" id="sEn"> Show English</label>
   <label class="ck"><input type="checkbox" id="sAuto"> Play the translation automatically after Talk</label>
+  <div class="hint">Work in progress: on iPhone, voice input can stop after the translation plays by itself, so this starts off.</div>
   <label>Changes for the next release</label>
   <div class="row" style="gap:8px"><button class="ib" id="expChg" style="flex:1">Export my changes</button><button class="ib" id="expCopy">Copy</button></div>
   <div class="hint">Your added phrases, edits, deletions and translations. Send me the file and I'll build them into the next version.</div>
@@ -740,7 +743,7 @@ html[data-look] #convAuto[aria-pressed="true"]{background:#fde68a!important;colo
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 17 Oct 2026, build 71</div>
+  <div class="hint">Version: 18 Oct 2026, build 73</div>
   <input type="file" id="file" accept=".json,application/json" hidden>
   <div id="bs" style="font-size:var(--fs-s);color:var(--mute);min-height:18px;margin-top:6px"></div>
   <div class="act" style="justify-content:space-between">
@@ -2262,6 +2265,8 @@ function loadVoices(){
    so keep a silent Web Audio track running around each utterance and give a cold speaker a moment first */
 let AC=null,acSrc=null,acStop=0,lastAudio=0;
 function audioAwake(){
+  // no Web Audio at all: on iPhone it keeps the speaker busy, and the next listen then hears nothing
+  return;
   if(RECON)return;
   // keep Web Audio out of Conversation: on iPhone it can make the next listen abort
   if(window.CONVON)return;
@@ -2285,6 +2290,7 @@ const SPOKEN_ES=[[/\bpara\b/gi,"pa"],[/\bnada\b/gi,"na"],[/\b([a-záéíóúñ]{
 const SPOKEN_MS=[[/\btidak\b/gi,"tak"],[/\bsudah\b/gi,"dah"],[/\bhendak\b/gi,"nak"],[/\bmahu\b/gi,"nak"],[/\bsahaja\b/gi,"je"],[/\bsaja\b/gi,"je"],[/\bbegitu\b/gi,"gitu"],[/\bbegini\b/gi,"gini"],[/\bbagaimana\b/gi,"macam mana"],[/\bkenapa\b/gi,"apasal"],[/\bbetul\b/gi,"betul"]];
 function spokenRe(t,L){let r=t;L.forEach(([a,b])=>{r=r.replace(a,b)});return r}
 function spokenTh(t){if(!t||!/[฀-๿]/.test(t))return t;let r=t;SPOKEN_TTS.forEach(([a,b])=>{r=r.replace(a,b)});return r}
+let SPT=0;
 function speak(i,tts){
   const f=full(i);
   if(!("speechSynthesis" in window)){toast("Speech isn't supported in this browser.",true);return}
@@ -2298,8 +2304,9 @@ function speak(i,tts){
   u.onend=audioSleepSoon;
   const cold=!acSrc||Date.now()-lastAudio>3000;
   audioAwake();
-  const go=()=>{try{ss.resume()}catch(e){}ss.speak(u)};
-  if(ss.speaking||ss.pending){ss.cancel();setTimeout(go,150)}else if(cold)setTimeout(go,350);else go();
+  // a delayed start must not fire once the mic has been tapped
+  clearTimeout(SPT);const go=()=>{SPT=0;if(RECON||(REC&&REC._wait))return;try{ss.resume()}catch(e){}ss.speak(u)};
+  if(ss.speaking||ss.pending){ss.cancel();SPT=setTimeout(go,150)}else if(cold)SPT=setTimeout(go,350);else go();
   if(!v&&voicesLoaded)toast("No "+(tts?"English":LG().n)+" voice found on this phone. Add one in Settings > Accessibility > Spoken Content > Voices.",true);
 }
 
@@ -2575,6 +2582,9 @@ function showRes(th,ro,en,note,auto,nohist,ph,alts,tn){
   $("rcat").value=cs.includes(sg)?sg:(cs.includes(cat)?cat:(cs.find(c=>c!=="Numbers")||cs[0]));
   $("rcat").onchange=()=>{const n=$("rcat").value==="__new";$("rcatNew").style.display=n?"":"none";if(n)$("rcatNew").focus()};
   if(!nohist)addHist({th,ro,en,ph});
+  // bring Play, Show and Save up above the bottom bar
+  requestAnimationFrame(()=>{try{const rows=$("trOut").querySelectorAll(".actrow,.moreline"),last=rows[rows.length-1],bub=$("trOut").querySelector(".bub"),tb=$("tabbar");if(!last||!tb||tb.offsetParent===null)return;
+    const d=last.getBoundingClientRect().bottom-(tb.getBoundingClientRect().top-10);if(d<=0)return;window.scrollBy({top:Math.min(d,Math.max(0,bub.getBoundingClientRect().top-8)),behavior:"smooth"})}catch(e){}});
 }
 function addHist(h){
   S.hist=(S.hist||[]).filter(x=>!(x.th===h.th&&x.en===h.en));
@@ -2634,8 +2644,9 @@ async function doTr(depth){
     }
   }catch(e){$("trOut").innerHTML=`<div style="margin-top:12px;color:#ff6b6b">Couldn't translate. ${esc(why(e))}.${esc(hintHost())} Try again, or type the translation yourself.</div>`}
 }
-$("dirEn").onclick=()=>setDir("en");
-$("dirTh").onclick=()=>setDir("th");
+// the direction buttons also switch the interface: their language with English underneath, or plain English
+$("dirEn").onclick=()=>{if(S.thUser&&NATIVE_LANGS.includes(S.lang))setThai(false);else setDir("en")};
+$("dirTh").onclick=()=>{if(!S.thUser&&NATIVE_LANGS.includes(S.lang))setThai(true);else setDir("th")};
 $("trGo").onclick=doTr;
 $("trOut").onclick=e=>{
   const sy=e.target.closest("[data-say]");if(sy){speak({th:sy.dataset.say,ro:"",en:"",cat:"x",np:1,lang:"th"},"th-TH");return}
@@ -2691,6 +2702,7 @@ function startMic2(retry){
   if(RECON){const r0=REC;r0._user=true;try{r0.stop()}catch(e){}clearTimeout(RECGUARD);RECGUARD=setTimeout(()=>{if(RECON&&REC===r0&&r0.onend)r0.onend()},2500);return}
   if(REC&&REC._wait){try{REC.abort()}catch(e){}REC.onstart=REC.onend=REC.onresult=REC.onerror=null;REC=null}
   if(!SR){micMsg("Voice input isn't supported in this browser. Tap the microphone key on your keyboard to dictate instead.",false);$("trIn").focus();return}
+  clearTimeout(SPT);SPT=0;
   try{if(window.speechSynthesis&&(speechSynthesis.speaking||speechSynthesis.pending))speechSynthesis.cancel()}catch(e){}
   if(AC||acSrc)audioOff();
   let r;
@@ -2701,7 +2713,10 @@ function startMic2(retry){
   // start empty, so a listen that hears nothing can't re-translate the last sentence
   $("trIn").value="";
   r._wait=true;
-  r.onstart=()=>{r._wait=false;clearTimeout(RECGUARD);if(REC!==r)return;RECON=true;$("trMic").classList.add("rec");$("trMic").querySelector(".mlab").innerHTML=bi("กำลังฟัง","Listening");micMsg("Listening… speak now",false);$("trOut").insertAdjacentHTML("beforeend",'<canvas id="wave" aria-hidden="true"></canvas>');waveOn()};
+  r.onstart=()=>{r._wait=false;clearTimeout(RECGUARD);if(REC!==r)return;RECON=true;$("trMic").classList.add("rec");$("trMic").querySelector(".mlab").innerHTML=bi("กำลังฟัง","Listening");micMsg("Listening… speak now",false);$("trOut").insertAdjacentHTML("beforeend",'<canvas id="wave" aria-hidden="true"></canvas>');waveOn();
+    // never sit on Listening forever: stop after 8 seconds with nothing heard, or 25 seconds in all
+    const halt=()=>{if(REC!==r||!RECON)return;r._quiet=true;if(!heard)err=err||"no-speech";try{r.stop()}catch(e){}setTimeout(()=>{if(REC===r&&RECON&&r.onend)r.onend()},2500)};
+    r._g1=setTimeout(()=>{if(!heard)halt()},8000);r._g2=setTimeout(halt,25000)};
   r.onsoundstart=()=>waveKick(0.35);r.onspeechstart=()=>waveKick(0.7);r.onspeechend=()=>{WVA.tgt=0.06};
   r.onresult=ev=>{
     let txt="";for(let i=0;i<ev.results.length;i++)txt+=ev.results[i][0].transcript;
@@ -2711,12 +2726,12 @@ function startMic2(retry){
   };
   r.onerror=ev=>{err=ev&&ev.error?ev.error:"unknown"};
   r.onend=()=>{
-    r._wait=false;r.onend=null;clearTimeout(RECGUARD);if(REC!==r)return;
+    r._wait=false;r.onend=null;clearTimeout(RECGUARD);clearTimeout(r._g1);clearTimeout(r._g2);if(REC!==r)return;
     RECON=false;$("trMic").classList.remove("rec");whoLabels();waveOff();
     const txt=$("trIn").value.trim();
     // right after an answer has played the iPhone can end the next listen at once with nothing heard: try once more
     if(micRetry(r,retry,!txt&&!r._user&&(err==="aborted"||err==="audio-capture"||(!err||err==="no-speech")&&Date.now()-t0<4000)))return;
-    if(txt&&(got||!err||heard&&!/not-allowed/.test(err))){const before=RES;doTr().then(()=>{if(S.autoTalk!==false&&RES&&RES!==before)playRes()});return}
+    if(txt&&(got||!err||heard&&!/not-allowed/.test(err))){const before=RES;doTr().then(()=>{if(S.autoTalk===true&&RES&&RES!==before)playRes()});return}
     if(err==="not-allowed"||err==="service-not-allowed")micMsg("Voice input is blocked ("+err+"). On iPhone check Settings > Privacy & Security > Speech Recognition, Settings > General > Keyboard > Enable Dictation, and Safari's microphone permission (aA > Website Settings). The keyboard's microphone key also works.",true);
     else if(err==="audio-capture")micMsg("No microphone found.",true);
     else if(err==="language-not-supported")micMsg("Voice input isn't available for "+(DIR==="th"?LG().n:"English")+" on this phone. Type it instead.",true);
@@ -3535,7 +3550,7 @@ $("file").onchange=async e=>{
 };
 
 /* Settings switch: play after Talk */
-$("sAuto").checked=S.autoTalk!==false;
+$("sAuto").checked=S.autoTalk===true;
 $("sAuto").onchange=e=>{S.autoTalk=e.target.checked;save()};
 
 /* Back up, share and restore phrases */
@@ -3572,7 +3587,7 @@ async function listenOnce(lang,onText){
   return r;
 }
 function listen1(lang,onText){return new Promise(res=>{
-  let r;try{r=new SR()}catch(e){res({err:"start",txt:""});return}
+  clearTimeout(SPT);SPT=0;let r;try{r=new SR()}catch(e){res({err:"start",txt:""});return}
   LSN=r;LASTREC=r;r.lang=lang;r.interimResults=true;r.continuous=false;r.maxAlternatives=1;
   let txt="",got=false,err=null,len=0,done=false,started=false,gs=0,ge=0,gq=0,gx=0;
   // iPhone Safari can keep listening forever: stop by itself after a pause in speech, or if nothing is heard
