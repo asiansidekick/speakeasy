@@ -762,7 +762,7 @@ html[data-look] #convAuto[aria-pressed="true"]{background:#fde68a!important;colo
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 18 Oct 2026, build 80</div>
+  <div class="hint">Version: 18 Oct 2026, build 81</div>
   <input type="file" id="file" accept=".json,application/json" hidden>
   <div id="bs" style="font-size:var(--fs-s);color:var(--mute);min-height:18px;margin-top:6px"></div>
   <div class="act" style="justify-content:space-between">
@@ -5496,7 +5496,7 @@ async function doTr(depth){
       let ro="",ph="";
       if(S.lang==="th"){const k=S.items.find(i=>i.th===t&&(i.ro||i.ph));if(k){ro=k.ro||"";ph=k.ph||""}}else ph=b.rm;
       const alts=alt&&alt.toLowerCase()!==t.toLowerCase()?[{label:"Second opinion",t:alt,ro:"",ph:""}]:[];
-      showRes(t,ro,q,"Automatic translation: please check it before relying on it.",true,false,ph,alts);
+      showRes(t,ro,q,(b.one?"Only one translation service answered, so there's no second option this time. ":"")+"Automatic translation: please check it before relying on it.",true,false,ph,alts);
     }else{
       const r=await aiTr(q,S.lang,"en");if(tok!==TRTOK)return;
       if(r){showRes(q,"",r.t,"",false);return}
@@ -5701,7 +5701,44 @@ async function tryTwice(fn){
   try{return await fn()}
   catch(e){if(e&&(e.name==="AbortError"||/HTTP (5\d\d|429)/.test(e.message||""))){await sleep(700);return await fn()}throw e}
 }
+let GBK=false;
 async function gtx(q,from,to){
+  if(GBK)return gtx2(q,from,to);
+  try{return await gtx1(q,from,to)}
+  catch(e){if(e&&e.name==="AbortError")throw e;const t=await gtx2(q,from,to);GBK=true;return t}
+}
+// Google's backup address, used when the usual one is blocked
+async function gtx2(q,from,to){
+  const ac=new AbortController();const tm=setTimeout(()=>ac.abort(),9000);
+  try{
+    const r=await fetch("https://clients5.google.com/translate_a/t?client=dict-chrome-ex&sl="+encodeURIComponent(from)+"&tl="+encodeURIComponent(to)+"&q="+encodeURIComponent(q),{signal:ac.signal});
+    if(!r.ok)throw new Error("HTTP "+r.status);
+    let d=await r.json();
+    if(d&&Array.isArray(d.sentences)){LASTSRC=typeof d.src==="string"?d.src:"";LASTRM="";const t=d.sentences.map(x=>x&&x.trans||"").join("").trim();if(!t)throw new Error("empty answer");return t}
+    if(Array.isArray(d))d=d[0];
+    let t="";if(typeof d==="string")t=d;else if(Array.isArray(d)){t=String(d[0]||"");LASTSRC=typeof d[1]==="string"?d[1]:""}
+    t=t.trim();if(!t)throw new Error("empty answer");
+    if(typeof d==="string")LASTSRC=from==="auto"?"":from;
+    LASTRM="";return t;
+  }finally{clearTimeout(tm)}
+}
+// Microsoft Translator, the same free service Microsoft Edge uses
+const MSC={"zh-CN":"zh-Hans","zh-TW":"zh-Hant",tl:"fil",jw:"jv",iw:"he"};
+let MSTOK=null;
+async function mstr(q,from,to){
+  const ac=new AbortController();const tm=setTimeout(()=>ac.abort(),9000);
+  try{
+    if(!MSTOK||Date.now()-MSTOK.at>8*60000){const a=await fetch("https://edge.microsoft.com/translate/auth",{signal:ac.signal});if(!a.ok)throw new Error("HTTP "+a.status);const k=(await a.text()).trim();if(!k)throw new Error("no access");MSTOK={k,at:Date.now()}}
+    const r=await fetch("https://api-edge.cognitive.microsofttranslator.com/translate?api-version=3.0&to="+encodeURIComponent(MSC[to]||to)+(from&&from!=="auto"?"&from="+encodeURIComponent(MSC[from]||from):""),{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+MSTOK.k},body:JSON.stringify([{Text:q}]),signal:ac.signal});
+    if(r.status===401)MSTOK=null;
+    if(!r.ok)throw new Error("HTTP "+r.status);
+    const d=await r.json(),x=d&&d[0];
+    const t=String((x&&x.translations&&x.translations[0]&&x.translations[0].text)||"").trim();
+    if(!t)throw new Error("empty answer");
+    return{t,src:(x.detectedLanguage&&x.detectedLanguage.language)||""};
+  }finally{clearTimeout(tm)}
+}
+async function gtx1(q,from,to){
   const ac=new AbortController();const tm=setTimeout(()=>ac.abort(),9000);
   try{
     const r=await fetch("https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&dt=rm&ie=UTF-8&oe=UTF-8&sl="+encodeURIComponent(from)+"&tl="+encodeURIComponent(to)+"&q="+encodeURIComponent(q),{signal:ac.signal});
@@ -5845,9 +5882,13 @@ $("testTr").onclick=async()=>{
   const o=$("testOut");o.textContent="Testing…";
   const lines=[];
   const t=async(label,fn)=>{try{lines.push(label+": OK → "+await fn())}catch(e){QUOTA=false;lines.push(label+": "+(e&&e.name?e.name+" "+(e.message||""):"no usable answer"))}};
-  await t("English to Thai, Google",()=>gtx("hello","en","th"));
+  await t("English to Thai, Google",()=>gtx1("hello","en","th"));
+  await t("English to Thai, Google backup",()=>gtx2("hello","en","th"));
+  await t("English to Thai, Microsoft",()=>mstr("hello","en","th").then(r=>r.t));
   await t("English to Thai, MyMemory",()=>mm("hello","en|th"));
-  await t("Thai to English, Google",()=>gtx("สวัสดี","auto","en"));
+  await t("Thai to English, Google",()=>gtx1("สวัสดี","auto","en"));
+  await t("Thai to English, Google backup",()=>gtx2("สวัสดี","auto","en"));
+  await t("Thai to English, Microsoft",()=>mstr("สวัสดี","th","en").then(r=>r.t));
   await t("Thai to English, MyMemory",()=>mm("สวัสดี","th|en"));
   lines.push("Page: "+(location.hostname||location.protocol));
   lines.push(SM?"Claude translation: available":"Claude translation: not available here");
@@ -6075,23 +6116,32 @@ function normQ(x){return String(x||"").toLowerCase().replace(/[^\p{L}\p{N}\s]/gu
 function savedFor(q){const n=normQ(q);if(!n)return null;return S.items.find(i=>normQ(i.en)===n&&getText(i,S.lang).t)||null}
 function savedRev(q){const n=normQ(q);if(!n)return null;return S.items.find(i=>{const x=getText(i,S.lang);return i.en&&x.t&&normQ(x.t)===n})||null}
 async function webTrBoth(q,from,to,toCode,mmFrom){
-  const key=from+"|"+to+"|"+q+(toCode==="th"&&S.reg==="formal"?"|formal":"");
+  const key="2|"+from+"|"+to+"|"+q+(toCode==="th"&&S.reg==="formal"?"|formal":"");
   if(!SKIPSAVED){const c=cget(key);if(c){LASTSRC=c.src||"";return c}}
   LASTRM="";LASTSRC="";
+  const xP=mstr(q,from,to);xP.catch(()=>{});
   const [g,m]=await Promise.allSettled([tryTwice(()=>gtx(q,from,to)),tryTwice(()=>mm(q,(mmFrom||from)+"|"+to))]);
-  const rm=LASTRM,src=LASTSRC;
+  const rm=LASTRM;let src=LASTSRC;
   const gt=g.status==="fulfilled"?g.value:"",mt=m.status==="fulfilled"?m.value:"";
   if(toCode==="en"&&gt&&src.split("-")[0].toLowerCase()==="en")return{sameLang:true,t:gt,src};
   const gOK=!!gt&&plausible(gt,q,toCode),mOK=!!mt&&plausible(mt,q,toCode);
-  if(!gOK&&!mOK){
+  const lo=x=>String(x||"").toLowerCase().trim();
+  let x=null,xt="",xOK=false;
+  if(!gOK||!mOK||lo(gt)===lo(mt)){x=await Promise.allSettled([xP]).then(a=>a[0]);xt=x.status==="fulfilled"?x.value.t:"";xOK=!!xt&&plausible(xt,q,toCode);if(!gOK&&xt&&x.value.src)src=x.value.src}
+  if(toCode==="en"&&!gOK&&xt&&src.split("-")[0].toLowerCase()==="en")return{sameLang:true,t:xt,src};
+  if(!gOK&&!mOK&&!xOK){
     const w1=g.status==="rejected"?why(g.reason):(gt?"the answer didn't look like "+nm(toCode):"no answer");
     const w2=m.status==="rejected"?(QUOTA?"daily free limit reached":why(m.reason)):(mt?"the answer didn't look like "+nm(toCode):"no answer");
-    LASTERR="Google: "+w1+" / MyMemory: "+w2;throw new Error(LASTERR);
+    const w3=x&&x.status==="rejected"?why(x.reason):(xt?"the answer didn't look like "+nm(toCode):"no answer");
+    LASTERR="Google: "+w1+" / MyMemory: "+w2+" / Microsoft: "+w3;throw new Error(LASTERR);
   }
-  let t=gOK?gt:mt,other=(gOK&&mOK)?mt:"",rr=gOK?rm:"";
-  if(toCode==="th"){const c=casualTh(t);if(c!==t){t=c;rr=""}other=casualTh(other)}
-  const res={t,alt:(other&&other.toLowerCase()!==t.toLowerCase())?other:"",rm:rr,src};
-  cset(key,res);
+  const okN=[gOK,mOK,xOK].filter(Boolean).length;
+  let t=gOK?gt:xOK?xt:mt,rr=gOK?rm:"";
+  if(toCode==="th"){const c=casualTh(t);if(c!==t){t=c;rr=""}}
+  const cands=[mOK&&mt,xOK&&xt].filter(Boolean).map(v=>toCode==="th"?casualTh(v):v);
+  const other=cands.find(v=>lo(v)!==lo(t))||"";
+  const res={t,alt:other,rm:rr,src,one:okN<2};
+  if(!res.one)cset(key,res);
   return res;
 }
 function updOnline(){const b=$("offBar");if(b)b.hidden=navigator.onLine!==false}
