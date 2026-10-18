@@ -740,7 +740,7 @@ html[data-look] #convAuto[aria-pressed="true"]{background:#fde68a!important;colo
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 17 Oct 2026, build 70</div>
+  <div class="hint">Version: 17 Oct 2026, build 71</div>
   <input type="file" id="file" accept=".json,application/json" hidden>
   <div id="bs" style="font-size:var(--fs-s);color:var(--mute);min-height:18px;margin-top:6px"></div>
   <div class="act" style="justify-content:space-between">
@@ -2681,12 +2681,9 @@ async function startMic(){
   if(RECON||(REC&&REC._wait)||!SR)return startMic2();
   if(MICWAIT)return;
   let busy=false;try{busy=!!(window.speechSynthesis&&(speechSynthesis.speaking||speechSynthesis.pending))||!!AC||Date.now()-lastAudio<1500;if(window.speechSynthesis)speechSynthesis.cancel()}catch(e){}
-  let closing=null;if(AC&&AC.close){try{closing=AC.close().catch(()=>{})}catch(e){}AC=null}audioOff();
-  if(!busy)return startMic2();
-  MICWAIT=true;micMsg("Starting microphone…",false);
-  const wait=ms=>new Promise(z=>setTimeout(z,ms));
-  if(closing)await Promise.race([closing,wait(600)]);
-  await wait(700);MICWAIT=false;startMic2();
+  if(AC&&AC.close){try{AC.close().catch(()=>{})}catch(e){}AC=null}audioOff();
+  // the iPhone only lets the mic start inside the tap itself, so start now rather than after a pause
+  return startMic2();
 }
 // right after an answer has played the iPhone can cut the next listen off: try again, up to twice
 function micRetry(r,retry,bad){const n=retry||0;if(!bad||n>=2||Date.now()-LASTPLAY>60000)return false;if(REC===r)REC=null;RECON=false;$("trMic").classList.remove("rec");whoLabels();micMsg("Starting microphone…",false);setTimeout(()=>{if(!RECON&&!MICWAIT)startMic2(n+1)},n?2500:1200);return true}
@@ -3565,11 +3562,9 @@ let LASTREC=null;
 async function listenOnce(lang,onText){
   if(!SR)return{err:"unsupported",txt:""};
   let busy=false;try{busy=!!(window.speechSynthesis&&(speechSynthesis.speaking||speechSynthesis.pending))||!!AC;if(window.speechSynthesis)speechSynthesis.cancel()}catch(e){}
-  let closing=null;if(AC&&AC.close){try{closing=AC.close().catch(()=>{})}catch(e){}AC=null}audioOff();
+  if(AC&&AC.close){try{AC.close().catch(()=>{})}catch(e){}AC=null}audioOff();
   const wait=ms=>new Promise(z=>setTimeout(z,ms));
-  if(closing)await Promise.race([closing,wait(600)]);
-  for(let i=0;i<10&&LASTREC&&!LASTREC._ended;i++)await wait(100);
-  if(busy)await wait(700);
+  // start inside the tap: the iPhone refuses the mic after a pause
   const t0=Date.now();let r=await listen1(lang,onText);
   // iPhone sometimes fails a second listen straight away: try once more
   const bad=(x,t)=>!x.txt&&!x.manual&&!x.quiet&&!/not-allowed|unsupported|language/.test(x.err||"")&&(/aborted|audio-capture|start/.test(x.err||"")||Date.now()-t<1500);
