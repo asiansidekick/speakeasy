@@ -697,7 +697,7 @@ html[data-look] #convAuto[aria-pressed="true"]{background:#fde68a!important;colo
 
 <dialog id="setD">
   <h3 style="margin:0">Settings</h3>
-  <label class="ck" id="sThaiRow"><input type="checkbox" id="sThai"> <span lang="th">ฉันพูดภาษาไทย อยากเรียนภาษาอังกฤษ</span> · I speak Thai and want to learn English</label>
+  <label class="ck" id="sThaiRow"><input type="checkbox" id="sThai"> <span id="sThaiTx"></span></label>
   <label for="bkWhat">Back up or share your phrases</label>
   <select id="bkWhat"></select>
   <div class="bkrow"><button class="ib" id="bkSave">⬇︎ Save to Files</button><button class="ib" id="bkSend">📤 Send to someone</button></div>
@@ -740,7 +740,7 @@ html[data-look] #convAuto[aria-pressed="true"]{background:#fde68a!important;colo
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 17 Oct 2026, build 66</div>
+  <div class="hint">Version: 17 Oct 2026, build 67</div>
   <input type="file" id="file" accept=".json,application/json" hidden>
   <div id="bs" style="font-size:var(--fs-s);color:var(--mute);min-height:18px;margin-top:6px"></div>
   <div class="act" style="justify-content:space-between">
@@ -1389,35 +1389,218 @@ function enPron(word){
 
 const EN_GL={"the": "(คำนำหน้า)", "a": "หนึ่ง", "an": "หนึ่ง", "to": "ไป / ถึง", "of": "ของ", "and": "และ", "i": "ฉัน", "you": "คุณ", "your": "ของคุณ", "is": "เป็น / อยู่", "are": "เป็น / อยู่", "am": "เป็น", "was": "เป็น (อดีต)", "were": "เป็น (อดีต)", "be": "เป็น", "it": "มัน", "in": "ใน", "on": "บน", "at": "ที่", "for": "สำหรับ", "with": "กับ", "this": "นี้", "that": "นั้น", "these": "เหล่านี้", "those": "เหล่านั้น", "what": "อะไร", "where": "ที่ไหน", "when": "เมื่อไหร่", "why": "ทำไม", "who": "ใคร", "how": "อย่างไร", "which": "อันไหน", "my": "ของฉัน", "me": "ฉัน", "we": "เรา", "us": "เรา", "our": "ของเรา", "they": "พวกเขา", "them": "พวกเขา", "their": "ของพวกเขา", "he": "เขา", "him": "เขา", "his": "ของเขา", "she": "เธอ", "her": "เธอ", "do": "ทำ", "does": "ทำ", "did": "ทำ (อดีต)", "don't": "ไม่", "doesn't": "ไม่", "didn't": "ไม่ได้", "can": "ได้ / สามารถ", "can't": "ไม่ได้", "could": "ได้", "will": "จะ", "would": "จะ", "won't": "จะไม่", "should": "ควร", "must": "ต้อง", "have": "มี", "has": "มี", "had": "มี (อดีต)", "not": "ไม่", "no": "ไม่", "yes": "ใช่", "please": "กรุณา", "thank": "ขอบคุณ", "thanks": "ขอบคุณ", "sorry": "ขอโทษ", "hello": "สวัสดี", "hi": "สวัสดี", "goodbye": "ลาก่อน", "ok": "โอเค", "okay": "โอเค", "go": "ไป", "come": "มา", "want": "ต้องการ", "need": "ต้องการ", "like": "ชอบ", "get": "ได้รับ", "here": "ที่นี่", "there": "ที่นั่น", "now": "ตอนนี้", "very": "มาก", "much": "มาก", "many": "มาก", "more": "อีก / มากกว่า", "some": "บ้าง", "all": "ทั้งหมด", "any": "ใดๆ", "from": "จาก", "by": "โดย", "about": "เกี่ยวกับ", "up": "ขึ้น", "down": "ลง", "out": "ออก", "off": "ปิด / ออก", "if": "ถ้า", "but": "แต่", "or": "หรือ", "so": "ดังนั้น", "because": "เพราะ", "than": "กว่า", "too": "ด้วย / เกินไป", "also": "ด้วย", "just": "แค่", "again": "อีกครั้ง", "one": "หนึ่ง", "two": "สอง", "three": "สาม", "good": "ดี", "bad": "ไม่ดี", "right": "ขวา / ถูก", "left": "ซ้าย", "time": "เวลา", "today": "วันนี้", "tomorrow": "พรุ่งนี้", "yesterday": "เมื่อวาน", "let's": "ไปกันเถอะ", "i'm": "ฉันเป็น", "it's": "มันเป็น", "that's": "นั่นคือ", "what's": "อะไรคือ", "where's": "อยู่ที่ไหน"};
 const CAT_TH={"On set": "ในกองถ่าย", "SFX": "เอฟเฟกต์พิเศษ", "Prosthetics & makeup": "เมคอัพและงานเทียม", "Film production": "งานสร้างภาพยนตร์", "Technical": "เทคนิค", "Schedule & meals": "ตารางงานและอาหาร", "Basics": "พื้นฐาน", "Eating": "การกิน", "Getting around": "การเดินทาง", "Shopping": "ช้อปปิ้ง", "Numbers": "ตัวเลข", "Social": "ทักทาย", "Emergency": "ฉุกเฉิน", "Casual talk": "คุยเล่น", "My vocab": "คำศัพท์ของฉัน"};
-function TU(){return !!S.thUser&&S.lang==="th"}
-function catName(c){return TU()&&CAT_TH[c]?CAT_TH[c]:c}
-function enGlGet(w){w=w.toLowerCase().replace(/’/g,"'");return EN_GL[w]||(S.gl||{})["en|"+w]}
+/* ===== Native-speaker mode for th, vi, ms, tl, ja, ko: English sounded out in the learner's own script (needs enPhones, enSyl, enPron, EN_GL, CAT_TH from the Thai code) ===== */
+const NATIVE_LANGS=["th","vi","ms","tl","ja","ko"];
+// joiner between syllables when shown as plain text (vi syllables are hyphenated, the others run together)
+const EN_SEP={th:"",vi:"-",ms:"",tl:"",ja:"",ko:""};
+// spelling vowel for each syllable (colours the reduced vowels: camera, toilet, hotel), or null if letters and syllables do not line up
+function enHints(w,n){
+  let x=w.replace(/'.*$/,"").replace(/^y/,"#"),le=/[^aeiouy]le$/.test(x);
+  if(le)x=x.slice(0,-2);else if(/[^aeiou]e$/.test(x))x=x.slice(0,-1);else if(/[^aeiou]es$/.test(x)&&!/(s|z|x|ch|sh|ge|ce)es$/.test(x))x=x.slice(0,-2)+"s";
+  const g=(x.match(/[aeiouy]+/g)||[]).map(s=>s==="au"?"o":s==="ou"?"u":s.length>1?s.slice(-1):s);if(le)g.push("-");
+  return g.length===n?g.map(s=>s==="y"?"i":s):null;
+}
+const EN_SH=v=>v.slice(0,-1),EN_STR=v=>v.slice(-1)!=="0";
+const EN_SHORT=new Set(["AE","EH","IH","AH","UH","AA"]);
+// split a syllable into glide (Y/W), main consonant and extra cluster consonants
+function enParts(s){const on=s.on.slice();let gl="";
+  if(on.length&&(on[on.length-1]==="Y"||on[on.length-1]==="W")&&!(on.length===1&&on[0]==="W"&&0))gl=on.pop();
+  const m=on.length?on.pop():"";return{pre:on,m,gl,co:s.co.filter(c=>c!=="HH")}}
+
+/* ---------- Japanese (katakana loanword style) ---------- */
+const JA_ROW=(()=>{const r={},t="_:ア イ ウ エ オ|K:カ キ ク ケ コ|G:ガ ギ グ ゲ ゴ|S:サ シ ス セ ソ|Z:ザ ジ ズ ゼ ゾ|T:タ ティ トゥ テ ト|D:ダ ディ ドゥ デ ド|N:ナ ニ ヌ ネ ノ|HH:ハ ヒ フ ヘ ホ|F:ファ フィ フ フェ フォ|B:バ ビ ブ ベ ボ|V:バ ビ ブ ベ ボ|P:パ ピ プ ペ ポ|M:マ ミ ム メ モ|Y:ヤ イ ユ イエ ヨ|R:ラ リ ル レ ロ|L:ラ リ ル レ ロ|W:ワ ウィ ウ ウェ ウォ|SH:シャ シ シュ シェ ショ|CH:チャ チ チュ チェ チョ|JH:ジャ ジ ジュ ジェ ジョ|ZH:ジャ ジ ジュ ジェ ジョ|TH:サ シ ス セ ソ|DH:ザ ディ ズ ゼ ゾ|NG:ガ ギ グ ゲ ゴ";
+  t.split("|").forEach(x=>{const[k,v]=x.split(":");r[k]=v.split(" ")});return r})();
+const JA_EP=c=>c==="T"?"ト":c==="D"?"ド":c==="CH"?"チ":c==="JH"||c==="ZH"?"ジ":c==="N"?"ン":JA_ROW[c][2];
+function jaKana(m,gl,v){const i="aiueo".indexOf(v);
+  if(gl==="W"&&!m)return JA_ROW.W[i];
+  if(gl==="W")return JA_EP(m)+JA_ROW.W[i];
+  if(gl==="Y"&&!m)return JA_ROW.Y[i];
+  if(gl==="Y"&&!/^(SH|CH|JH|ZH)$/.test(m))return v==="i"?JA_ROW[m][1]:JA_ROW[m][1].slice(0,1)+{a:"ャ",u:"ュ",e:"ェ",o:"ョ"}[v];
+  return JA_ROW[m||"_"][i];
+}
+function jaSyl(s,word){
+  const p=enParts(s),v=EN_SH(s.v),st=EN_STR(s.v),h=s.h,R=p.co[0]==="R",co=R?p.co.slice(1):p.co,open=!co.length,n=s.n;
+  const hv=h==="-"?"u":h==="u"?(co[0]==="L"?"u":"a"):h&&"aeio".includes(h)?h:"a";
+  let a,r="";
+  switch(v){
+    case"AA":a=h==="o"||h==="u"&&0?"o":"a";if(R)r="ー";break;
+    case"AE":a="a";if(R)r="ア";break;
+    case"AH":a=st?"a":hv;if(R)r="ー";break;
+    case"ER":a="a";r="ー";break;
+    case"EH":a="e";if(R)r="ア";break;
+    case"EY":a="e";r=R?"ア":open&&!n?"イ":"ー";break;
+    case"IH":a=!st&&h==="e"?"e":"i";if(R)r="ア";break;
+    case"IY":a="i";r=R?"ア":st||open&&!n?"ー":"";break;
+    case"OW":a="o";r=st?"ー":"";break;
+    case"AO":a="o";r="ー";break;
+    case"AW":a="a";r="ウ"+(R?"アー":"");break;
+    case"AY":a="a";r="イ"+(R?"アー":"");break;
+    case"OY":a="o";r="イ";break;
+    case"UH":a="u";if(R)r="アー";break;
+    case"UW":a="u";r=(st?"ー":"")+(R?"アー":"");break;
+    default:a="a";
+  }
+  if(s.i===0&&v==="AH"&&!st&&/^to/.test(word)&&p.m==="T")a="u";
+  const gl=!p.gl&&v==="AE"&&co.length&&/^[KG]$/.test(p.m)&&!p.pre.length?"Y":p.gl;
+  let o=p.pre.map(JA_EP).join("")+jaKana(p.m,gl,a)+r;
+  // small tsu: short vowel + one final stop at the end of the word (hot, bed, toilet, box)
+  if(!n&&!R&&EN_SHORT.has(v)&&(co.length===1&&/^(P|T|K|CH|SH|D|G|JH)$/.test(co[0])||co.join()==="K,S"))o+="ッ";
+  co.forEach((c,k)=>{const nx=co[k+1]||(n&&n.on[0])||"";
+    o+=c==="N"?"ン":c==="M"?(/^[PBM]$/.test(nx)?"ン":"ム"):c==="NG"?(/^[KG]$/.test(nx)?"ン":"ング"):c==="R"||c==="Y"||c==="W"?"":JA_EP(c)});
+  return o;
+}
+
+/* ---------- Korean (hangul loanword style) ---------- */
+const KO_L="ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ",KO_V="ㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ",KO_T=" ㄱㄲㄳㄴㄵㄶㄷㄹㄺㄻㄼㄽㄾㄿㅀㅁㅂㅄㅅㅆㅇㅈㅊㅋㅌㅍㅎ";
+const koJ=(l,v,t)=>String.fromCharCode(0xAC00+(KO_L.indexOf(l)*21+KO_V.indexOf(v))*28+(t?KO_T.indexOf(t):0));
+const KO_C={B:"ㅂ",CH:"ㅊ",D:"ㄷ",DH:"ㄷ",F:"ㅍ",G:"ㄱ",HH:"ㅎ",JH:"ㅈ",K:"ㅋ",L:"ㄹ",M:"ㅁ",N:"ㄴ",NG:"ㅇ",P:"ㅍ",R:"ㄹ",S:"ㅅ",SH:"ㅅ",T:"ㅌ",TH:"ㅅ",V:"ㅂ",W:"ㅇ",Y:"ㅇ",Z:"ㅈ",ZH:"ㅈ"};
+const KO_Y={"ㅏ":"ㅑ","ㅓ":"ㅕ","ㅗ":"ㅛ","ㅜ":"ㅠ","ㅔ":"ㅖ","ㅐ":"ㅒ"},KO_W={"ㅏ":"ㅘ","ㅓ":"ㅝ","ㅗ":"ㅝ","ㅔ":"ㅞ","ㅐ":"ㅙ","ㅣ":"ㅟ"};
+const KO_EP=c=>c==="CH"?"치":c==="JH"||c==="ZH"?"지":c==="SH"?"시":koJ(KO_C[c],"ㅡ");
+function koSyl(s,word){
+  const p=enParts(s),v=EN_SH(s.v),st=EN_STR(s.v),h=s.h,R=p.co[0]==="R",co=R?p.co.slice(1):p.co,n=s.n;
+  const hv={a:"ㅏ",e:"ㅔ",i:"ㅣ",o:"ㅗ","-":"ㅡ",u:co[0]==="L"?"ㅜ":"ㅓ"}[h]||"ㅓ";
+  // vowel sequence: first vowel takes the consonant, the rest are written with ㅇ
+  let V={AA:[h==="o"&&!(st&&co.length)?"ㅗ":"ㅏ"],AE:["ㅐ"],AH:[st?"ㅓ":hv],AO:["ㅗ"],AW:["ㅏ","ㅜ"],AY:["ㅏ","ㅣ"],EH:["ㅔ"],ER:["ㅓ"],EY:["ㅔ","ㅣ"],IH:[!st&&h==="e"?"ㅔ":"ㅣ"],IY:["ㅣ"],OW:["ㅗ"],OY:["ㅗ","ㅣ"],UH:["ㅜ"],UW:["ㅜ"]}[v]||["ㅓ"];
+  if(!st&&/^(SH|ZH|JH|CH)$/.test(p.m)&&v==="AH")V=["ㅓ"];if(s.i===0&&v==="AH"&&!st&&/^to/.test(word)&&p.m==="T")V=["ㅜ"];
+  V=V.slice();if(R&&/^(EH|IH|IY|UH|UW|AY|AW|AE)$/.test(v))V.push("ㅓ");
+  let pre=p.pre.map((c,k)=>{const e=KO_EP(c);return p.pre[k+1]==="L"||!p.pre[k+1]&&p.m==="L"?String.fromCharCode(e.charCodeAt(0)+8):e}).join("");
+  let m=p.m,v0=V[0];
+  if(p.gl==="Y"&&!/^(CH|JH|ZH)$/.test(m))v0=KO_Y[v0]||v0;
+  if(m==="SH")v0=KO_Y[v0]||v0;
+  if(p.gl==="W")v0=KO_W[v0]||(v0==="ㅜ"?"ㅜ":"ㅝ");
+  const sy=[[m?KO_C[m]:"ㅇ",v0,""]].concat(V.slice(1).map(x=>["ㅇ",x,""]));
+  const last=sy[sy.length-1],tail=[],short=V.length===1&&EN_SHORT.has(v);
+  co.forEach((c,k)=>{
+    if(k===0&&!last[2]&&(c==="M"||c==="N"||c==="NG"||c==="L"))last[2]=KO_C[c];
+    else if(k===0&&short&&(c==="P"||c==="T"||c==="K"))last[2]={P:"ㅂ",T:"ㅅ",K:"ㄱ"}[c];
+    else if(c==="L"&&tail.length)tail[tail.length-1]=String.fromCharCode(tail[tail.length-1].charCodeAt(0)+8),tail.push("르");
+    else if(c!=="R"&&c!=="Y"&&c!=="W")tail.push(KO_EP(c));
+  });
+  // a following L doubles: hello → 헬로, toilet → 토일렛
+  if(!co.length&&n&&n.on[0]==="L"&&!last[2])last[2]="ㄹ";
+  return pre+sy.map(x=>koJ(...x)).join("")+tail.join("");
+}
+
+/* ---------- Vietnamese (Vietnamese letters; stressed checked syllables get sắc, unstressed nặng) ---------- */
+const VI_C={B:"b",CH:"ch",D:"đ",DH:"đ",F:"ph",G:"g",HH:"h",JH:"gi",K:"c",L:"l",M:"m",N:"n",NG:"ng",P:"p",R:"r",S:"x",SH:"s",T:"t",TH:"th",V:"v",W:"u",Y:"d",Z:"d",ZH:"gi"};
+const VI_F={B:"b",CH:"ch",D:"d",DH:"th",F:"f",G:"g",JH:"ch",K:"k",L:"l",M:"m",N:"n",NG:"ng",P:"p",S:"s",SH:"sh",T:"t",TH:"th",V:"v",Z:"z",ZH:"sh"};
+function viTone(x,mk){let i=x.search(/[ăâêôơư]/);if(i<0)i=(x.search(/[ou][aey]/)+1||x.search(/[aeiouy]/)+1)-1;if(i<0)return x;
+  return (x.slice(0,i+1)+mk+x.slice(i+1)).normalize("NFC")}
+function enViSyl(s,word){
+  const p=enParts(s),v=EN_SH(s.v),st=EN_STR(s.v),h=s.h,co=p.co.filter(c=>c!=="R"&&c!=="Y"&&c!=="W"),cl=co.length>0;
+  const hv={a:"a",e:"e",i:"i",o:"o",u:"ơ","-":"ơ"}[h]||"ơ";
+  let nu={AA:h==="o"?"o":"a",AE:"e",AH:st?(cl?"â":"ơ"):hv,AO:"o",AW:"ao",AY:"ai",EH:p.co[0]==="R"&&!cl?"e-ơ":"e",ER:"ơ",EY:cl?"ê":"ây",IH:"i",IY:"i",OW:"ô",OY:"oi",UH:"u",UW:"u"}[v]||"ơ";
+  if(p.co[0]==="R"&&/^(IH|IY|UH|UW)$/.test(v)&&!cl)nu+="-ơ";
+  let on=p.pre.map(c=>VI_C[c]).join(""),m=p.m;
+  if(p.gl==="Y"){if(m)nu="i"+(nu==="u"?"u":nu);else m="Y"}
+  if(p.gl==="W"&&m==="K"){m="";on+="qu";if(nu[0]==="i")nu="y"+nu.slice(1)}
+  else if(p.gl==="W"){nu=/^[uô]/.test(nu)?nu:(/^[eê]/.test(nu)?"o":/^[ai]/.test(nu)?(nu[0]==="i"?"u":"o"):"u")+(nu[0]==="i"?"y"+nu.slice(1):nu)}
+  let c=m?VI_C[m]:"";
+  if(/^[ieêy]/.test(nu)){if(c==="c")c="k";else if(c==="g")c="gh";else if(c==="ng")c="ngh"}
+  if(c==="gi"&&nu[0]==="i")c="g";
+  let f=co.map(x=>VI_F[x]).join("");
+  if(co[0]==="K")f=(co.length>1||/[iy]$/.test(nu)&&nu.length>1?"k":/^[iê]$/.test(nu)?"ch":"c")+f.slice(1);
+  if(co[0]==="NG"&&/^[iê]$/.test(nu))f=(co[1]==="K"?"n":"nh")+f.slice(2);
+  let o=on+c+nu+f;
+  if(/^(P|T|K|CH)$/.test(co[0]))o=on+c+viTone(nu,st?"́":"̣")+f;
+  return o;
+}
+
+/* ---------- Malay and Filipino (plain native spelling) ---------- */
+function ltSyl(L){
+  const C=L==="ms"?{B:"b",CH:"c",D:"d",DH:"d",F:"f",G:"g",HH:"h",JH:"j",K:"k",L:"l",M:"m",N:"n",NG:"ng",P:"p",R:"r",S:"s",SH:"sy",T:"t",TH:"t",V:"v",W:"w",Y:"y",Z:"z",ZH:"j"}:{B:"b",CH:"ts",D:"d",DH:"d",F:"f",G:"g",HH:"h",JH:"j",K:"k",L:"l",M:"m",N:"n",NG:"ng",P:"p",R:"r",S:"s",SH:"sh",T:"t",TH:"t",V:"v",W:"w",Y:"y",Z:"z",ZH:"sh"};
+  const D=L==="ms"?{AW:"au",AY:"ai",OY:"oi",EY:"ei",AE:"e"}:{AW:"aw",AY:"ay",OY:"oy",EY:"ey",AE:"a"};
+  return(s,word)=>{
+    const p=enParts(s),v=EN_SH(s.v),st=EN_STR(s.v),h=s.h;
+    const hv={a:"a",e:"e",i:"i",o:"o",u:p.co[0]==="L"?"u":L==="ms"?"e":"a","-":L==="ms"?"e":"o"}[h]||(L==="ms"?"e":"a");
+    let nu={AA:h==="o"?"o":"a",AH:st?"a":hv,AO:"o",EH:"e",ER:"e",IH:!st&&h==="e"?"e":"i",IY:"i",OW:"o",UH:"u",UW:"u"}[v]||D[v]||"a";
+    let on=p.pre.map(c=>C[c]).join("")+(p.m?C[p.m]:"");
+    if(p.gl==="Y")on+=p.m&&L==="ms"?"i":"y";if(p.gl==="W")on+="w";
+    if(v==="ER"&&!p.co.includes("R"))nu+="r";
+    return on+nu+p.co.map(c=>C[c]||"").join("");
+  };
+}
+const EN_SYL={vi:enViSyl,ms:ltSyl("ms"),tl:ltSyl("tl"),ja:jaSyl,ko:koSyl};
+
+/* common short words written the usual way; "|" splits syllables, "*" marks the stressed one */
+const EN_FIX_L={
+vi:{the:"đơ",a:"ơ",an:"en",to:"tu",of:"ợp",and:"en",i:"ai",you:"diu",your:"dio",is:"ít",are:"a",it:"ít",in:"in",on:"on",at:"ét",for:"pho",with:"uýt",this:"đis",that:"đét",what:"oát",where:"oe",when:"oen",how:"hao",who:"hu",why:"oai",my:"mai",me:"mi",we:"uy",be:"bi",do:"đu",go:"gâu",no:"nâu",yes:"dét",ok:"ô|*kê",okay:"ô|*kê",please:"pli-z",thank:"thenk",thanks:"thenk-x",hello:"hê|*lô",hi:"hai",sorry:"*xo|ri",very:"*ve|ri",much:"mấch",good:"gút",bye:"bai",can:"ken",not:"nót",have:"hev",one:"oan",two:"tu",three:"thri",here:"hia",there:"đe-ơ",they:"đây",coffee:"*cò|phi",excuse:"ích|*kiu-z",bangkok:"*Băng|Cốc",would:"út"},
+ms:{the:"de",a:"e",an:"en",to:"tu",of:"ov",and:"en",i:"ai",you:"yu",your:"yor",is:"iz",are:"ar",it:"it",this:"dis",that:"det",what:"wot",where:"wer",how:"hau",my:"mai",me:"mi",we:"wi",do:"du",go:"go",no:"no",yes:"yes",ok:"o|*kei",okay:"o|*kei",please:"pliz",thank:"tenk",thanks:"tenks",hello:"he|*lo",there:"der",they:"dei",very:"*ve|ri",one:"wan",two:"tu",have:"hev",was:"woz",for:"for",with:"wit",excuse:"eks|*kiuz",restaurant:"*res|to|ran"},
+tl:{the:"da",a:"a",an:"an",to:"tu",of:"ov",and:"and",i:"ay",you:"yu",your:"yor",is:"is",are:"ar",it:"it",this:"dis",that:"dat",what:"wat",where:"wer",how:"haw",my:"may",me:"mi",we:"wi",do:"du",go:"go",no:"no",yes:"yes",ok:"o|*key",okay:"o|*key",please:"plis",thank:"tank",thanks:"tanks",hello:"he|*lo",there:"der",they:"dey",very:"*ve|ri",one:"wan",two:"tu",have:"hav",was:"was",for:"por",with:"wit",excuse:"eks|*kyus",restaurant:"*res|to|ran"},
+ja:{the:"ザ",a:"ア",an:"アン",to:"トゥー",of:"オブ",and:"アンド",i:"アイ",you:"ユー",your:"ユア",is:"イズ",are:"アー",it:"イット",this:"ディス",that:"ザット",what:"ワット",where:"ウェア",how:"ハウ",my:"マイ",me:"ミー",we:"ウィー",do:"ドゥー",go:"ゴー",no:"ノー",yes:"イエス",ok:"オー|*ケー",okay:"オー|*ケー",please:"プリーズ",thank:"サンク",thanks:"サンクス",hello:"ハ|*ロー",coffee:"*コー|ヒー",restaurant:"*レス|トラン",excuse:"エクス|*キューズ",goodbye:"グッド|*バイ",beer:"ビール",tomorrow:"トゥ|*モ|ロー",bangkok:"*バン|コク",sorry:"*ソー|リー",there:"ゼア",they:"ゼイ",one:"ワン",two:"トゥー",very:"*ベ|リー",taxi:"*タク|シー",ticket:"*チ|ケット",happy:"*ハッ|ピー",shopping:"*ショッ|ピング",makeup:"*メイ|クアップ",chicken:"*チ|キン",police:"ポ|*リス",cheese:"チーズ",dinner:"*ディ|ナー",china:"*チャイ|ナ",water:"*ウォー|ター",bus:"バス"},
+ko:{the:"더",a:"어",an:"언",to:"투",of:"오브",and:"앤드",i:"아이",you:"유",your:"유어",is:"이즈",are:"아",it:"잇",this:"디스",that:"댓",what:"왓",where:"웨어",how:"하우",my:"마이",me:"미",we:"위",do:"두",go:"고",no:"노",yes:"예스",ok:"오|*케이",okay:"오|*케이",please:"플리즈",thank:"땡크",thanks:"땡스",hello:"헬|*로",coffee:"*커|피",computer:"컴|*퓨|터",camera:"*카|메|라",excuse:"익스|*큐즈",goodbye:"굿|*바이",restaurant:"*레|스토|랑",tomorrow:"투|*모|로",bangkok:"*방|콕",sorry:"*쏘|리",very:"*베|리",there:"데어",they:"데이",one:"원",two:"투",taxi:"*택|시",bus:"버스",film:"필름",shopping:"*쇼|핑",happy:"*해|피",ticket:"*티|켓",chicken:"*치|킨",police:"폴|*리스",bye:"바이",good:"굿"}};
+
+function enPronL(word,lang){
+  if(lang==="th"||!EN_SYL[lang])return enPron(word);
+  const w=String(word||"").toLowerCase().replace(/[’‘]/g,"'").replace(/^'+|'+$/g,"");if(!/[a-z]/.test(w))return null;
+  const fx=(EN_FIX_L[lang]||{})[w];
+  if(fx){const a=fx.split("|");return{sy:a.map(x=>x.replace("*","")),st:a.map(x=>a.length>1&&x[0]==="*")}}
+  const sy=enSyl(enPhones(w));if(!sy.length)return null;
+  const hs=enHints(w,sy.length);sy.forEach((s,i)=>{s.h=hs?hs[i]:"";s.n=sy[i+1]||null;s.p=sy[i-1]||null;s.i=i});
+  return{sy:sy.map(s=>EN_SYL[lang](s,w)),st:sy.map(s=>sy.length>1&&s.v.endsWith("1"))};
+}
+
+/* everyday English words with their usual meaning (same order as EN_GL in the app) */
+const EN_GL_K="the a an to of and i you your is are am was were be it in on at for with this that these those what where when why who how which my me we us our they them their he him his she her do does did don't doesn't didn't can can't could will would won't should must have has had not no yes please thank thanks sorry hello hi goodbye ok okay go come want need like get here there now very much many more some all any from by about up down out off if but or so because than too also just again one two three good bad right left time today tomorrow yesterday let's i'm it's that's what's where's".split(" ");
+const EN_GL_S={
+vi:"(mạo từ)|một|một|đến / để|của|và|tôi|bạn|của bạn|là / ở|là / ở|là|là (quá khứ)|là (quá khứ)|là|nó|trong|trên|ở / tại|cho|với|này|đó|những cái này|những cái đó|gì|ở đâu|khi nào|tại sao|ai|thế nào|cái nào|của tôi|tôi|chúng tôi|chúng tôi|của chúng tôi|họ|họ|của họ|anh ấy|anh ấy|của anh ấy|cô ấy|cô ấy|làm|làm|đã làm|không|không|đã không|có thể|không thể|có thể|sẽ|sẽ|sẽ không|nên|phải|có|có|đã có|không|không|vâng / có|làm ơn|cảm ơn|cảm ơn|xin lỗi|xin chào|chào|tạm biệt|được|được|đi|đến|muốn|cần|thích|lấy / nhận|ở đây|ở đó|bây giờ|rất|nhiều|nhiều|thêm / hơn|một vài|tất cả|bất kỳ|từ|bởi|về|lên|xuống|ra|tắt / ra|nếu|nhưng|hoặc|vì vậy|vì|hơn|cũng / quá|cũng|chỉ|lại|một|hai|ba|tốt|tệ|phải / đúng|trái|thời gian|hôm nay|ngày mai|hôm qua|hãy cùng|tôi là|nó là|đó là|là gì|ở đâu",
+ms:"(kata sandang)|satu|satu|ke / untuk|daripada|dan|saya|anda|milik anda|ialah / ada|ialah / ada|ialah|ialah (lampau)|ialah (lampau)|menjadi|ia|dalam|atas|di|untuk|dengan|ini|itu|ini semua|itu semua|apa|di mana|bila|kenapa|siapa|bagaimana|yang mana|milik saya|saya|kami|kami|milik kami|mereka|mereka|milik mereka|dia (lelaki)|dia|miliknya|dia (perempuan)|dia|buat|buat|telah buat|tidak|tidak|tidak|boleh|tidak boleh|boleh|akan|akan|tidak akan|patut|mesti|ada|ada|ada (lampau)|tidak|tidak|ya|tolong|terima kasih|terima kasih|maaf|helo|hai|selamat tinggal|okey|okey|pergi|datang|mahu|perlu|suka|dapat|sini|sana|sekarang|sangat|banyak|banyak|lagi / lebih|sedikit|semua|mana-mana|dari|oleh|tentang|naik|turun|keluar|tutup / turun|jika|tetapi|atau|jadi|kerana|daripada|juga / terlalu|juga|hanya|lagi|satu|dua|tiga|baik|teruk|kanan / betul|kiri|masa|hari ini|esok|semalam|mari|saya ialah|ia ialah|itu ialah|apa itu|di mana",
+tl:"(pantukoy)|isa|isa|sa / para|ng|at|ako|ikaw / kayo|iyong / ninyo|ay / nasa|ay / nasa|ay|ay (noon)|ay (noon)|maging|ito|sa loob|sa ibabaw|sa|para sa|kasama|ito|iyon|ang mga ito|ang mga iyon|ano|saan|kailan|bakit|sino|paano|alin|aking|ako / akin|tayo / kami|tayo / kami|ating / aming|sila|sila|kanilang|siya|siya|kanyang|siya|siya / kanyang|gawin|gawin|ginawa|huwag / hindi|hindi|hindi|kaya / puwede|hindi kaya|puwede|(sa hinaharap)|sana|hindi|dapat|kailangan|mayroon|mayroon|nagkaroon|hindi|hindi|oo|pakiusap|salamat|salamat|pasensya na|kumusta|hi|paalam|sige|sige|pumunta|halika / dumating|gusto|kailangan|gusto|kunin|dito|doon|ngayon|napaka|marami|marami|higit / pa|ilan|lahat|kahit ano|mula sa|ng / sa|tungkol sa|taas|baba|labas|patay / alis|kung|pero|o|kaya|dahil|kaysa|rin / masyado|rin|lang|ulit|isa|dalawa|tatlo|mabuti|masama|kanan / tama|kaliwa|oras|ngayong araw|bukas|kahapon|tara|ako ay|ito ay|iyon ay|ano ang|nasaan",
+ja:"(冠詞)|一つの|一つの|〜へ / 〜に|〜の|と / そして|私|あなた|あなたの|〜です / ある|〜です / ある|〜です|〜でした|〜でした|〜である|それ|〜の中|〜の上|〜で|〜のため|〜と一緒に|これ|それ / あれ|これら|それら|何|どこ|いつ|なぜ|誰|どう|どれ|私の|私|私たち|私たち|私たちの|彼ら|彼ら|彼らの|彼|彼|彼の|彼女|彼女|する|する|した|〜しない|〜しない|〜しなかった|できる|できない|できた|〜するつもり|〜だろう|〜しない|〜すべき|〜しなければならない|持っている|持っている|持っていた|〜ない|いいえ|はい|お願いします|ありがとう|ありがとう|ごめんなさい|こんにちは|やあ|さようなら|オーケー|オーケー|行く|来る|欲しい|必要|好き|手に入れる|ここ|そこ|今|とても|たくさん|たくさん|もっと|いくつか|全部|何か|〜から|〜によって|〜について|上へ|下へ|外へ|切る / 離れて|もし|でも|または|だから|なぜなら|〜より|〜も / 〜すぎる|〜も|だけ|もう一度|一|二|三|良い|悪い|右 / 正しい|左|時間|今日|明日|昨日|〜しよう|私は〜です|それは〜です|それは〜です|〜は何|〜はどこ",
+ko:"(관사)|하나의|하나의|~에 / ~로|~의|그리고|나 / 저|당신|당신의|~이다 / 있다|~이다 / 있다|~이다|~였다|~였다|~이다|그것|~안에|~위에|~에서|~을 위해|~와 함께|이것|그것 / 저것|이것들|저것들|무엇|어디|언제|왜|누구|어떻게|어느 것|나의|나|우리|우리|우리의|그들|그들|그들의|그|그|그의|그녀|그녀|하다|하다|했다|안 하다|안 하다|안 했다|할 수 있다|할 수 없다|할 수 있었다|~할 것이다|~할 것이다|안 할 것이다|~해야 한다|~해야 한다|가지다 / 있다|가지다 / 있다|가졌다|아니다|아니요|네|부탁합니다|감사합니다|고마워요|죄송합니다|안녕하세요|안녕|안녕히 가세요|좋아요|좋아요|가다|오다|원하다|필요하다|좋아하다|얻다|여기|거기|지금|매우|많이|많은|더|조금 / 몇몇|모두|어떤|~에서 / ~부터|~에 의해|~에 대해|위로|아래로|밖으로|끄다 / 떨어져|만약|하지만|또는|그래서|왜냐하면|~보다|~도 / 너무|또한|그냥 / 단지|다시|하나|둘|셋|좋은|나쁜|오른쪽 / 맞다|왼쪽|시간|오늘|내일|어제|~하자|나는 ~이다|그것은 ~이다|그것은 ~이다|~은 무엇|~은 어디"};
+const EN_GL_L={};
+for(const L in EN_GL_S){const a=EN_GL_S[L].split("|"),o=EN_GL_L[L]={};EN_GL_K.forEach((k,i)=>{if(a[i])o[k]=a[i]})}
+if(typeof EN_GL!=="undefined")EN_GL_L.th=EN_GL;
+
+/* Thai-mode UI strings for each language. cat keys follow CAT_TH. me/them: conversation buttons (small line), meL: English small text */
+const CAT_K=["On set","SFX","Prosthetics & makeup","Film production","Technical","Schedule & meals","Basics","Eating","Getting around","Shopping","Numbers","Social","Emergency","Casual talk","My vocab"];
+const UI_L={
+th:{btn:"🇹🇭 ไทย",flag:"🇹🇭",name:"ไทย",tabs:{tr:"แปล",board:"วลี",add:"เพิ่ม",set:"ตั้งค่า"},pb:"วลีภาษาอังกฤษ",hint:"<b>แตะ</b> เพื่อฟัง · <b>กดค้างครึ่งวินาทีแล้วปล่อย</b> เพื่อแสดงเต็มจอ · <b>กดค้างแล้วลาก</b> เพื่อย้าย",cv:"💬 โหมดสนทนา",pr:"🎯 ฝึกพูดภาษาอังกฤษ",q:"ค้นหาวลี",all:"ทั้งหมด",fav:"★ ที่ชอบ",rec:"🕘 ล่าสุด",trd:"🔤 ที่แปลแล้ว",them:"อีกฝ่าย พูดภาษาอังกฤษ",me:"ฉัน พูดไทย",meL:"Me: Thai",prh:"ฝึกพูด",listen:"ฟัง",great:"✓ เยี่ยมมาก ฟังเข้าใจ!",close:"ใกล้แล้ว ลองอีกครั้ง",notq:"ยังไม่ใช่ กดฟังแล้วลองใหม่",heard:"ได้ยินว่า:",num:"แตะตัวเลขด้านล่าง",learn:"ฉันพูดภาษาไทย อยากเรียนภาษาอังกฤษ",cat:"ในกองถ่าย|เอฟเฟกต์พิเศษ|เมคอัพและงานเทียม|งานสร้างภาพยนตร์|เทคนิค|ตารางงานและอาหาร|พื้นฐาน|การกิน|การเดินทาง|ช้อปปิ้ง|ตัวเลข|ทักทาย|ฉุกเฉิน|คุยเล่น|คำศัพท์ของฉัน"},
+vi:{btn:"🇻🇳 Việt",flag:"🇻🇳",name:"Tiếng Việt",tabs:{tr:"Dịch",board:"Cụm từ",add:"Thêm",set:"Cài đặt"},pb:"Cụm từ tiếng Anh",hint:"<b>Chạm</b> để nghe · <b>Giữ nửa giây rồi thả</b> để xem toàn màn hình · <b>Giữ rồi kéo</b> để di chuyển",cv:"💬 Chế độ hội thoại",pr:"🎯 Luyện nói tiếng Anh",q:"Tìm cụm từ",all:"Tất cả",fav:"★ Yêu thích",rec:"🕘 Gần đây",trd:"🔤 Đã dịch",them:"Người kia nói tiếng Anh",me:"Tôi nói tiếng Việt",meL:"Me: Vietnamese",prh:"Luyện nói",listen:"Nghe",great:"✓ Tuyệt vời, máy đã hiểu bạn!",close:"Gần đúng rồi! Thử lại lần nữa.",notq:"Chưa đúng. Bấm Nghe rồi thử lại.",heard:"Máy nghe được:",num:"Chạm vào các số bên dưới",learn:"Tôi nói tiếng Việt và muốn học tiếng Anh",cat:"Tại phim trường|Hiệu ứng đặc biệt|Hóa trang & bộ phận giả|Sản xuất phim|Kỹ thuật|Lịch làm việc & bữa ăn|Cơ bản|Ăn uống|Đi lại|Mua sắm|Số đếm|Giao tiếp|Khẩn cấp|Trò chuyện|Từ vựng của tôi"},
+ms:{btn:"🇲🇾 Melayu",flag:"🇲🇾",name:"Bahasa Melayu",tabs:{tr:"Terjemah",board:"Frasa",add:"Tambah",set:"Tetapan"},pb:"Frasa bahasa Inggeris",hint:"<b>Ketik</b> untuk dengar · <b>Tekan setengah saat, kemudian lepaskan</b> untuk skrin penuh · <b>Tekan, kemudian seret</b> untuk alihkan",cv:"💬 Mod perbualan",pr:"🎯 Latih sebutan bahasa Inggeris",q:"Cari frasa",all:"Semua",fav:"★ Kegemaran",rec:"🕘 Terkini",trd:"🔤 Diterjemah",them:"Orang lain: bahasa Inggeris",me:"Saya: bahasa Melayu",meL:"Me: Malay",prh:"Latihan sebutan",listen:"Dengar",great:"✓ Bagus, ia faham anda!",close:"Hampir! Cuba sekali lagi.",notq:"Belum tepat. Ketik Dengar dan cuba lagi.",heard:"Ia dengar:",num:"Ketik nombor di bawah",learn:"Saya bertutur bahasa Melayu dan mahu belajar bahasa Inggeris",cat:"Di set penggambaran|Kesan khas|Prostetik & solekan|Penerbitan filem|Teknikal|Jadual & waktu makan|Asas|Makan|Bergerak|Membeli-belah|Nombor|Sosial|Kecemasan|Bual santai|Kosa kata saya"},
+tl:{btn:"🇵🇭 Filipino",flag:"🇵🇭",name:"Filipino",tabs:{tr:"Isalin",board:"Parirala",add:"Idagdag",set:"Settings"},pb:"Mga pariralang Ingles",hint:"<b>I-tap</b> para marinig · <b>Pindutin nang kalahating segundo, saka bitawan</b> para sa full screen · <b>Pindutin, saka i-slide</b> para ilipat",cv:"💬 Usapan",pr:"🎯 Magsanay mag-Ingles",q:"Maghanap ng parirala",all:"Lahat",fav:"★ Paborito",rec:"🕘 Kamakailan",trd:"🔤 Naisalin",them:"Kausap: Ingles",me:"Ako: Filipino",meL:"Me: Filipino",prh:"Pagsasanay",listen:"Pakinggan",great:"✓ Magaling, naintindihan ka!",close:"Malapit na! Subukan ulit.",notq:"Hindi pa tama. I-tap ang Pakinggan at subukan ulit.",heard:"Narinig nito:",num:"I-tap ang mga numero sa ibaba",learn:"Nagsasalita ako ng Filipino at gusto kong matuto ng Ingles",cat:"Sa set|Special effects|Prosthetics at makeup|Paggawa ng pelikula|Teknikal|Iskedyul at pagkain|Mga pangunahing parirala|Pagkain|Paglalakbay|Pamimili|Mga numero|Pakikisalamuha|Emergency|Kuwentuhan|Aking bokabularyo"},
+ja:{btn:"🇯🇵 日本語",flag:"🇯🇵",name:"日本語",tabs:{tr:"翻訳",board:"フレーズ",add:"追加",set:"設定"},pb:"英語フレーズ",hint:"<b>タップ</b>で再生 · <b>0.5秒押して離す</b>と全画面表示 · <b>長押ししてスライド</b>で移動",cv:"💬 会話モード",pr:"🎯 英語の発音練習",q:"フレーズを検索",all:"すべて",fav:"★ お気に入り",rec:"🕘 最近",trd:"🔤 翻訳済み",them:"相手：英語",me:"自分：日本語",meL:"Me: Japanese",prh:"発音練習",listen:"聞く",great:"✓ すばらしい、通じました！",close:"おしい！もう一度。",notq:"まだです。「聞く」を押してもう一度。",heard:"認識結果：",num:"下の数字をタップ",learn:"日本語を話します。英語を学びたいです",cat:"撮影現場|特殊効果|特殊メイク・メイク|映画制作|技術|スケジュール・食事|基本|食事|移動|買い物|数字|あいさつ・交流|緊急|雑談|マイ単語"},
+ko:{btn:"🇰🇷 한국어",flag:"🇰🇷",name:"한국어",tabs:{tr:"번역",board:"표현",add:"추가",set:"설정"},pb:"영어 표현",hint:"<b>탭</b>하면 듣기 · <b>0.5초 누른 뒤 떼면</b> 전체 화면 · <b>누른 채 밀면</b> 이동",cv:"💬 대화 모드",pr:"🎯 영어 말하기 연습",q:"표현 검색",all:"전체",fav:"★ 즐겨찾기",rec:"🕘 최근",trd:"🔤 번역함",them:"상대방: 영어",me:"나: 한국어",meL:"Me: Korean",prh:"말하기 연습",listen:"듣기",great:"✓ 훌륭해요, 알아들었어요!",close:"거의 다 됐어요! 한 번 더 해 보세요.",notq:"아직이에요. 듣기를 누르고 다시 해 보세요.",heard:"인식된 말:",num:"아래 숫자를 탭하세요",learn:"한국어를 하고 영어를 배우고 싶어요",cat:"촬영장|특수효과|특수분장 & 메이크업|영화 제작|기술|일정 & 식사|기본|식사|이동|쇼핑|숫자|인사·교류|긴급|잡담|내 단어장"}};
+for(const L in UI_L){const a=UI_L[L].cat.split("|"),o={};CAT_K.forEach((k,i)=>o[k]=a[i]);UI_L[L].cat=o}
+// small button words in each native-speaker mode
+const UI_W={th:{Translate:"แปล",Talk:"พูด",Play:"ฟัง",Show:"แสดง",Save:"บันทึก","Listening…":"กำลังฟัง",Listen:"ฟัง",bd:"สร้างประโยค",ed:"แก้ไข",dn:"เสร็จ",ty:"พิมพ์ภาษาไทยที่นี่ หรือกด พูด"},
+ vi:{Translate:"Dịch",Talk:"Nói",Play:"Nghe",Show:"Cho xem",Save:"Lưu","Listening…":"Đang nghe…",Listen:"Nghe",bd:"Tạo câu",ed:"Sửa",dn:"Xong",ty:"Gõ tiếng Việt ở đây, hoặc bấm Nói"},
+ ms:{Translate:"Terjemah",Talk:"Cakap",Play:"Main",Show:"Tunjuk",Save:"Simpan","Listening…":"Mendengar…",Listen:"Dengar",bd:"Bina ayat",ed:"Ubah",dn:"Siap",ty:"Taip bahasa Melayu di sini, atau ketik Cakap"},
+ tl:{Translate:"Isalin",Talk:"Magsalita",Play:"Patugtugin",Show:"Ipakita",Save:"I-save","Listening…":"Nakikinig…",Listen:"Pakinggan",bd:"Bumuo ng pangungusap",ed:"I-edit",dn:"Tapos",ty:"Mag-type ng Filipino dito, o i-tap ang Magsalita"},
+ ja:{Translate:"翻訳",Talk:"話す",Play:"再生",Show:"見せる",Save:"保存","Listening…":"聞いています…",Listen:"聞く",bd:"文を作る",ed:"編集",dn:"完了",ty:"ここに日本語を入力、または「話す」をタップ"},
+ ko:{Translate:"번역",Talk:"말하기",Play:"재생",Show:"보여주기",Save:"저장","Listening…":"듣는 중…",Listen:"듣기",bd:"문장 만들기",ed:"편집",dn:"완료",ty:"여기에 한국어를 입력하거나 말하기를 누르세요"}};
+function U(){return UI_L[S.lang]||UI_L.th}
+function UW(k,en){const w=UI_W[S.lang]||UI_W.th;return w[k]||en}
+function glKey(w){return S.lang==="th"?"en|"+w:"en|"+S.lang+"|"+w}
+function TU(){return !!S.thUser&&NATIVE_LANGS.includes(S.lang)}
+function catName(c){return TU()&&U().cat[c]||c}
+function enGlGet(w){w=w.toLowerCase().replace(/’/g,"'");return (EN_GL_L[S.lang]||EN_GL)[w]||(S.gl||{})[glKey(w)]}
 /* English words written in Thai letters, stressed syllable underlined, Thai meaning under each word (noGl: no meanings) */
 function enHTML(t,noGl){const ws=String(t||"").match(/[A-Za-z][A-Za-z'’]*/g);if(!ws)return"";if(ws.length===1)noGl=1;
-  return `<span class="tn en-tn"${noGl?' data-gd="1"':""}>`+ws.map(w=>{const p=enPron(w);if(!p)return"";const g=noGl?"":enGlGet(w);
-    return `<span class="wg"><span class="wsy">${p.sy.map((x,k)=>`<span class="es${p.st[k]?" st":""}" lang="th">${esc(x)}</span>`).join("")}</span>${noGl?"":`<small class="gl" lang="th" data-w="${esc(w.toLowerCase().replace(/’/g,"'"))}">${g?esc(g):""}</small>`}</span>`}).join("")+`</span>`}
+  return `<span class="tn en-tn"${noGl?' data-gd="1"':""}>`+ws.map(w=>{const p=enPronL(w,S.lang);if(!p)return"";const g=noGl?"":enGlGet(w);
+    return `<span class="wg"><span class="wsy">${p.sy.map((x,k)=>`<span class="es${p.st[k]?" st":""}" lang="${S.lang}">${esc(x)}</span>`).join(EN_SEP[S.lang]||"")}</span>${noGl?"":`<small class="gl" lang="${S.lang}" data-w="${esc(w.toLowerCase().replace(/’/g,"'"))}">${g?esc(g):""}</small>`}</span>`}).join("")+`</span>`}
 async function enGlossIn(root){
   const els=[...root.querySelectorAll(".en-tn:not([data-gd])")];if(!els.length)return;els.forEach(e=>e.dataset.gd="1");
   const gls=els.flatMap(e=>[...e.querySelectorAll(".gl")]);
   const todo=[...new Set(gls.filter(g=>!g.textContent).map(g=>g.dataset.w))].slice(0,40);
   if(todo.length&&navigator.onLine!==false){S.gl=S.gl||{};
     try{const ac=new AbortController();setTimeout(()=>ac.abort(),8000);
-      const r=await fetch("https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&sl=en&tl=th&q="+encodeURIComponent(todo.join("\n")),{signal:ac.signal});
-      const j=await r.json();(j[0]||[]).forEach(seg=>{const o=String(seg[1]||"").trim().toLowerCase(),t=String(seg[0]||"").trim().replace(/[.?!]+$/,"");if(o&&t&&todo.includes(o))S.gl["en|"+o]=t})}catch(e){}
+      const r=await fetch("https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&sl=en&tl="+LG().mm+"&q="+encodeURIComponent(todo.join("\n")),{signal:ac.signal});
+      const j=await r.json();(j[0]||[]).forEach(seg=>{const o=String(seg[1]||"").trim().toLowerCase(),t=String(seg[0]||"").trim().replace(/[.?!]+$/,"");if(o&&t&&todo.includes(o))S.gl[glKey(o)]=t})}catch(e){}
     const miss=todo.filter(w=>enGlGet(w)==null).slice(0,12);
-    if(miss.length)await Promise.all(miss.map(w=>mm(w,"en|th").then(t=>{t=String(t||"").trim();if(t&&t.toLowerCase()!==w)S.gl["en|"+w]=t}).catch(()=>{})));
+    if(miss.length)await Promise.all(miss.map(w=>mm(w,"en|"+LG().mm).then(t=>{t=String(t||"").trim();if(t&&t.toLowerCase()!==w)S.gl[glKey(w)]=t}).catch(()=>{})));
     save()}
   gls.forEach(g=>{if(!g.textContent){const m=enGlGet(g.dataset.w);if(m)g.textContent=m}});
 }
 const TL_EN={};
 function thLabels(){
   const T=TU(),set=(k,el,th)=>{if(!el)return;if(!(k in TL_EN))TL_EN[k]=el.innerHTML;el.innerHTML=T?th:TL_EN[k]};
-  document.querySelectorAll("#tabbar [data-go]").forEach(b=>{const k="tab"+b.dataset.go,svg=b.querySelector("svg");if(!(k in TL_EN))TL_EN[k]=b.lastChild.textContent;b.lastChild.textContent=T?{tr:"แปล",board:"วลี",add:"เพิ่ม",set:"ตั้งค่า"}[b.dataset.go]:TL_EN[k]});
-  set("pb",document.querySelector(".boardhead .sec2"),"วลีภาษาอังกฤษ");
-  set("hint",document.querySelector(".bhint2"),"<b>แตะ</b> เพื่อฟัง · <b>กดค้างครึ่งวินาทีแล้วปล่อย</b> เพื่อแสดงเต็มจอ · <b>กดค้างแล้วลาก</b> เพื่อย้าย");
-  set("cv",$("convBtn"),"💬 โหมดสนทนา");set("bd",$("bldBtn"),"สร้างประโยค");set("pr",$("pracBtn"),"🎯 ฝึกพูดภาษาอังกฤษ");
-  $("q").placeholder=T?"ค้นหาวลี":"Search phrases";
-  const b=$("thTop");if(b){b.hidden=S.lang!=="th";b.setAttribute("aria-pressed",T);b.innerHTML=`<span lang="th">🇹🇭 ไทย</span><small>${T?"On":"Off"}</small>`}
+  document.querySelectorAll("#tabbar [data-go]").forEach(b=>{const k="tab"+b.dataset.go,svg=b.querySelector("svg");if(!(k in TL_EN))TL_EN[k]=b.lastChild.textContent;b.lastChild.textContent=T?U().tabs[b.dataset.go]:TL_EN[k]});
+  set("pb",document.querySelector(".boardhead .sec2"),U().pb);
+  set("hint",document.querySelector(".bhint2"),U().hint);
+  set("cv",$("convBtn"),U().cv);set("bd",$("bldBtn"),UW("bd"));set("pr",$("pracBtn"),U().pr);
+  $("q").placeholder=T?U().q:"Search phrases";
+  const b=$("thTop");if(b){b.hidden=!NATIVE_LANGS.includes(S.lang);b.setAttribute("aria-pressed",T);if(!b.hidden){b.innerHTML=`<span lang="${S.lang}">${esc(U().btn)}</span><small>${T?"On":"Off"}</small>`;b.setAttribute("aria-label",`${LG().n} mode: I speak ${LG().n} and want to learn English`)}}
 }
 function glWords(th,L){
   let ws=[];try{ws=[...new Intl.Segmenter(L,{granularity:"word"}).segment(th)].filter(x=>x.isWordLike).map(x=>x.segment)}catch(e){ws=th.split(/\s+/)}
@@ -1644,7 +1827,7 @@ function render(){
   const cs=cats();
   const hasR=S.items.some(i=>i.played);
   if(cat!=="All"&&cat!=="__r"&&cat!=="__t"&&cat!=="__f"&&!cs.includes(cat))cat="All";
-    const chipLabel=c=>TU()?(c==="All"?"ทั้งหมด":c==="__f"?"★ ที่ชอบ":c==="__r"?"🕘 ล่าสุด":c==="__t"?"🔤 ที่แปลแล้ว":esc(catName(c))):c==="__f"?"★ Favs":c==="__r"?"🕘 Recent":c==="__t"?"🔤 Translated":esc(c);
+    const chipLabel=c=>TU()?(c==="All"?U().all:c==="__f"?U().fav:c==="__r"?U().rec:c==="__t"?U().trd:esc(catName(c))):c==="__f"?"★ Favs":c==="__r"?"🕘 Recent":c==="__t"?"🔤 Translated":esc(c);
   const chip=c=>`<button class="chip${c===cat?" on":""}" style="--c:${colr(c)}" data-c="${esc(c)}">${chipLabel(c)}</button>`;
   $("chips").innerHTML=`<div class="chrow1">${["All","__r","__t","__f"].map(chip).join("")}</div><div class="chrow2">${cs.map(chip).join("")}</div>`;
   $("cats").innerHTML=cs.map(c=>`<option value="${esc(c)}">`).join("");
@@ -1675,7 +1858,7 @@ function render(){
   $("main").className=edit?"edit":"";
   $("main").innerHTML=h+(/class="grid"/.test(h)?"":`<div class="empty">${emptyMsg}</div>`);
   $("editBtn").classList.toggle("on",edit);
-  $("editBtn").textContent=TU()?(edit?"เสร็จ":"แก้ไข"):edit?"Done":"Edit";
+  $("editBtn").textContent=TU()?(edit?UW("dn"):UW("ed")):edit?"Done":"Edit";
   observeTiles();
 }
 
@@ -1850,7 +2033,7 @@ async function translate(){
 let DIR="en",RES=null;
 function whoLabels(){
   const th=DIR==="th",L=LG(),T=L.c==="th";
-  $("trIn").placeholder=!th?"Type English, or tap Talk…":T?"พิมพ์ภาษาไทยที่นี่ หรือกด พูด":"Type or speak "+L.n+"…";
+  $("trIn").placeholder=!th?"Type English, or tap Talk…":TU()?UW("ty"):T?"พิมพ์ภาษาไทยที่นี่ หรือกด พูด":"Type or speak "+L.n+"…";
   $("trGo").innerHTML=bi("แปล","Translate");
   const ml=$("trMic").querySelector(".mlab");if(ml&&!RECON)ml.innerHTML=bi("พูด","Talk");
   $("tool").classList.toggle("thside",th);
@@ -1879,7 +2062,7 @@ const SUG=[["Emergency",/\b(help|police|ambulance|hospital|doctor|emergency|dang
 const SPK='<svg class="spk" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9.5h4l5-4.5v14l-5-4.5H3z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',HANDI='<svg class="hand" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="10.5" y="1" width="10" height="15" rx="2"/><path d="M14 3.5h3"/><path d="M10.5 6H8.7a1.35 1.35 0 0 0 0 2.7h1.8"/><path d="M10.5 8.7H8.4a1.35 1.35 0 0 0 0 2.7h2.1"/><path d="M10.5 11.4H8.7a1.35 1.35 0 0 0 0 2.7h1.8"/><path d="M7.6 6.6C6 7.6 5.2 9.5 5.3 12.2l.4 3.6"/><path d="M10.5 16l-.6 2"/><path d="M5.7 15.8L1.6 22.6"/><path d="M9.9 18L6.2 23.6"/></svg>';
 /* in Thai mode buttons show Thai large with English small underneath */
 function thMode(){return (DIR==="th"||TU())&&LG().c==="th"}
-function bi(th,en){return thMode()?`<span class="bi"><span class="bth" lang="th">${th}</span><span class="ben">${en}</span></span>`:en}
+function bi(th,en){if(TU()&&S.lang!=="th")return`<span class="bi"><span class="bth" lang="${S.lang}">${esc(UW(en,en))}</span><span class="ben">${en}</span></span>`;return thMode()?`<span class="bi"><span class="bth" lang="th">${th}</span><span class="ben">${en}</span></span>`:en}
 const norm=t=>String(t||"").trim().toLowerCase().replace(/[\s.?!,]+/g," ").trim();
 function suggestCat(en){for(const [c,re] of SUG)if(re.test(en||""))return c;return""}
 function showRes(th,ro,en,note,auto,nohist,ph,alts,tn){
@@ -2213,7 +2396,7 @@ const histClean=t=>String(t||"").replace(/\s*(ครับ|ค่ะ|คะ)\s*$
 function histSaved(x){const t=histClean(x.th);return S.items.some(i=>(i.th===t||(i.tr&&i.tr[S.lang]&&i.tr[S.lang].t===t)))}
 function histTileHTML(x,n){
   const t=histClean(x.th),pr=S.ro?toneHTML(t,x.ro||"","",!x.ro):"",sv=histSaved(x);
-  return `<div class="tile htile${x.en?" enonly":""}" data-hi="${n}" role="button" tabindex="0"><span class="th" lang="${S.lang}" dir="auto">${esc(t)}</span>${pr?`<small class="ro">${pr}</small>`:""}${x.en?`<small class="en"${TU()?' lang="th"':""}>${esc(TU()?t:x.en)}</small>`:""}<button class="hsave${sv?" done":""}" data-hsave="${n}"${sv?" disabled":""}>${sv?"✓ Saved":"＋ Save"}</button></div>`;
+  return `<div class="tile htile${x.en?" enonly":""}" data-hi="${n}" role="button" tabindex="0"><span class="th" lang="${S.lang}" dir="auto">${esc(t)}</span>${pr?`<small class="ro">${pr}</small>`:""}${x.en?`<small class="en"${TU()?` lang="${S.lang}"`:""}>${esc(TU()?t:x.en)}</small>`:""}<button class="hsave${sv?" done":""}" data-hsave="${n}"${sv?" disabled":""}>${sv?"✓ Saved":"＋ Save"}</button></div>`;
 }
 function histSave(n){
   const x=S.hist[n];if(!x||histSaved(x))return;
@@ -2223,7 +2406,7 @@ function histSave(n){
 function tileHTML(i){
   const v=vw(i),f=full({th:v.th,ro:v.ro,en:v.en,cat:i.cat,np:i.np,lang:S.lang});
   const need=!v.th;let pr;
-  if(TU()&&f.en)return `<button class="tile enonly${SEL.has(i.id)?" sel":""}" style="--c:${colr(i.cat)}" data-id="${i.id}"><span class="th" lang="en">${esc(f.en)}</span>${(pr=S.ro?enHTML(f.en,1):"")?`<small class="ro">${pr}</small>`:""}<small class="en" lang="${f.th?"th":"en"}">${esc(f.th||f.en)}</small><span class="fav${i.fav?" on":""}" data-fav="${i.id}" role="button" aria-label="Favourite">${i.fav?"★":"☆"}</span>${edit?`<span class="x" data-del="${i.id}">×</span>`:""}</button>`;
+  if(TU()&&f.en)return `<button class="tile enonly${SEL.has(i.id)?" sel":""}" style="--c:${colr(i.cat)}" data-id="${i.id}"><span class="th" lang="en">${esc(f.en)}</span>${(pr=S.ro?enHTML(f.en,1):"")?`<small class="ro">${pr}</small>`:""}<small class="en" lang="${f.th?S.lang:"en"}">${esc(f.th||f.en)}</small><span class="fav${i.fav?" on":""}" data-fav="${i.id}" role="button" aria-label="Favourite">${i.fav?"★":"☆"}</span>${edit?`<span class="x" data-del="${i.id}">×</span>`:""}</button>`;
   return `<button class="tile${f.en?" enonly":""}${need?" pend":""}${SEL.has(i.id)?" sel":""}"${need?' data-need="1"':""} style="--c:${colr(i.cat)}" data-id="${i.id}"><span class="th" lang="${S.lang}" dir="auto">${need?"…":esc(f.th)}</span>${(pr=S.ro&&!need?toneHTML(f.th,f.ro,"",!f.ro):"")?`<small class="ro">${pr}</small>`:""}${S.en&&f.en?`<small class="en">${esc(f.en)}</small>`:""}${v.auto&&!need?`<small class="auto">⚠ auto</small>`:""}<span class="fav${i.fav?" on":""}" data-fav="${i.id}" role="button" aria-label="Favourite">${i.fav?"★":"☆"}</span>${edit?`<span class="x" data-del="${i.id}">×</span>`:""}</button>`;
 }
 function paintTile(id){
@@ -2436,7 +2619,7 @@ function bldPick(){
   const vals=T.s.map((x,k)=>x[1][+$("bldS"+k).value]);
   const r=T.mk(...vals);BLD={...r,cat:T.cat};
   const f=full({th:r.th,ro:phonFromRo(r.ro),en:r.en,cat:"x",lang:"th"});
-  $("bldOut").innerHTML=TU()?`<div class="bub"><div class="rth" lang="en">${esc(r.en)}</div><div class="rro">${enHTML(r.en)}</div><div class="ren" lang="th">${esc(f.th)}</div></div>`:`<div class="bub"><div class="rth" lang="th">${esc(f.th)}</div><div class="rro">${esc(f.ro)}</div><div class="ren">${esc(r.en)}</div></div>`;
+  $("bldOut").innerHTML=TU()?`<div class="bub"><div class="rth" lang="en">${esc(r.en)}</div><div class="rro">${enHTML(r.en)}</div><div class="ren" lang="${S.lang}">${esc(f.th)}</div></div>`:`<div class="bub"><div class="rth" lang="th">${esc(f.th)}</div><div class="rro">${esc(f.ro)}</div><div class="ren">${esc(r.en)}</div></div>`;
   const cs=cats(),want=cs.includes(T.cat)?T.cat:cs[0];
   // rebuild the list with the right one selected: iPhone doesn't always redraw a picker changed by code
   $("bldCat").innerHTML=cs.map(c=>`<option value="${esc(c)}"${c===want?" selected":""}>${esc(c)}</option>`).join("");$("bldCat").value=want;
@@ -2613,7 +2796,7 @@ $("addD").onkeydown=e=>{if(e.key==="Enter"&&e.target.tagName!=="BUTTON"&&e.targe
 $("setBtn").onclick=()=>{
   if(!S.ghRepo&&/github\.io$/.test(location.hostname)){const rp=location.pathname.split("/")[1];if(rp)S.ghRepo=location.hostname.split(".")[0]+"/"+rp}
   $("catExpSel").innerHTML=cats().map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");$("aiKey").value=S.aiKey||"";$("ghToken").value=S.ghToken||"";$("ghRepo").value=S.ghRepo||"";$("ghAuto").checked=!!S.ghAuto;
-  $("mmEmail").value=S.mmEmail||"";$("sLight").checked=!!S.light;$("sLook").value=S.look||"";$("pol").value=S.pol;$("sRo").checked=S.ro;$("tLeg").innerHTML=S.lang==="th"||S.lang==="vi"?(S.lang==="th"?"MLHRF":"afsrxj").split("").map(t=>`<span>${ticon(t)}${TNAME[t]}</span>`).join(""):"";$("sEn").checked=S.en;$("sThai").checked=!!S.thUser;$("sThaiRow").style.display=S.lang==="th"?"":"none";$("setD").showModal()};
+  $("mmEmail").value=S.mmEmail||"";$("sLight").checked=!!S.light;$("sLook").value=S.look||"";$("pol").value=S.pol;$("sRo").checked=S.ro;$("tLeg").innerHTML=S.lang==="th"||S.lang==="vi"?(S.lang==="th"?"MLHRF":"afsrxj").split("").map(t=>`<span>${ticon(t)}${TNAME[t]}</span>`).join(""):"";$("sEn").checked=S.en;$("sThai").checked=!!S.thUser;$("sThaiRow").style.display=NATIVE_LANGS.includes(S.lang)?"":"none";if(NATIVE_LANGS.includes(S.lang))$("sThaiTx").innerHTML=`<span lang="${S.lang}">${esc(U().learn)}</span> · I speak ${esc(LG().n)} and want to learn English`;$("setD").showModal()};
 function setThai(on){S.thUser=on;save();setDir(TU()?"th":"en");thLabels();refreshLang();render();renderHist()}
 $("sThai").onchange=e=>setThai(e.target.checked);
 $("thTop").onclick=()=>setThai(!S.thUser);
@@ -2723,7 +2906,7 @@ function numPaint(){
   const pre=NKB==="baht"&&(S.lang==="ms"||S.lang==="tl");$("nmVal").textContent=pre?nUnit(NKB,0)+numFmt(NKV):numFmt(NKV)+(NKB?nUnit(NKB,0):"");
   $("nmTh").lang=TU()?"en":numLang();const ub=document.querySelector('#numD [data-u=baht]');if(ub)ub.textContent=CUR[S.lang]?CUR[S.lang][2]:"฿ Baht";
   document.querySelectorAll("#numD [data-u]").forEach(b=>{const on=b.dataset.u===NKB;b.classList.toggle("on",on);b.setAttribute("aria-pressed",on)});
-  if(!NKV){$("nmTh").textContent="";$("nmRo").innerHTML="<span class='nmhint'>"+(TU()?"แตะตัวเลขด้านล่าง · ":"")+"Tap the numbers below</span>";return}
+  if(!NKV){$("nmTh").textContent="";$("nmRo").innerHTML="<span class='nmhint'>"+(TU()?esc(U().num)+" · ":"")+"Tap the numbers below</span>";return}
   const r=numFor(NKV,NKB);$("nmTh").textContent=r.th;$("nmRo").innerHTML=TU()?enHTML(r.th,1):toneHTML(r.th,r.ro,r.tn);
 }
 function numKey(k){
@@ -2931,8 +3114,8 @@ async function convTranslate(q,dir){
 }
 function convPaint(){
   const T=LG().c==="th";
-  $("convMe").innerHTML=TU()?`🇬🇧 English<small lang="th">อีกฝ่าย พูดภาษาอังกฤษ</small>`:`🇬🇧 Me<small>Speak English</small>`;
-  $("convThem").innerHTML=TU()?`<span lang="th">🇹🇭 ฉัน พูดไทย</span><small>Me: Thai</small>`:T?`<span lang="th">พูดภาษาไทย</span><small>Them: Thai</small>`:`${esc(LG().n)}<small>Them</small>`;
+  $("convMe").innerHTML=TU()?`🇬🇧 English<small lang="${S.lang}">${esc(U().them)}</small>`:`🇬🇧 Me<small>Speak English</small>`;
+  $("convThem").innerHTML=TU()?`<span lang="${S.lang}">${esc(U().flag+" "+U().me)}</span><small>${esc(U().meL)}</small>`:T?`<span lang="th">พูดภาษาไทย</span><small>Them: Thai</small>`:`${esc(LG().n)}<small>Them</small>`;
   $("convLog").innerHTML=CONV.length?CONV.map((c,k)=>{
     const thSide=c.who==="me";
     let pr="";if(thSide&&SOUNDS.includes(S.lang)&&S.ro!==false){const f=full({th:c.out,ro:c.ro,en:c.inp,cat:"x"});const h=toneHTML(f.th,c.ph||(c.ro?phonFromRo(c.ro):""),c.tn||"",true);pr=h?`<div class="rro">${h}</div>`:""}
@@ -2976,8 +3159,8 @@ function prPaint(){
   if(!it){$("pracEn").textContent="";$("pracTh").textContent="No phrases to practise here.";$("pracRo").innerHTML="";$("pracRes").textContent="";$("pracHead").textContent="🎯 Practice";["pracPrev","pracNext","pracSay","pracListen"].forEach(k=>$(k).disabled=true);return}
   $("pracSay").disabled=false;$("pracListen").disabled=false;
   const v={...it,...vw(it)},f=full(v);
-  if(TU()){$("pracHead").textContent="🎯 ฝึกพูด "+(PR.i+1)+" / "+PR.list.length;$("pracListen").innerHTML=SPK+bi("ฟัง","Listen");
-    $("pracEn").textContent=v.th||"";$("pracEn").lang="th";$("pracTh").textContent=it.en;$("pracTh").lang="en";$("pracRo").innerHTML=enHTML(it.en);$("pracRes").textContent="";
+  if(TU()){$("pracHead").textContent="🎯 "+U().prh+" "+(PR.i+1)+" / "+PR.list.length;$("pracListen").innerHTML=SPK+bi("ฟัง","Listen");
+    $("pracEn").textContent=v.th||"";$("pracEn").lang=S.lang;$("pracTh").textContent=it.en;$("pracTh").lang="en";$("pracRo").innerHTML=enHTML(it.en);$("pracRes").textContent="";
     $("pracPrev").disabled=PR.i===0;$("pracNext").disabled=PR.i>=PR.list.length-1;return}
   $("pracEn").lang="en";
   $("pracHead").textContent="🎯 Practice "+(PR.i+1)+" / "+PR.list.length;
@@ -3002,7 +3185,7 @@ async function prSay(){
   if(prItem()!==it||$("prac").hidden)return;
   if(!r.txt){$("pracRes").textContent=micErr(r.err,tu?"English":LG().n);return}
   if(tu){const tgt=prNorm(it.en),h=prNorm(r.txt),sc=1-lev(h,tgt)/Math.max(h.length,tgt.length,1);
-    $("pracRes").innerHTML=`${sc>=0.85?"✓ เยี่ยมมาก ฟังเข้าใจ! Great!":sc>=0.55?"ใกล้แล้ว ลองอีกครั้ง · Close!":"ยังไม่ใช่ กดฟังแล้วลองใหม่ · Not quite"}<span class="heard" dir="auto">ได้ยินว่า: ${esc(r.txt)}</span>`;
+    $("pracRes").innerHTML=`${esc(sc>=0.85?U().great+" Great!":sc>=0.55?U().close+" · Close!":U().notq+" · Not quite")}<span class="heard" dir="auto">${esc(U().heard)} ${esc(r.txt)}</span>`;
     $("pracRes").style.color=sc>=0.85?"var(--ok,#7bd88f)":"";return}
   const v={...it,...vw(it)};const tgt=prNorm(v.th),sp=prNorm(spokenTh(v.th)),h=prNorm(r.txt);
   const sc=Math.max(1-lev(h,tgt)/Math.max(h.length,tgt.length,1),1-lev(h,sp)/Math.max(h.length,sp.length,1));
