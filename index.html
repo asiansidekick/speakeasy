@@ -310,6 +310,13 @@ header{padding:6px 16px 0}
 #undoBar .ib,html[data-look] #undoBar .ib{background:#fde68a!important;color:#172554!important;border:0!important;min-height:44px;padding:0 18px;font-size:18px;font-weight:700}
 .bhint2 b{color:var(--ink);font-weight:600}
 .bhint2{font-size:14px;line-height:1.3;color:var(--mute);margin:-2px 2px 8px;opacity:.9}
+.altline{display:block;width:100%;margin-top:10px;padding:10px 14px;text-align:left;border-radius:18px;border:1.5px dashed rgba(255,255,255,.55);background:rgba(255,255,255,.08);color:inherit;font:inherit}
+.altjump{display:inline-block;width:auto;white-space:nowrap;margin:0 0 6px;padding:6px 14px;border-radius:999px;border:1.5px solid rgba(255,255,255,.6);background:rgba(255,255,255,.14);color:inherit;font:inherit;font-size:var(--fs-s);font-weight:600}
+.altline.flash{background:rgba(255,255,255,.28)}
+.altline{transition:background .4s}
+.altline small{display:block;font-size:var(--fs-s);opacity:.85;margin-bottom:2px}
+.altline .alth{display:block;font-size:40px;line-height:1.3;overflow-wrap:anywhere}
+.altline .rro{display:block;margin-top:6px;color:var(--accent);font-size:var(--fs-m);font-weight:400;line-height:1.1}
 #moreAlts .ib small{font-size:var(--fs-s)}
 #bldSlots select,#bldT{width:100%}
 @media (max-height:900px){.sec{margin:10px 0 6px}}
@@ -755,7 +762,7 @@ html[data-look] #convAuto[aria-pressed="true"]{background:#fde68a!important;colo
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 18 Oct 2026, build 79</div>
+  <div class="hint">Version: 18 Oct 2026, build 80</div>
   <input type="file" id="file" accept=".json,application/json" hidden>
   <div id="bs" style="font-size:var(--fs-s);color:var(--mute);min-height:18px;margin-top:6px"></div>
   <div class="act" style="justify-content:space-between">
@@ -5434,7 +5441,8 @@ function showRes(th,ro,en,note,auto,nohist,ph,alts,tn){
   const cs=cats();
   const opts=cs.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");
   const rev=DIR!=="en";let rp;
-  $("trOut").innerHTML=`<div class="bub"><div class="rth" lang="${rev?"en":S.lang}" dir="auto">${esc(rev?en:f.th)}</div>${rev&&TU()?`<div class="rro">${enHTML(en)}</div>`:""}${(!rev&&f.ro)?`<div class="rro">${toneHTML(f.th,f.ro,RES.tn,true)}</div>`:""}${(rev||norm(en)!==norm($("trIn").value))?`<div class="ren" lang="${rev?S.lang:"en"}" dir="auto">${esc(rev?th:en)}</div>`:""}${rev&&!TU()&&SOUNDS.includes(S.lang)&&(rp=toneHTML(th,"","",true))?`<div class="rro">${rp}</div>`:""}</div>`+
+  $("trOut").innerHTML=`<div class="bub">${!rev&&RES.alts.length?`<button class="altjump">↓ ${RES.alts.length>1?RES.alts.length+" other ways to say it":"Another way to say it"} below</button>`:""}<div class="rth" lang="${rev?"en":S.lang}" dir="auto">${esc(rev?en:f.th)}</div>${rev&&TU()?`<div class="rro">${enHTML(en)}</div>`:""}${(!rev&&f.ro)?`<div class="rro">${toneHTML(f.th,f.ro,RES.tn,true)}</div>`:""}${(rev||norm(en)!==norm($("trIn").value))?`<div class="ren" lang="${rev?S.lang:"en"}" dir="auto">${esc(rev?th:en)}</div>`:""}${rev&&!TU()&&SOUNDS.includes(S.lang)&&(rp=toneHTML(th,"","",true))?`<div class="rro">${rp}</div>`:""}</div>`+
+   (!rev&&RES.alts.length?RES.alts.map((a,i)=>`<button class="altline" data-alt="${i}"><small>${esc(a.label==="Second opinion"?"Second opinion":a.label)} · tap to use</small><span class="alth" lang="${S.lang}" dir="auto">${esc(a.t)}</span>${(rp=toneHTML(a.t,a.ph||"","",true))?`<span class="rro">${rp}</span>`:""}</button>`).join(""):"")+
    `<div class="row actrow"><button class="ib speakbtn" data-a="sp">${SPK}${bi("ฟัง","Play")}</button><button class="ib showbtn" data-a="show" aria-label="Show full screen to the other person">${HANDI}${bi("แสดง","Show")}</button></div>`+
    `<div class="row actrow"><select id="rcat" aria-label="Save to category" style="flex:1;min-width:0">${opts}<option value="__new">＋ New category…</option></select><button class="ib savebtn sm" data-a="save">💾 ${bi("บันทึก","Save")}</button></div><input id="rcatNew" placeholder="New category name" style="display:none;margin-top:8px"><button class="ib moreline" data-a="more">✏️ Copy · Edit · Check meaning</button>`+
    (note?`<div style="margin-top:10px;font-size:var(--fs-s)">${esc(note)}</div>`:"");
@@ -5443,7 +5451,7 @@ function showRes(th,ro,en,note,auto,nohist,ph,alts,tn){
   $("rcat").onchange=()=>{const n=$("rcat").value==="__new";$("rcatNew").style.display=n?"":"none";if(n)$("rcatNew").focus()};
   if(!nohist)addHist({th,ro,en,ph});
   // bring Play, Show and Save up above the bottom bar
-  requestAnimationFrame(()=>{try{const rows=$("trOut").querySelectorAll(".actrow,.moreline"),last=rows[rows.length-1],bub=$("trOut").querySelector(".bub"),tb=$("tabbar");if(!last||!tb||tb.offsetParent===null)return;
+  requestAnimationFrame(()=>{try{const rows=$("trOut").querySelectorAll(".actrow,.moreline"),last=rows[rows.length-1],bub=$("trOut").querySelector(".bub"),tb=$("tabbar");if(!last||!tb||getComputedStyle(tb).display==="none")return;
     const d=last.getBoundingClientRect().bottom-(tb.getBoundingClientRect().top-10);if(d<=0)return;window.scrollBy({top:Math.min(d,Math.max(0,bub.getBoundingClientRect().top-8)),behavior:"smooth"})}catch(e){}});
 }
 function addHist(h){
@@ -5911,7 +5919,7 @@ function openMore(){
   if(!RES)return;
   $("moreBackOut").innerHTML="";$("moreBack").hidden=RES.dir!=="en";$("moreFresh").hidden=!RES.saved;
   const alts=RES.alts||[];
-  $("moreAlts").innerHTML=alts.length?`<label>Other ways to say it</label>`+alts.map((a,i)=>`<button class="ib" data-alt="${i}" style="width:100%;margin-top:8px;text-align:left"><small style="display:block;color:var(--mute)">${esc(a.label)}</small>${esc(a.t)}</button>`).join(""):"";
+  $("moreAlts").innerHTML=alts.length&&RES.dir!=="en"?`<label>Other ways to say it</label>`+alts.map((a,i)=>`<button class="ib" data-alt="${i}" style="width:100%;margin-top:8px;text-align:left"><small style="display:block;color:var(--mute)">${esc(a.label)}</small>${esc(a.t)}</button>`).join(""):"";
   $("moreD").showModal();
 }
 $("moreClose").onclick=()=>$("moreD").close();
@@ -5922,6 +5930,12 @@ $("moreEdit").onclick=()=>{
   $("th").value=RES.th;$("ro").value=RES.ro||"";$("en").value=RES.en;ADDPH=RES.ph||"";
   $("addD").showModal();
 };
+$("trOut").addEventListener("click",e=>{const j=e.target.closest(".altjump");if(j){const t=$("trOut").querySelector(".altline"),tb=$("tabbar");if(t){const r=t.getBoundingClientRect(),lim=(tb&&tb.offsetParent!==null?tb.getBoundingClientRect().top:innerHeight)-12;window.scrollBy({top:r.bottom>lim?Math.min(r.bottom-lim,r.top-12):0,behavior:"smooth"});t.classList.add("flash");setTimeout(()=>t.classList.remove("flash"),1200)}return}
+  const b=e.target.closest(".altline");if(!b)return;
+  const i=+b.dataset.alt,a=RES.alts[i];if(!a)return;
+  const old={label:"Previous",t:RES.th,ro:RES.ro,ph:RES.ph};
+  showRes(a.t,a.ro,RES.en,RES.note,RES.auto,true,a.ph,RES.alts.map((x,k)=>k===i?old:x));
+});
 $("moreAlts").onclick=e=>{
   const b=e.target.closest("[data-alt]");if(!b)return;
   const i=+b.dataset.alt,a=RES.alts[i];if(!a)return;
