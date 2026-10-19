@@ -573,6 +573,22 @@ html[data-look] #convAuto[aria-pressed="true"]{background:#fde68a!important;colo
 @keyframes thk{0%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
 /* narrow phones: long Talk labels (Magsalita) must fit next to Translate */
 @media (max-width:360px){#trMic{min-width:0;padding:0 10px;gap:4px}#trMic .bth{font-size:.85em}}
+#offRow .ib{white-space:nowrap}
+.offwrap{width:100%}
+.offp{display:block;width:100%;box-sizing:border-box;padding:12px 14px;border-radius:22px;border:2px solid var(--accent);background:var(--card);color:var(--ink);font-size:20px}
+html[data-look="glass"] .offp{border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.12);color:#fff}
+.offh{display:block;font-weight:800;text-align:center}
+.offbar{display:block;height:10px;border-radius:6px;background:var(--line);margin-top:8px;overflow:hidden}
+html[data-look="glass"] .offbar{background:rgba(255,255,255,.25)}
+.offbar>span{display:block;height:100%;width:0;background:#fde68a;transition:width .3s}
+html[data-th="light"]:not([data-look]) .offbar>span{background:var(--accent)}
+.offs{display:block;font-size:15px;opacity:.85;text-align:center;margin-top:6px}
+.offhs{margin-top:10px;padding:12px 14px;border-radius:14px;background:var(--pill);text-align:left;font-size:17px;line-height:1.4}
+html[data-look="glass"] .offhs{background:rgba(255,255,255,.14)}
+.offht{display:block;font-weight:800;font-size:19px}
+.offdone .offok{display:block;font-weight:800;color:#a7f3c0}
+html[data-th="light"]:not([data-look]) .offdone .offok{color:#15803d}
+.offerr{display:block;font-size:18px;text-align:center;margin-top:6px;color:var(--ink)}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@500&display=swap" rel="stylesheet">
 </head>
@@ -603,6 +619,7 @@ html[data-look] #convAuto[aria-pressed="true"]{background:#fde68a!important;colo
   <div class="dirrow who"><button class="ib on" id="dirEn"></button><button class="ib" id="dirTh"></button></div>
   <textarea id="trIn" rows="2" maxlength="400" placeholder="Type English, or tap the mic…"></textarea>
   <div class="trbtns"><button class="ib pri bigbtn" id="trGo" style="flex:1">Translate</button><button class="ib micbtn" id="trMic" style="display:none" aria-label="Speak your phrase"><svg viewBox="0 0 24 24" width="36" height="36" aria-hidden="true"><rect x="8.5" y="2" width="7" height="13" rx="3.5" fill="currentColor"/><path d="M5 11.5a7 7 0 0 0 14 0M12 18.5V22M8 22h8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="mlab">Talk</span></button></div>
+  <div class="convrow" id="offRow" style="display:none"></div>
   <div class="convrow"><button class="ib" id="convBtn">💬 Conversation mode</button></div>
   <div class="convrow"><button class="ib" id="shareBtn">📲 Share this app</button></div>
   <div id="trOut"></div>
@@ -780,7 +797,7 @@ html[data-look] #convAuto[aria-pressed="true"]{background:#fde68a!important;colo
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 19 Oct 2026, build 83</div>
+  <div class="hint">Version: 19 Oct 2026, build 84</div>
   <input type="file" id="file" accept=".json,application/json" hidden>
   <div id="bs" style="font-size:var(--fs-s);color:var(--mute);min-height:18px;margin-top:6px"></div>
   <div class="act" style="justify-content:space-between">
@@ -5503,6 +5520,7 @@ async function doTr(depth){
   }
   $("trOut").innerHTML=thinking(TALKHEARD);TALKHEARD=false;
   const tok=++TRTOK;
+  if(navigator.onLine===false&&offHas(S.lang)&&await offShow(q,tok))return;
   try{
     if(DIR==="en"){
       const r=await aiTr(q,"en",S.lang);if(tok!==TRTOK)return;
@@ -5529,7 +5547,7 @@ async function doTr(depth){
       if(det&&det!==mine){const dl=LANGS.find(l=>l.mm.split("-")[0].toLowerCase()===det||l.c===det);note="Detected "+(dl?dl.n:det.toUpperCase())+" (you had "+LG().n+" selected). "+note}
       showRes(q,"",b.t,note,true);
     }
-  }catch(e){if(tok!==TRTOK)return;$("trOut").innerHTML=`<div style="margin-top:12px;color:#ff6b6b">Couldn't translate. ${esc(why(e))}.${esc(hintHost())} Try again, or type the translation yourself.</div>`}
+  }catch(e){if(tok!==TRTOK)return;if(offHas(S.lang)&&await offShow(q,tok))return;$("trOut").innerHTML=`<div style="margin-top:12px;color:#ff6b6b">Couldn't translate. ${esc(why(e))}.${esc(hintHost())} Try again, or type the translation yourself.</div>`}
 }
 // the direction buttons also switch the interface: their language with English underneath, or plain English
 $("dirEn").onclick=()=>{talkDrop();if(S.thUser&&NATIVE_LANGS.includes(S.lang))setThai(false);else setDir("en")};
@@ -5647,6 +5665,178 @@ let TDGEN=0;
 function talkDrop(){TDGEN++;const r=REC;if(!r||!(RECON||r._wait))return;r.onstart=r.onend=r.onresult=r.onerror=null;clearTimeout(r._g1);clearTimeout(r._g2);clearTimeout(r._q);clearTimeout(RECGUARD);try{r.abort()}catch(e){}REC=null;RECON=false;$("trMic").classList.remove("rec");waveOff();whoLabels();$("trOut").innerHTML=""}
 $("trMic").style.display="";
 $("trMic").onclick=startMic;
+/* Offline translation (build 84, opt-in). Downloads Mozilla's open translation models for one language and uses
+   them only when the phone is offline or every online service failed. Nothing loads until the person taps the button. */
+// All files live in one flat folder next to index.html. OFF_LIB can point anywhere that allows CORS (e.g. https://cdn.jsdelivr.net/npm/@browsermt/bergamot-translator@0.4.9/ with "worker/" names).
+const OFF_LIB="./offline/";
+let OFF_SRC="self"; // "self": reg-<code>.json in OFF_LIB (Bergamot registry format). "moz": Mozilla's public model server (CORS unverified on iPhone)
+function offSelfReg(c){return OFF_LIB+"reg-"+c+".json"}
+const OFF_RS="https://firefox.settings.services.mozilla.com/v1/buckets/main/collections/translations-models/records";
+const OFF_CDN="https://firefox-settings-attachments.cdn.mozilla.net/";
+const OFF_CACHE="speakeasy-offline-v1";
+// app languages with both English->X and X->English models (from Mozilla's model list, Oct 2026)
+// To add a language: upload its reg-<code>.json and model files to the folder, then add the code here.
+// (Mozilla also has English<->X models for vi zh ja ko id ms tl hi es fr de it pt ru ar zt ta bn ur fa tr pl nl sv el he uk cs ro hu mr te.)
+const OFF_LANGS=["th"];
+const OFF_MOZ={zh:"zh-Hans",zt:"zh-Hant"};
+// library files of @browsermt/bergamot-translator 0.4.9: path, bytes, sha256
+const OFF_LIBF=[["translator.js",30661,"b46f0ccf834392caf097cf4eed968d72e3ec8a855faaabe1b57bcc5f661994a5"],["translator-worker.js",17191,"90257af9ee0758983501bdce77ca7ec168cd7360d4689298c20a81b0251d6b62"],["bergamot-translator-worker.js",80474,"748b2418418a2ffc6e70721aeb10098d8e6fb589ea156b91f4ae8bc3490d8f7a"],["bergamot-translator-worker.wasm",5174294,"95a2b58dd6773bf1b3f345d71f9149928b9f75f4ec9c9064c0b3e42c298671b2"]];
+function offLibUrl(p){return new URL(OFF_LIB+p,location.href).href}
+const OFF_NOTE="Translated offline";
+const OFF_CAN=(()=>{try{return typeof caches!=="undefined"&&typeof WebAssembly!=="undefined"&&typeof Worker!=="undefined"&&!!(window.crypto&&crypto.subtle)&&typeof Blob!=="undefined"}catch(e){return false}})();
+let OFFDL=null,OFFENG=null,OFFQ=Promise.resolve(),OFFMSG={},OFFLASTERR="",OFFUI="";
+function offName(c){const l=LANGS.find(x=>x.c===c);return(l?l.n:c).replace(/\s*\(.*?\)\s*/g," ").trim()}
+function offHas(c){return OFF_CAN&&!!(S.offl&&S.offl[c])&&OFF_LANGS.indexOf(c)>=0}
+function offKey(c){return"https://speakeasy-offline.invalid/manifest/"+c+".json"}
+function offHex(b){return Array.from(new Uint8Array(b),x=>x.toString(16).padStart(2,"0")).join("")}
+function offVer(v){const m=String(v||"0").match(/^([\d.]+)(.*)$/)||["","0",""];return{n:m[1].split(".").map(x=>+x||0),pre:m[2]?1:0}}
+function offVerCmp(a,b){const x=offVer(a),y=offVer(b);for(let i=0;i<Math.max(x.n.length,y.n.length);i++){const d=(x.n[i]||0)-(y.n[i]||0);if(d)return d}return y.pre-x.pre}
+function offFull(f){return!!(f&&f.model&&f.lex&&(f.vocab||(f.srcvocab&&f.trgvocab)))}
+// Mozilla Remote Settings: newest version meant for every Firefox (no filter), else newest that isn't Android-only
+function offPick(recs){
+  const ok=r=>r&&r.fileType&&r.attachment&&r.attachment.location&&r.attachment.hash;
+  const tiers=[r=>!r.filter_expression&&!offVer(r.version).pre,r=>!r.filter_expression,r=>!/android/i.test(r.filter_expression||"")];
+  for(const t of tiers){
+    const rs=recs.filter(r=>ok(r)&&t(r));
+    const vs=[...new Set(rs.map(r=>String(r.version)))].sort((a,b)=>offVerCmp(b,a));
+    for(const v of vs){
+      const f={};
+      rs.filter(r=>String(r.version)===v).forEach(r=>{const k=String(r.fileType).toLowerCase();if(!f[k]||!r.filter_expression)f[k]={url:OFF_CDN+String(r.attachment.location).replace(/^\/+/,""),size:+r.attachment.size||0,sha:String(r.attachment.hash).toLowerCase()}});
+      if(offFull(f)){const o={model:f.model,lex:f.lex};if(f.vocab)o.vocab=f.vocab;else{o.srcvocab=f.srcvocab;o.trgvocab=f.trgvocab}return o}
+    }
+  }
+  return null;
+}
+async function offJSON(u){const r=await fetch(u,{credentials:"omit"});if(!r.ok)throw new Error("HTTP "+r.status);return r.json()}
+async function offList(c){
+  if(OFF_SRC==="self"){
+    const base=new URL(offSelfReg(c),location.href).href,reg=await offJSON(base);
+    const one=k=>{const e=reg[k];if(!e)return null;const o={};for(const p in e){const x=e[p];if(x&&x.name&&/^(model|lex|vocab|srcvocab|trgvocab)$/.test(p))o[p]={url:new URL(x.name,base).href,size:+x.size||0,sha:String(x.expectedSha256Hash||"").toLowerCase(),raw:String(x.rawSha256Hash||"").toLowerCase()}}return o};
+    return{to:one("en"+c),from:one(c+"en")};
+  }
+  const m=OFF_MOZ[c]||c,q=(a,b)=>OFF_RS+"?fromLang="+encodeURIComponent(a)+"&toLang="+encodeURIComponent(b)+"&_fields=name,fileType,version,filter_expression,attachment";
+  const ab=await Promise.all([offJSON(q("en",m)),offJSON(q(m,"en"))]);
+  return{to:offPick(ab[0]&&ab[0].data||[]),from:offPick(ab[1]&&ab[1].data||[])};
+}
+async function offFetch(f,cache,onBytes){
+  const r=await fetch(f.url,{credentials:"omit"});if(!r.ok)throw new Error("HTTP "+r.status);
+  let buf;
+  if(r.body&&r.body.getReader){const rd=r.body.getReader(),parts=[];let n=0;for(;;){const x=await rd.read();if(x.done)break;parts.push(x.value);n+=x.value.length;onBytes(x.value.length)}buf=new Uint8Array(n);let o=0;for(const p of parts){buf.set(p,o);o+=p.length}}
+  else{buf=new Uint8Array(await r.arrayBuffer());onBytes(buf.length)}
+  const h=offHex(await crypto.subtle.digest("SHA-256",buf));
+  // a server that unzips .gz on the way (Content-Encoding) delivers the raw file: accept it when it matches rawSha256Hash
+  if(!f.sha||h!==f.sha&&!(f.raw&&h===f.raw))throw new Error("damaged");
+  let body=buf;
+  if(h===f.sha&&/\.gz$/i.test(f.url)&&buf[0]===0x1f&&buf[1]===0x8b){if(typeof DecompressionStream==="undefined")throw new Error("nogzip");body=new Uint8Array(await new Response(new Blob([buf]).stream().pipeThrough(new DecompressionStream("gzip"))).arrayBuffer())}
+  await cache.put(f.url,new Response(body));
+}
+function offErrText(e,stage){
+  const m=String(e&&e.message||e||"");
+  if(m==="unavailable")return offName(OFFDL?OFFDL.code:S.lang)+" can't be downloaded for offline use yet.";
+  if(e&&e.name==="QuotaExceededError"||/quota/i.test(m))return"There isn't enough free space on this phone.";
+  if(m==="damaged")return"The download was damaged. Please try again.";
+  if(m==="nogzip")return"This browser can't unpack the download.";
+  if(navigator.onLine===false)return"You're offline. Connect to the internet and try again.";
+  return"Couldn't download. Check your internet and try again.";
+}
+function offReset(){const old=OFFENG;OFFENG=null;if(old)OFFQ.then(()=>old).then(t=>t&&t.delete()).catch(()=>{})}
+async function offDownload(c){
+  if(OFFDL){if(OFFDL.code!==c)toast("Wait for the "+offName(OFFDL.code)+" download to finish.");return}
+  delete OFFMSG[c];OFFDL={code:c,got:0,total:0};offPaint();
+  try{
+    const L=await offList(c);
+    if(!L||!offFull(L.to)||!offFull(L.from))throw new Error("unavailable");
+    const cache=await caches.open(OFF_CACHE),need=[];
+    for(const x of OFF_LIBF){const url=offLibUrl(x[0]);if(!await cache.match(url))need.push({url,size:x[1],sha:x[2]})}
+    for(const set of [L.to,L.from])for(const k in set){const fl=set[k];if(!need.some(n=>n.url===fl.url)&&!await cache.match(fl.url))need.push(fl)}
+    OFFDL.total=need.reduce((a,x)=>a+x.size,0);offProg();
+    for(const fl of need)await offFetch(fl,cache,n=>{OFFDL.got+=n;offProg()});
+    await cache.put(offKey(c),new Response(JSON.stringify({v:1,code:c,src:OFF_SRC,lib:offLibUrl(""),pairs:[{from:"en",to:c,files:L.to},{from:c,to:"en",files:L.from}]}),{headers:{"Content-Type":"application/json"}}));
+    S.offl=S.offl||{};S.offl[c]=Date.now();save();offReset();
+    try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{})}catch(e){}
+  }catch(e){OFFLASTERR=String(e&&e.message||e);OFFMSG[c]=offErrText(e)}
+  OFFDL=null;offPaint();
+}
+// the library runs from the cached copies, so it works with no signal whatever the service worker does:
+// translator.js is imported from a blob, and the worker (a blob too) gets blob URLs for the wasm and its glue script
+async function offLibBlobs(cache){
+  const get=async p=>{const r=await cache.match(offLibUrl(p));if(!r)throw new Error("missing library");return r};
+  const blob=(d,t)=>URL.createObjectURL(new Blob([d],{type:t}));
+  const wasm=blob(await (await get(OFF_LIBF[3][0])).arrayBuffer(),"application/wasm");
+  const glue=blob(await (await get(OFF_LIBF[2][0])).text(),"text/javascript");
+  let w=await (await get(OFF_LIBF[1][0])).text();
+  const A="new URL('./bergamot-translator-worker.wasm', self.location)",B="self.importScripts('bergamot-translator-worker.js')";
+  if(w.indexOf(A)<0||w.indexOf(B)<0)throw new Error("unexpected library version");
+  w=w.replace(A,JSON.stringify(wasm)).replace(B,"self.importScripts("+JSON.stringify(glue)+")");
+  const worker=blob(w,"text/javascript");
+  let m=await (await get(OFF_LIBF[0][0])).text();const C="new URL('./worker/translator-worker.js', import.meta.url)";
+  if(m.indexOf(C)<0)throw new Error("unexpected library version");
+  return{main:blob(m.replace(C,JSON.stringify(worker)),"text/javascript")};
+}
+function offEngine(){
+  if(OFFENG)return OFFENG;
+  const p=(async()=>{
+    const cache=await caches.open(OFF_CACHE),reg=[];
+    for(const c of Object.keys(S.offl||{})){const r=await cache.match(offKey(c));if(!r)continue;const m=await r.json();
+      for(const x of m.pairs){const files={};for(const k in x.files)files[k]={name:x.files[k].url,size:x.files[k].size};reg.push({from:x.from,to:x.to,files})}}
+    const lib=await offLibBlobs(cache);
+    const mod=await (new Function("u","return import(u)"))(lib.main);
+    class B extends mod.TranslatorBacking{
+      async loadModelRegistery(){return reg}
+      getTranslationModel(m,o){return this.loadTranslationModel(m,o)}
+      async fetch(url){const r=await cache.match(url);if(!r)throw new Error("missing file");return r.arrayBuffer()}
+    }
+    const o={pivotLanguage:null,downloadTimeout:0,cacheSize:0};
+    return new mod.LatencyOptimisedTranslator(o,new B(o));
+  })();
+  OFFENG=p;p.catch(()=>{if(OFFENG===p)OFFENG=null});
+  return p;
+}
+async function offTr(q,from,to){
+  const c=from==="en"?to:from;if(!q||!offHas(c))return null;
+  try{
+    const tr=await offEngine();
+    const p=OFFQ.then(()=>tr.translate({from,to,text:q,html:false}));OFFQ=p.catch(()=>{});
+    // never wait forever (a worker that fails to start never answers)
+    const r=await Promise.race([p,new Promise((_,no)=>setTimeout(()=>no(new Error("timed out")),90000))]);let t=String(r&&r.target&&r.target.text||"").trim();
+    if(to==="th")t=t.replace(/ํา/g,"ำ");
+    return t||null;
+  }catch(e){
+    OFFLASTERR=String(e&&e.message||e);
+    if(OFFLASTERR==="timed out"){offReset();OFFQ=Promise.resolve()}
+    // Safari may have deleted the download: show the button again
+    try{const cache=await caches.open(OFF_CACHE);if(/missing/.test(OFFLASTERR)||!await cache.match(offKey(c))){if(S.offl)delete S.offl[c];save();offReset();offPaint()}}catch(x){}
+    return null;
+  }
+}
+// main Translate box: true when an offline translation was shown (or the request was replaced)
+async function offShow(q,tok){
+  const en=DIR==="en",t=await offTr(q,en?"en":S.lang,en?S.lang:"en");
+  if(tok!==TRTOK)return true;
+  if(!t)return false;
+  if(en)showRes(t,"",q,OFF_NOTE,true,false,"",[]);else showRes(q,"",t,OFF_NOTE,true);
+  if(RES)RES.off=1;
+  return true;
+}
+function offStandalone(){try{return navigator.standalone===true||matchMedia("(display-mode: standalone)").matches}catch(e){return false}}
+function offProg(){
+  const d=OFFDL;if(!d||d.code!==S.lang)return;const t=$("offPT"),b=$("offPB");if(!t||!b)return;
+  const mb=x=>Math.round(x/1048576);
+  // if it has to wrap, keep "X of Y MB" together on the second line
+  t.innerHTML="Downloading "+esc(offName(d.code))+"…"+(d.total?' <span style="white-space:nowrap">'+Math.min(mb(d.got),mb(d.total))+" of "+Math.max(1,mb(d.total))+" MB</span>":"");
+  b.style.width=(d.total?Math.min(100,Math.round(d.got/d.total*100)):0)+"%";
+}
+function offPaint(){
+  const row=$("offRow");if(!row)return;const c=S.lang;
+  if(!OFF_CAN||OFF_LANGS.indexOf(c)<0){if(OFFUI!==""){row.innerHTML="";OFFUI=""}row.style.display="none";return}
+  const n=esc(offName(c));let h;
+  if(OFFDL&&OFFDL.code===c)h=`<div class="offp"><span class="offh" id="offPT">Downloading ${n}…</span><span class="offbar"><span id="offPB"></span></span><span class="offs">You can keep using the app</span>`+(offStandalone()?"":`<div class="offhs"><span class="offht">Save Speakeasy to your Home Screen</span><span style="display:block;margin-top:4px">Safari can delete this download if you don't open the app for about a week. On the Home Screen it stays.</span><span style="display:block;margin-top:6px"><b>iPhone:</b> tap Share (square with ↑), then <b>Add to Home Screen</b>.</span><span style="display:block;margin-top:4px"><b>Android:</b> tap <b>⋮</b>, then <b>Add to Home screen</b>.</span></div>`)+`</div>`;
+  else if(offHas(c))h=`<div class="ib offdone" style="width:100%;display:block;line-height:1.25;text-align:center;padding:10px 12px;cursor:default;border-color:#6fd08f"><span class="offok">✓ ${n} works offline</span><span style="display:block;font-size:15px;opacity:.85">Used automatically when there's no signal</span></div>`;
+  else{const b=`<button class="ib" id="offBtn" style="width:100%">⬇︎ ${n} offline</button>`;h=OFFMSG[c]?`<div class="offwrap">${b}<span class="offerr" role="alert">${esc(OFFMSG[c])}</span></div>`:b}
+  if(h!==OFFUI){row.innerHTML=h;OFFUI=h}
+  row.style.display="";offProg();
+}
+$("offRow").onclick=e=>{if(e.target.closest("#offBtn"))offDownload(S.lang)};
 function refreshLang(){
   const L=LG();
   const ordered=LANGS.slice().sort((a,b)=>a.c==="th"?-1:b.c==="th"?1:a.n.localeCompare(b.n));
@@ -5658,6 +5848,7 @@ function refreshLang(){
   $("th").placeholder=S.lang==="th"?"เช่น ขอกาแฟหน่อย":"";
   whoLabels();
   const sw=$("polT").parentElement;if(sw)sw.style.display=S.lang==="th"?"":"none";
+  try{offPaint()}catch(e){}
 }
 $("lang").onchange=e=>{talkDrop();S.lang=e.target.value;CONV=[];save();cat="All";qs="";$("q").value="";setDir(TU()?"th":"en");thLabels();refreshLang();render();renderHist()};
 $("tabbar").onclick=e=>{
@@ -6575,7 +6766,13 @@ function micErr(err,ln){return err==="not-allowed"||err==="service-not-allowed"?
 
 /* Conversation mode */
 let CONV=[],CVBUSY=false,CVGEN=0;
-async function convTranslate(q,dir){
+function convTranslate(q,dir){return offHas(S.lang)?convOff(q,dir):convTranslate0(q,dir)}
+async function convOff(q,dir){
+  const off=async e=>{const t=await offTr(q,dir==="en"?"en":S.lang,dir==="en"?S.lang:"en");if(!t){if(e)throw e;return convTranslate0(q,dir)}return{t,ro:"",ph:"",off:1}};
+  if(navigator.onLine===false&&!(dir==="en"?savedFor(q):savedRev(q)))return off(null);
+  try{return await convTranslate0(q,dir)}catch(e){return off(e)}
+}
+async function convTranslate0(q,dir){
   if(dir==="en"){
     const m=savedFor(q);if(m){const x=getText(m,S.lang);return{t:x.t,ro:x.ro||"",ph:x.ph||""}}
     const r=await aiTr(q,"en",S.lang);if(r)return{t:r.t,ro:r.ro||"",ph:r.ph||"",tn:r.tn||""};
@@ -6610,7 +6807,7 @@ async function convTalk(who){
   if(g!==CVGEN)return;
   if(!r.txt){$("convMsg").textContent=micErr(r.err,who==="me"?"English":LG().n);CVBUSY=false;return}
   $("convMsg").textContent="Translating…";
-  try{const o=await convTranslate(r.txt,who==="me"?"en":"th");if(g!==CVGEN)return;const c={who,inp:r.txt,out:o.t,ro:o.ro||"",ph:o.ph||"",tn:o.tn||""};CONV.push(c);$("convMsg").textContent="";convPaint();if(S.convAuto!==false)setTimeout(()=>{if(!LSN&&g===CVGEN&&!$("conv").hidden)convPlay(c)},800)}
+  try{const o=await convTranslate(r.txt,who==="me"?"en":"th");if(g!==CVGEN)return;const c={who,inp:r.txt,out:o.t,ro:o.ro||"",ph:o.ph||"",tn:o.tn||""};CONV.push(c);$("convMsg").textContent=o.off?OFF_NOTE:"";convPaint();if(S.convAuto!==false)setTimeout(()=>{if(!LSN&&g===CVGEN&&!$("conv").hidden)convPlay(c)},800)}
   catch(e){if(g===CVGEN)$("convMsg").textContent="Couldn't translate: "+why(e)+"."}
   if(g===CVGEN)CVBUSY=false;
 }
