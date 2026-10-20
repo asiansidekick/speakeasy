@@ -1,0 +1,48 @@
+{
+ "enth": {
+  "model": {
+   "name": "enth-model.bin.gz",
+   "size": 22976729,
+   "expectedSha256Hash": "8e736bcca5844f977ee1ee653167e17bbc73d94e50bad18108335dba0b8b9837",
+   "rawSize": 31561787,
+   "rawSha256Hash": "80e326097655fca75f841130da3338a849aa245374e1616448bcf37b9523a05a"
+  },
+  "lex": {
+   "name": "enth-lex.bin.gz",
+   "size": 1601933,
+   "expectedSha256Hash": "ae7b432685ed724d9f663e0b5b8fe834982597c679fb6f5afb2045d60cbd1d19",
+   "rawSize": 3016612,
+   "rawSha256Hash": "6961ce07f38e6c113a70855706aa7cad4cc828f986d1751c33f14699f885a2e8"
+  },
+  "vocab": {
+   "name": "enth-vocab.spm.gz",
+   "size": 450379,
+   "expectedSha256Hash": "afa8d8be186df4c9b4acb684d9473e2dfd9f33e4f12b862fcef8cec34d323ecd",
+   "rawSize": 993517,
+   "rawSha256Hash": "5deff7093d558768f8c22406449202e27595f023cc383a2b66beed240ed46443"
+  }
+ },
+ "then": {
+  "model": {
+   "name": "then-model.bin.gz",
+   "size": 22974117,
+   "expectedSha256Hash": "16b0406382e6f0f2602fea63c517519173b647ea93fb130dcfe221f94cbc3126",
+   "rawSize": 31561787,
+   "rawSha256Hash": "f70a501324743668b031bee19cd001a66839e8e5dfc0b4a1c44d5ea99d4e8d66"
+  },
+  "lex": {
+   "name": "then-lex.bin.gz",
+   "size": 2239323,
+   "expectedSha256Hash": "5208d8211cedf98618b096e53367034e6a58862713afc6037e47405a0b3dcb4a",
+   "rawSize": 4487056,
+   "rawSha256Hash": "3a7661a7f5c811c83f05f53008083b042fea0334fc6044ca1fda4982a8d48453"
+  },
+  "vocab": {
+   "name": "then-vocab.spm.gz",
+   "size": 451231,
+   "expectedSha256Hash": "75744883f180dbe53b5298e1b7bc3b24083ce1a3dfa54911306347f96bb897c6",
+   "rawSize": 995429,
+   "rawSha256Hash": "b625d3dcdfa2b4bbec496c9a0a30d169c917464ac5ea75506c0699972fea95f0"
+  }
+ }
+}
