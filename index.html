@@ -797,7 +797,7 @@ html[data-th="light"]:not([data-look]) .offdone .offok{color:#15803d}
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 19 Oct 2026, build 84</div>
+  <div class="hint">Version: 19 Oct 2026, build 85</div>
   <input type="file" id="file" accept=".json,application/json" hidden>
   <div id="bs" style="font-size:var(--fs-s);color:var(--mute);min-height:18px;margin-top:6px"></div>
   <div class="act" style="justify-content:space-between">
@@ -5668,7 +5668,7 @@ $("trMic").onclick=startMic;
 /* Offline translation (build 84, opt-in). Downloads Mozilla's open translation models for one language and uses
    them only when the phone is offline or every online service failed. Nothing loads until the person taps the button. */
 // All files live in one flat folder next to index.html. OFF_LIB can point anywhere that allows CORS (e.g. https://cdn.jsdelivr.net/npm/@browsermt/bergamot-translator@0.4.9/ with "worker/" names).
-const OFF_LIB="./offline/";
+const OFF_LIB="./";
 let OFF_SRC="self"; // "self": reg-<code>.json in OFF_LIB (Bergamot registry format). "moz": Mozilla's public model server (CORS unverified on iPhone)
 function offSelfReg(c){return OFF_LIB+"reg-"+c+".json"}
 const OFF_RS="https://firefox.settings.services.mozilla.com/v1/buckets/main/collections/translations-models/records";
