@@ -631,7 +631,7 @@ html[data-th="light"]:not([data-look]) .offdone .offok{color:#15803d}
 <section class="tool" id="tool">
   <div id="offBar" hidden>Offline: saved phrases still work. New translations need internet.</div>
   <div class="dirrow who"><button class="ib on" id="dirEn"></button><button class="ib" id="dirTh"></button></div>
-  <textarea id="trIn" rows="2" maxlength="400" placeholder="Type English, or tap the mic…"></textarea>
+  <textarea id="trIn" rows="2" maxlength="400" enterkeyhint="go" placeholder="Type English, or tap the mic…"></textarea>
   <div class="trbtns"><button class="ib pri bigbtn" id="trGo" style="flex:1">Translate</button><button class="ib micbtn" id="trMic" style="display:none" aria-label="Speak your phrase"><svg viewBox="0 0 24 24" width="36" height="36" aria-hidden="true"><rect x="8.5" y="2" width="7" height="13" rx="3.5" fill="currentColor"/><path d="M5 11.5a7 7 0 0 0 14 0M12 18.5V22M8 22h8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="mlab">Talk</span></button></div>
   <div class="act3">
   <div class="convrow" id="offRow" style="display:none"></div>
@@ -691,7 +691,7 @@ html[data-th="light"]:not([data-look]) .offdone .offok{color:#15803d}
 </dialog>
 
 <dialog id="addD">
-  <div class="row" style="justify-content:space-between;gap:10px;flex-wrap:wrap"><h3 style="margin:0">Add a phrase</h3><div class="row"><button class="ib" id="addCancel">Close</button><button class="ib savebtn sm" id="addGo">Save</button></div></div>
+  <div class="row" style="justify-content:space-between;gap:10px;flex-wrap:wrap"><h3 style="margin:0">Add a phrase</h3><div class="row"><button class="ib" id="addCancel">Close</button><button class="ib savebtn sm" id="addGo" style="display:none">Save</button></div></div>
   <label for="en">English (type this, then tap Save)</label>
   <input id="en" placeholder="Coffee, please">
   <button class="ib savebtn" id="addGo2" style="margin-top:12px">💾 Save phrase</button>
@@ -813,7 +813,7 @@ html[data-th="light"]:not([data-look]) .offdone .offok{color:#15803d}
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 20 Oct 2026, build 94</div>
+  <div class="hint">Version: 20 Oct 2026, build 95</div>
   <input type="file" id="file" accept=".json,application/json" hidden>
   <div id="bs" style="font-size:var(--fs-s);color:var(--mute);min-height:18px;margin-top:6px"></div>
   <div class="act" style="justify-content:space-between">
@@ -5676,6 +5676,10 @@ function trIdle(){const b=$("trGo");if(!b.classList.contains("busy"))return;clea
 $("dirEn").onclick=()=>{talkDrop();if(S.thUser&&NATIVE_LANGS.includes(S.lang))setThai(false);else setDir("en")};
 $("dirTh").onclick=()=>{talkDrop();if(!S.thUser&&NATIVE_LANGS.includes(S.lang))setThai(true);else setDir("th")};
 $("trGo").onclick=doTr;
+// Return translates (not while a Japanese/Chinese/Korean keyboard is still composing); the keyboard closes so the result shows
+$("trIn").addEventListener("keydown",e=>{if(e.key!=="Enter"||e.shiftKey||e.isComposing||e.keyCode===229)return;e.preventDefault();if(!$("trIn").value.trim())return;$("trIn").blur();doTr()});
+// tapping the box selects what is already there, so new typing replaces it
+$("trIn").addEventListener("focus",()=>{const t=$("trIn");if(!t.value)return;setTimeout(()=>{try{if(document.activeElement===t)t.setSelectionRange(0,t.value.length)}catch(x){}},0)});
 $("trOut").onclick=e=>{
   const sy=e.target.closest("[data-say]");if(sy){speak({th:sy.dataset.say,ro:"",en:"",cat:"x",np:1,lang:"th"},"th-TH");return}
   const b=e.target.closest("[data-a]");if(!b||!RES)return;
