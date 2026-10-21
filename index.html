@@ -766,6 +766,9 @@ html[data-th="light"]:not([data-look]) .offdone .offok{color:#15803d}
 <dialog id="setD">
   <div class="row" style="justify-content:space-between;gap:10px;flex-wrap:wrap"><h3 style="margin:0">Settings</h3><button class="ib" id="setX">Close</button></div>
   <label class="ck" id="sThaiRow"><input type="checkbox" id="sThai"> <span id="sThaiTx"></span></label>
+  <label for="sBase">My language (the one I speak)</label>
+  <select id="sBase"></select>
+  <div class="hint">Translates between this and the language picked on the main screen. Most people leave it on English.</div>
   <label for="bkWhat">Back up or share your phrases</label>
   <select id="bkWhat"></select>
   <div class="bkrow"><button class="ib" id="bkSave">⬇︎ Save to Files</button><button class="ib" id="bkSend">📤 Send to someone</button></div>
@@ -784,7 +787,7 @@ html[data-th="light"]:not([data-look]) .offdone .offok{color:#15803d}
   <label class="ck" id="sLightRow"><input type="checkbox" id="sLight"> Light theme. Off = dark theme</label>
   <label class="ck"><input type="checkbox" id="sRo"> Show phonetics (how it sounds)</label>
   <div class="tlg" id="tLeg"></div>
-  <label class="ck"><input type="checkbox" id="sEn"> Show English</label>
+  <label class="ck"><input type="checkbox" id="sEn"> <span id="sEnTx">Show English</span></label>
   <label class="ck"><input type="checkbox" id="sAuto"> Play the translation automatically after Talk</label>
   <div class="hint">Work in progress: on iPhone, voice input can stop after the translation plays by itself, so this starts off.</div>
   <label class="ck"><input type="checkbox" id="sVlog"> Voice log (records what the microphone does, to help fix problems)</label>
@@ -813,7 +816,7 @@ html[data-th="light"]:not([data-look]) .offdone .offok{color:#15803d}
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 21 Oct 2026, build 99</div>
+  <div class="hint">Version: 21 Oct 2026, build 100</div>
   <input type="file" id="file" accept=".json,application/json" hidden>
   <div id="bs" style="font-size:var(--fs-s);color:var(--mute);min-height:18px;margin-top:6px"></div>
   <div class="act" style="justify-content:space-between">
@@ -5380,6 +5383,15 @@ const LANGS=[
 {c:"yue",n:"Cantonese",tts:"zh-HK",mm:"yue",vx:1},{c:"ceb",n:"Cebuano",tts:"ceb-PH",mm:"ceb"},{c:"jv",n:"Javanese",tts:"jv-ID",mm:"jw"},{c:"pa",n:"Punjabi",tts:"pa-IN",mm:"pa"},{c:"mr",n:"Marathi",tts:"mr-IN",mm:"mr"},{c:"te",n:"Telugu",tts:"te-IN",mm:"te"}];
 const NAT={th:"ไทย",vi:"Tiếng Việt",lo:"ລາວ",km:"ខ្មែរ",zh:"中文",ja:"日本語",ko:"한국어",id:"Bahasa Indonesia",ms:"Bahasa Melayu",tl:"Filipino",hi:"हिन्दी",es:"Español",fr:"Français",de:"Deutsch",it:"Italiano",pt:"Português",ru:"Русский",ar:"العربية",uz:"Oʻzbekcha",zt:"繁體中文(台灣)",my:"မြန်မာ",ta:"தமிழ்",bn:"বাংলা",ur:"اردو",fa:"فارسی",tr:"Türkçe",pl:"Polski",nl:"Nederlands",sv:"Svenska",el:"Ελληνικά",he:"עברית",uk:"Українська",ne:"नेपाली",si:"සිංහල",mn:"Монгол",kk:"Қазақша",sw:"Kiswahili",cs:"Čeština",ro:"Română",hu:"Magyar",yue:"廣東話",ceb:"Sinugboanon",jv:"Basa Jawa",pa:"ਪੰਜਾਬੀ",mr:"मराठी",te:"తెలుగు"};
 function LG(){return LANGS.find(l=>l.c===S.lang)||LANGS[0]}
+/* My language (Settings): the side the user speaks. English unless changed; if it matches the language being learned, English is used */
+const BL_EN={c:"en",n:"English",tts:"en-US",mm:"en"};
+function BASE(){const b=S.base;return b&&b!=="en"&&b!==S.lang&&LANGS.some(l=>l.c===b)?b:"en"}
+function BLG(){const b=BASE();return b==="en"?BL_EN:LANGS.find(l=>l.c===b)}
+function BTTS(){return BLG().tts}
+/* a phrase in my language: English as before, else the built-in or saved text in my language, else English */
+function bLabel(i){if(!i)return"";const B=BASE();if(B==="en"||i.bl===B)return i.en||"";const x=getText(i,B);return x.t||i.en||""}
+/* offline: the models go through English, so other pairs take two steps */
+async function offTrB(q,from,to){if(from==="en"||to==="en")return offTr(q,from,to);if(!offHas(from)||!offHas(to))return null;const m=await offTr(q,from,"en");return m?offTr(m,"en",to):null}
 const ORDER=["My vocab","SFX","Prosthetics & makeup","On set","Schedule & meals","Film production","Technical","Basics","Eating","Getting around","Shopping","Numbers","Social","Emergency"];
 const cats=()=>{const a=[...new Set(S.items.map(i=>i.cat))];const co=S.catOrder||[];const r=c=>{let k=co.indexOf(c);if(k>=0)return k;k=ORDER.indexOf(c);return k<0?999:100+k};return a.map((c,n)=>[c,n]).sort((x,y)=>r(x[0])-r(y[0])||x[1]-y[1]).map(x=>x[0])};
 
@@ -5993,7 +6005,7 @@ function thLabels(){
     st("shDone",$("shareDone"),"เสร็จ");
     [$("shareD"),$("shareBtn"),$("regSeg")].forEach(e=>{if(e){if(H)e.setAttribute("lang",S.lang);else e.removeAttribute("lang")}})}set("bd",$("bldBtn"),UW("bd"));set("pr",$("pracBtn"),U().pr);
   $("q").placeholder=T?U().q:"Search phrases";
-  const b=$("thTop");if(b){b.hidden=!NATIVE_LANGS.includes(S.lang);b.setAttribute("aria-pressed",T);if(!b.hidden){b.innerHTML=`<span lang="${S.lang}">${esc(U().btn)}</span><small>${T?"On":"Off"}</small>`;b.setAttribute("aria-label",`${LG().n} mode: I speak ${LG().n} and want to learn English`)}}
+  const b=$("thTop");if(b){b.hidden=!NATIVE_LANGS.includes(S.lang);b.setAttribute("aria-pressed",T);if(!b.hidden){b.innerHTML=`<span lang="${S.lang}">${esc(U().btn)}</span><small>${T?"On":"Off"}</small>`;b.setAttribute("aria-label",`${LG().n} mode: I speak ${LG().n} and want to learn ${BLG().n}`)}}
   try{thUIWatch();thUI()}catch(e){}
 }
 function glWords(th,L){
@@ -6261,7 +6273,7 @@ function speak(i,tts){
   // a delayed start must not fire once the mic has been tapped
   clearTimeout(SPT);const go=()=>{SPT=0;if(RECON||(REC&&REC._wait))return;try{ss.resume()}catch(e){}ss.speak(u)};
   if(ss.speaking||ss.pending){ss.cancel();SPT=setTimeout(go,150)}else if(cold)SPT=setTimeout(go,350);else go();
-  if(!v&&voicesLoaded){let st=0;try{u.addEventListener("start",()=>{st=1})}catch(e){st=1}const nm=tts?"English":LG().n;setTimeout(()=>{if(!st&&!ss.speaking)toast("No "+nm+" voice found on this phone. Add one in Settings > Accessibility > Spoken Content > Voices.",true)},2500)}
+  if(!v&&voicesLoaded){let st=0;try{u.addEventListener("start",()=>{st=1})}catch(e){st=1}const nm=tts?(tts===BTTS()?BLG().n:"English"):LG().n;setTimeout(()=>{if(!st&&!ss.speaking)toast("No "+nm+" voice found on this phone. Add one in Settings > Accessibility > Spoken Content > Voices.",true)},2500)}
 }
 
 const CMAP={"On set":"#f0d58c","SFX":"#f2a99b","Prosthetics & makeup":"#e9a8d8","Film production":"#8db4e6","Technical":"#9fcfae","Schedule & meals":"#f4c7a1","Basics":"#d8cdea","Eating":"#f0a8c0","Getting around":"#7cc7c4","Shopping":"#b9a7e0","Numbers":"#c9dc9a","Social":"#f4b8a0","Emergency":"#ef8f8a"};
@@ -6291,7 +6303,7 @@ function render(){
   {const miss=missingCount();if(miss>0)h+=`<div class="note"><span id="trLeft">${miss}</span> phrases still to translate. They load as you scroll and need internet, then work offline. Tiles marked auto are machine translated. <button class="ib" id="trAll">Save all for offline</button></div>`}
   if(edit)h+=`<div class="note">Edit mode: tap a phrase to edit, move or delete it. Use the arrows to reorder categories.</div>`+selBarHTML();
   if(cat==="__t"){
-    const th=(S.hist||[]).map((x,n)=>[x,n]).filter(([x])=>(x.lang||"th")===S.lang&&(!ql||(x.th+" "+x.en).toLowerCase().includes(ql)));
+    const th=(S.hist||[]).map((x,n)=>[x,n]).filter(([x])=>(x.lang||"th")===S.lang&&(x.b||"en")===BASE()&&(!ql||(x.th+" "+x.en).toLowerCase().includes(ql)));
     if(th.length)h+=`<div class="note">Your translations, newest first. Tap one to hear it. Tap ＋ Save to keep it in My vocab.</div><div class="grid">`+th.map(([x,n])=>histTileHTML(x,n)).join("")+`</div>`;
   }
   const everywhere=cat==="All"||!!ql;
@@ -6445,7 +6457,7 @@ $("main").onclick=async e=>{
   if(e.target.closest("#selMove")){selMoveDo();return}
   const sa=e.target.closest("[data-see]");if(sa){cat=sa.dataset.see;render();window.scrollTo(0,Math.max(0,scrollY+$("main").getBoundingClientRect().top-12));return}
   const hs=e.target.closest("[data-hsave]");if(hs){histSave(+hs.dataset.hsave);return}
-  const hi=e.target.closest("[data-hi]");if(hi){const x=S.hist[+hi.dataset.hi];if(x&&TU()&&x.en){speak({th:x.en,en:"",cat:"x",np:1,lang:"en"},"en-US");return}if(x)speak({th:histClean(x.th),ro:x.ro||"",en:x.en||"",np:1,cat:"",lang:S.lang});return}
+  const hi=e.target.closest("[data-hi]");if(hi){const x=S.hist[+hi.dataset.hi];if(x&&TU()&&x.en){speak({th:x.en,en:"",cat:"x",np:1,lang:BASE()},BTTS());return}if(x)speak({th:histClean(x.th),ro:x.ro||"",en:x.en||"",np:1,cat:"",lang:S.lang});return}
   const fv=e.target.closest("[data-fav]");if(fv){toggleFav(fv.dataset.fav);return}
   const d=e.target.closest("[data-del]");
   if(d){e.stopPropagation();deleteMany([d.dataset.del]);return}
@@ -6465,7 +6477,7 @@ $("main").onclick=async e=>{
     catch(err){toast("Couldn't translate: "+why(err),true);return}
   }
   it.played=Date.now();save();
-  if(TU()&&it.en){speak({th:it.en,en:"",cat:"x",np:1,lang:"en"},"en-US");return}
+  if(TU()&&bLabel(it)){speak({th:bLabel(it),en:"",cat:"x",np:1,lang:BASE()},BTTS());return}
   speak({...it,...vw(it)});
 };
 $("editBtn").onclick=()=>{edit=!edit;if(!edit){selMode=false;SEL.clear()}render()};
@@ -6486,7 +6498,7 @@ async function translate(){
 let DIR="en",RES=null,TRTOK=0;
 function whoLabels(){
   const th=DIR==="th",L=LG(),T=L.c==="th";
-  $("trIn").placeholder=!th?"Type English, or tap Talk…":TU()?UW("ty"):T?"พิมพ์ภาษาไทยที่นี่ หรือกด พูด":"Type or speak "+L.n+"…";
+  $("trIn").placeholder=!th?"Type "+BLG().n+", or tap Talk…":TU()?UW("ty"):T?"พิมพ์ภาษาไทยที่นี่ หรือกด พูด":"Type or speak "+L.n+"…";
   if(!$("trGo").classList.contains("busy"))$("trGo").innerHTML=bi("แปล","Translate");
   const ml=$("trMic").querySelector(".mlab");if(ml&&!RECON)ml.innerHTML=bi("พูด","Talk");
   $("tool").classList.toggle("thside",th);
@@ -6494,7 +6506,7 @@ function whoLabels(){
 function setDir(d){
   DIR=d;TRTOK++;$("dirEn").classList.toggle("on",d==="en");$("dirTh").classList.toggle("on",d==="th");
   whoLabels();
-  $("trIn").lang=d==="th"?S.lang:"en";$("trIn").value="";$("trOut").innerHTML="";RES=null;
+  $("trIn").lang=d==="th"?S.lang:BASE();$("trIn").value="";$("trOut").innerHTML="";RES=null;
 }
 async function mm(q,pair){
   const ac=new AbortController();const to=setTimeout(()=>ac.abort(),9000);
@@ -6525,12 +6537,12 @@ function showRes(th,ro,en,note,auto,nohist,ph,alts,tn){
     if(!ro&&!ph){const P=thPron(th);if(P)ro=P.ro.join("-")}
   }
   RES={th,ro,en,ph:ph||"",tn:tn||"",auto:auto?1:0,note:note||"",dir:DIR,alts:alts||[]};
-  if(DIR==="en"&&S.lang==="th"&&!sx(RES)&&!SM&&!S.aiKey)note=(note?note+" ":"")+"No English sounds for this phrase yet. Add a Claude key in Settings, or save it and tap Edit to type them.";
+  if(DIR==="en"&&S.lang==="th"&&BASE()==="en"&&!sx(RES)&&!SM&&!S.aiKey)note=(note?note+" ":"")+"No English sounds for this phrase yet. Add a Claude key in Settings, or save it and tap Edit to type them.";
   const f=shown(RES);
   const cs=cats();
   const opts=cs.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");
   const rev=DIR!=="en";let rp;
-  $("trOut").innerHTML=`<div class="bub">${!rev&&RES.alts.length?`<button class="altjump">↓ ${RES.alts.length>1?RES.alts.length+" other ways to say it":"Another way to say it"} below</button>`:""}<div class="rth" lang="${rev?"en":S.lang}" dir="auto">${esc(rev?en:f.th)}</div>${rev&&TU()?`<div class="rro">${enHTML(en)}</div>`:""}${(!rev&&f.ro)?`<div class="rro">${toneHTML(f.th,f.ro,RES.tn,true)}</div>`:""}${(rev||norm(en)!==norm($("trIn").value))?`<div class="ren" lang="${rev?S.lang:"en"}" dir="auto">${esc(rev?th:en)}</div>`:""}${rev&&!TU()&&SOUNDS.includes(S.lang)&&(rp=toneHTML(th,"","",true))?`<div class="rro">${rp}</div>`:""}</div>`+
+  $("trOut").innerHTML=`<div class="bub">${!rev&&RES.alts.length?`<button class="altjump">↓ ${RES.alts.length>1?RES.alts.length+" other ways to say it":"Another way to say it"} below</button>`:""}<div class="rth" lang="${rev?BASE():S.lang}" dir="auto">${esc(rev?en:f.th)}</div>${rev&&TU()&&BASE()==="en"?`<div class="rro">${enHTML(en)}</div>`:""}${(!rev&&f.ro)?`<div class="rro">${toneHTML(f.th,f.ro,RES.tn,true)}</div>`:""}${(rev||norm(en)!==norm($("trIn").value))?`<div class="ren" lang="${rev?S.lang:BASE()}" dir="auto">${esc(rev?th:en)}</div>`:""}${rev&&!TU()&&SOUNDS.includes(S.lang)&&(rp=toneHTML(th,"","",true))?`<div class="rro">${rp}</div>`:""}</div>`+
    (!rev&&RES.alts.length?RES.alts.map((a,i)=>`<button class="altline" data-alt="${i}"><small>${esc(a.label==="Second opinion"?"Second opinion":a.label)} · tap to use</small><span class="alth" lang="${S.lang}" dir="auto">${esc(a.t)}</span>${(rp=toneHTML(a.t,a.ph||"","",true))?`<span class="rro">${rp}</span>`:""}</button>`).join(""):"")+
    `<div class="row actrow"><button class="ib speakbtn" data-a="sp">${SPK}${bi("ฟัง","Play")}</button><button class="ib showbtn" data-a="show" aria-label="Show full screen to the other person">${HANDI}${bi("แสดง","Show")}</button></div>`+
    `<div class="row actrow"><select id="rcat" aria-label="Save to category" style="flex:1;min-width:0">${opts}<option value="__new">＋ New category…</option></select><button class="ib savebtn sm" data-a="save">💾 ${bi("บันทึก","Save")}</button></div><input id="rcatNew" placeholder="New category name" style="display:none;margin-top:8px"><button class="ib moreline" data-a="more">✏️ Copy · Edit · Check meaning</button>`+
@@ -6545,11 +6557,11 @@ function showRes(th,ro,en,note,auto,nohist,ph,alts,tn){
 }
 function addHist(h){
   S.hist=(S.hist||[]).filter(x=>!(x.th===h.th&&x.en===h.en));
-  S.hist.unshift({th:h.th,ro:h.ro||"",en:h.en,ph:h.ph||"",lang:S.lang,dir:DIR});
+  S.hist.unshift({th:h.th,ro:h.ro||"",en:h.en,ph:h.ph||"",lang:S.lang,dir:DIR,...(BASE()!=="en"?{b:BASE()}:{})});
   S.hist=S.hist.slice(0,60);save();renderHist();if(cat==="__t")render();
 }
 function renderHist(){
-  const h=(S.hist||[]).map((x,i)=>[x,i]).filter(([x])=>(x.lang||"th")===S.lang);
+  const h=(S.hist||[]).map((x,i)=>[x,i]).filter(([x])=>(x.lang||"th")===S.lang&&(x.b||"en")===BASE());
   const hh=h.slice(0,12);$("hist").innerHTML=hh.length?`<div class="sec2" style="margin-top:16px">Recent translations</div><div class="chips" style="padding:8px 0 0">${hh.map(([x,i])=>`<button class="chip" data-h="${i}" style="--c:#8a8ab5">${esc(x.en.length>28?x.en.slice(0,26)+"…":x.en)}</button>`).join("")}<button class="chip" data-h="clear" style="--c:#ff6b6b">Clear</button></div>`:"";
 }
 $("hist").onclick=e=>{
@@ -6558,7 +6570,7 @@ $("hist").onclick=e=>{
   const x=S.hist[+b.dataset.h];if(x){if(x.dir&&x.dir!==DIR)setDir(x.dir);showRes(x.th,x.ro,x.en,"",false,true,x.ph||"")}
 };
 let LASTPLAY=0;
-function playRes(){if(!RES)return;LASTPLAY=Date.now();if(RES.dir==="en")speak({th:RES.th,ro:RES.ro,en:RES.en,cat:"x",np:0});else speak({th:RES.en,ro:"",en:RES.th,cat:"x",np:1,lang:"en"},"en-US")}
+function playRes(){if(!RES)return;LASTPLAY=Date.now();if(RES.dir==="en")speak({th:RES.th,ro:RES.ro,en:RES.en,cat:"x",np:0});else speak({th:RES.en,ro:"",en:RES.th,cat:"x",np:1,lang:BASE()},BTTS())}
 async function doTr(depth){
   TRTOK++;const q=$("trIn").value.trim();
   if(!q)return;
@@ -6569,7 +6581,7 @@ async function doTr(depth){
       if(m){const x=getText(m,S.lang);showRes(x.t,x.ro,m.en,"From your saved phrases, so it works offline and isn't machine translated"+(x.auto?" (still marked auto)":"")+".",false,false,x.ph);RES.saved=true;return}
     }else{
       const m=savedRev(q);
-      if(m){showRes(q,"",m.en,"From your saved phrases.",false);RES.saved=true;return}
+      if(m){showRes(q,"",bLabel(m),"From your saved phrases.",false);RES.saved=true;return}
     }
   }
   $("trOut").innerHTML="";trBusy(TALKHEARD);TALKHEARD=false;
@@ -6577,9 +6589,9 @@ async function doTr(depth){
   if(navigator.onLine===false&&offHas(S.lang)&&await offShow(q,tok))return;
   try{
     if(DIR==="en"){
-      const r=await aiTr(q,"en",S.lang);if(tok!==TRTOK)return;
+      const r=await aiTr(q,BASE(),S.lang);if(tok!==TRTOK)return;
       if(r){showRes(r.t,r.ro,q,"",false,false,r.ph,r.alts,r.tn);return}
-      const b=await webTrBoth(q,"en",LG().mm,S.lang,"en");if(tok!==TRTOK)return;
+      const b=await webTrBoth(q,BLG().mm,LG().mm,S.lang,BLG().mm);if(tok!==TRTOK)return;
       const clean=x=>{if(S.lang==="th"){x=x.replace(/\s*(ครับ|ค่ะ|คะ)\s*$/,"").trim();if(!/[\u0e00-\u0e7f]/.test(x))return""}return x};
       const t=clean(b.t);if(!t)throw new Error("the answer wasn't in "+LG().n);
       const alt=b.alt?clean(b.alt):"";
@@ -6588,12 +6600,12 @@ async function doTr(depth){
       const alts=alt&&alt.toLowerCase()!==t.toLowerCase()?[{label:"Second opinion",t:alt,ro:"",ph:""}]:[];
       showRes(t,ro,q,(b.one?"Only one translation service answered, so there's no second option this time. ":"")+"Automatic translation: please check it before relying on it.",true,false,ph,alts);
     }else{
-      const r=await aiTr(q,S.lang,"en");if(tok!==TRTOK)return;
+      const r=await aiTr(q,S.lang,BASE());if(tok!==TRTOK)return;
       if(r){showRes(q,"",r.t,"",false);return}
-      const b=await webTrBoth(q,"auto","en","en",LG().mm);if(tok!==TRTOK)return;
+      const b=await webTrBoth(q,"auto",BLG().mm,BASE(),LG().mm);if(tok!==TRTOK)return;
       if(b.sameLang){
-        if(depth!==1){toast("That's already English. Translating it into "+LG().n+" instead.");setDir("en");$("trIn").value=q;await doTr(1);return}
-        throw new Error("the text looks like English");
+        if(depth!==1){toast("That's already "+BLG().n+". Translating it into "+LG().n+" instead.");setDir("en");$("trIn").value=q;await doTr(1);return}
+        throw new Error("the text looks like "+BLG().n);
       }
       let note="Automatic translation: please check it before relying on it.";
       let det=(b.src||"").split("-")[0].toLowerCase();if(det==="iw")det="he";
@@ -6621,7 +6633,7 @@ $("trIn").addEventListener("focus",()=>{const t=$("trIn");if(!t.value)return;set
 $("trOut").onclick=e=>{
   const sy=e.target.closest("[data-say]");if(sy){speak({th:sy.dataset.say,ro:"",en:"",cat:"x",np:1,lang:"th"},"th-TH");return}
   const b=e.target.closest("[data-a]");if(!b||!RES)return;
-  if(b.dataset.a==="show"){if(RES.dir==="en"){BIG.sub=true;showBig({...shown(RES),tn:RES.tn,noEn:1})}else{BIG.sub=false;showBig({th:RES.en,ro:"",en:RES.th,lang:"en",tts:"en-US"})}return}
+  if(b.dataset.a==="show"){if(RES.dir==="en"){BIG.sub=true;showBig({...shown(RES),tn:RES.tn,noEn:1})}else{BIG.sub=false;showBig({th:RES.en,ro:"",en:RES.th,lang:BASE(),tts:BTTS()})}return}
   if(b.dataset.a==="more"){openMore();return}
   if(b.dataset.a==="sp")playRes();
   else if(b.dataset.a==="cp"){copyText(RES.dir==="en"?shown(RES).th:RES.en).then(()=>toast("✓ Copied")).catch(()=>toast("Couldn't copy",true))}
@@ -6688,7 +6700,7 @@ function startMic2(retry){
   let r;
   try{r=new SR();vlogRec(r,"Talk")}catch(e){micMsg("Couldn't start voice input. Use the microphone key on your keyboard instead.",true);$("trIn").focus();return}
   REC=r;
-  r.lang=DIR==="th"?LG().tts:"en-US";r.interimResults=true;r.continuous=false;r.maxAlternatives=1;
+  r.lang=DIR==="th"?LG().tts:BTTS();r.interimResults=true;r.continuous=false;r.maxAlternatives=1;
   let got=false,err=null,heard=false;const t0=Date.now();
   // start empty, so a listen that hears nothing can't re-translate the last sentence
   $("trIn").value="";
@@ -6909,7 +6921,7 @@ async function offTr(q,from,to){
 }
 // main Translate box: true when an offline translation was shown (or the request was replaced)
 async function offShow(q,tok){
-  const en=DIR==="en",t=await offTr(q,en?"en":S.lang,en?S.lang:"en");
+  const en=DIR==="en",t=await offTrB(q,en?BASE():S.lang,en?S.lang:BASE());
   if(tok!==TRTOK)return true;
   if(!t)return false;
   if(en)showRes(t,"",q,OFF_NOTE,true,false,"",[]);else showRes(q,"",t,OFF_NOTE,true);
@@ -6947,7 +6959,7 @@ function refreshLang(){
   const ordered=LANGS.slice().sort((a,b)=>a.c==="th"?-1:b.c==="th"?1:a.n.localeCompare(b.n));
   $("lang").innerHTML=ordered.map(l=>`<option value="${l.c}">${l.n} · ${NAT[l.c]||""}</option>`).join("");$("lang").value=S.lang;
   $("lbName").textContent=L.n+" · "+(NAT[L.c]||"");$("lbCount").textContent=LANGS.length;
-  $("dirEn").innerHTML=`<b>🇬🇧 English</b><small>English → ${esc(L.n)}</small>`;$("dirTh").innerHTML=L.c==="th"?`<b>🇹🇭 ภาษาไทย</b><small>Thai speaker</small>`:`<b>${esc(NAT[L.c]||L.n)}</b><small>${esc(L.n)} → English</small>`;
+  const BB=BLG();$("dirEn").innerHTML=BB.c==="en"?`<b>🇬🇧 English</b><small>English → ${esc(L.n)}</small>`:`<b>${esc(NAT[BB.c]||BB.n)}</b><small>${esc(BB.n)} → ${esc(L.n)}</small>`;$("dirTh").innerHTML=BB.c!=="en"?`<b>${esc(NAT[L.c]||L.n)}</b><small>${esc(L.n)} → ${esc(BB.n)}</small>`:L.c==="th"?`<b>🇹🇭 ภาษาไทย</b><small>Thai speaker</small>`:`<b>${esc(NAT[L.c]||L.n)}</b><small>${esc(L.n)} → English</small>`;{const el=document.querySelector('label[for="en"]');if(el)el.textContent=BB.n+" (type this, then tap Save)"}
   $("thLbl").textContent=L.n+" text (leave empty to translate automatically)";
   $("edLbl").textContent=L.n+" text (spoken aloud)";
   $("voiceLbl").textContent=L.n+" voice";
@@ -6980,15 +6992,16 @@ function setText(i,L,t,ro,auto,ph){
   if(L==="th"){i.th=t;i.ro=ro||"";i.ph=ph||"";i.auto=auto?1:0}
   else{if(!t){if(i.tr)delete i.tr[L];return}i.tr=i.tr||{};i.tr[L]={t,ro:ro||"",ph:ph||"",auto:auto?1:0}}
 }
-function vw(i){if(CUR[S.lang]&&i.cat==="Numbers"&&/^\d[\d,]*$/.test(i.en||"")){const n=(i.en||"").replace(/,/g,""),r=TU()?(S.lang==="vi"?viNum(n,""):ltNum(n,"",S.lang)):numFor(n,"");return{th:r.th,ro:r.ro,auto:0,en:i.en}}const x=getText(i,S.lang);return{th:x.t,ro:sx(x),auto:x.auto,en:i.en||""}}
+function vw(i){if(CUR[S.lang]&&i.cat==="Numbers"&&/^\d[\d,]*$/.test(i.en||"")){const n=(i.en||"").replace(/,/g,""),r=TU()?(S.lang==="vi"?viNum(n,""):ltNum(n,"",S.lang)):numFor(n,"");return{th:r.th,ro:r.ro,auto:0,en:i.en}}const x=getText(i,S.lang);return{th:x.t,ro:sx(x),auto:x.auto,en:bLabel(i)}}
 function srcFor(i){
-  if(i.en)return{q:i.en,from:"en"};
+  if(i.en)return{q:i.en,from:i.bl||"en"};
   if(i.th)return{q:i.th,from:"th"};
   if(i.tr)for(const L in i.tr)if(i.tr[L].t)return{q:i.tr[L].t,from:L};
   return null;
 }
-function newItem(text,ro,en,c,auto,ph){
+function newItem(text,ro,en,c,auto,ph,bl){
   const it={id:uid(),th:"",ro:"",ph:"",en:en||"",cat:c,t:Date.now(),np:0};
+  {const b=bl===undefined?BASE():bl;if(b&&b!=="en")it.bl=b}
   setText(it,S.lang,text,ro,auto,ph);
   return it;
 }
@@ -7148,14 +7161,14 @@ function histTileHTML(x,n){
 }
 function histSave(n){
   const x=S.hist[n];if(!x||histSaved(x))return;
-  S.items.push(newItem(histClean(x.th),x.ro||"",x.en||"",VOCAB,0,x.ph||""));
+  S.items.push(newItem(histClean(x.th),x.ro||"",x.en||"",VOCAB,0,x.ph||"",x.b||"en"));
   save();render();toast("Saved to My vocab");
 }
 function tileHTML(i){
   const v=vw(i),f=full({th:v.th,ro:v.ro,en:v.en,cat:i.cat,np:i.np,lang:S.lang});
   const need=!v.th;let pr;
   // native mode shows the phrase in the user's own language, so fetch it like any other missing translation
-  if(TU()&&f.en)return `<button class="tile enonly${need?" pend":""}${SEL.has(i.id)?" sel":""}"${need?' data-need="1"':""} style="--c:${colr(i.cat)}" data-id="${i.id}"><span class="th" lang="en">${esc(f.en)}</span>${(pr=S.ro?enHTML(f.en,1):"")?`<small class="ro">${pr}</small>`:""}<small class="en" lang="${f.th?S.lang:"en"}">${esc(f.th||f.en)}</small><span class="fav${i.fav?" on":""}" data-fav="${i.id}" role="button" aria-label="Favourite">${i.fav?"★":"☆"}</span>${edit?`<span class="x" data-del="${i.id}">×</span>`:""}</button>`;
+  if(TU()&&f.en)return `<button class="tile enonly${need?" pend":""}${SEL.has(i.id)?" sel":""}"${need?' data-need="1"':""} style="--c:${colr(i.cat)}" data-id="${i.id}"><span class="th" lang="${BASE()}">${esc(f.en)}</span>${(pr=S.ro&&BASE()==="en"?enHTML(f.en,1):"")?`<small class="ro">${pr}</small>`:""}<small class="en" lang="${f.th?S.lang:BASE()}">${esc(f.th||f.en)}</small><span class="fav${i.fav?" on":""}" data-fav="${i.id}" role="button" aria-label="Favourite">${i.fav?"★":"☆"}</span>${edit?`<span class="x" data-del="${i.id}">×</span>`:""}</button>`;
   return `<button class="tile${f.en?" enonly":""}${need?" pend":""}${SEL.has(i.id)?" sel":""}"${need?' data-need="1"':""} style="--c:${colr(i.cat)}" data-id="${i.id}"><span class="th" lang="${S.lang}" dir="auto">${need?"…":esc(f.th)}</span>${(pr=S.ro&&!need?toneHTML(f.th,f.ro,"",!f.ro):"")?`<small class="ro">${pr}</small>`:""}${S.en&&f.en?`<small class="en">${esc(f.en)}</small>`:""}${v.auto&&!need?`<small class="auto">⚠ auto</small>`:""}<span class="fav${i.fav?" on":""}" data-fav="${i.id}" role="button" aria-label="Favourite">${i.fav?"★":"☆"}</span>${edit?`<span class="x" data-del="${i.id}">×</span>`:""}</button>`;
 }
 function paintTile(id){
@@ -7305,7 +7318,7 @@ $("moreAlts").onclick=e=>{
 };
 
 let BIG={th:"",ro:"",en:"",sub:false,rot:false};
-function replySide(){return (BIG.lang||S.lang)==="en"?"en":"th"}
+function replySide(){return (BIG.lang||S.lang)===BASE()?"en":"th"}
 function paintReply(){
   const side=replySide(),T=LG().c==="th"&&side==="th";
   const mic='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="2" width="7" height="13" rx="3.5" fill="currentColor"/><path d="M5 11.5a7 7 0 0 0 14 0M12 18.5V22M8 22h8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
@@ -7316,7 +7329,7 @@ function paintReply(){
 function holdShow(id){
   const it=S.items.find(i=>i.id===id);if(!it)return;
   const v=vw(it),f=full({th:v.th,ro:v.ro,en:v.en,cat:it.cat,np:it.np,lang:S.lang});
-  if(TU()&&f.en){BIG.sub=true;showBig({th:f.en,ro:"",en:f.th,lang:"en",tts:"en-US",id});return}
+  if(TU()&&f.en){BIG.sub=true;showBig({th:f.en,ro:"",en:f.th,lang:BASE(),tts:BTTS(),id});return}
   if(!f.th)return;
   BIG.sub=true;showBig({th:f.th,ro:f.ro,en:f.en,id});
 }
@@ -7329,9 +7342,9 @@ $("bigTalk").onclick=()=>replyGo(true);$("bigType").onclick=()=>replyGo(false);
 function showBig(v){BIG.id=v.id||"";$("bigFav").hidden=!BIG.id;paintFav();BIG.th=v.th;BIG.ro=v.ro||"";BIG.en=v.en||"";BIG.lang=v.lang||S.lang;BIG.tts=v.tts||"";BIG.tn=v.tn||"";BIG.noEn=!!v.noEn;$("big").hidden=false;paintReply();paintBig()}
 function paintBig(){
   const t=$("bigTxt");t.textContent=BIG.th;t.lang=BIG.lang||S.lang;
-  $("bigSub").innerHTML=BIG.sub?`<div class="bsr">${BIG.lang==="en"&&TU()?enHTML(BIG.th):(BIG.lang||S.lang)===S.lang?toneHTML(BIG.th,BIG.ro,BIG.tn||"",!BIG.ro):esc(BIG.ro)}</div>${BIG.noEn?"":`<div class="bse">${esc(BIG.en)}</div>`}`:"";
+  $("bigSub").innerHTML=BIG.sub?`<div class="bsr">${BIG.lang==="en"&&TU()&&BASE()==="en"?enHTML(BIG.th):(BIG.lang||S.lang)===S.lang?toneHTML(BIG.th,BIG.ro,BIG.tn||"",!BIG.ro):esc(BIG.ro)}</div>${BIG.noEn?"":`<div class="bse">${esc(BIG.en)}</div>`}`:"";
   t.style.transform=BIG.rot?"rotate(180deg)":"";
-  $("bigSnd").textContent=BIG.sub?(BIG.lang==="en"?"English":S.lang==="th"?"Thai":LG().n)+" only":"Sounds";
+  $("bigSnd").textContent=BIG.sub?(BIG.lang===BASE()&&BIG.lang!==S.lang?BLG().n:S.lang==="th"?"Thai":LG().n)+" only":"Sounds";
   fitBig();
 }
 function copyText(t){
@@ -7402,7 +7415,7 @@ $("bldShow").onclick=()=>{if(BLD&&TU()){$("bldD").close();BIG.sub=true;showBig({
 $("bldSave").onclick=()=>{
   if(!BLD)return;
   const c=$("bldCat").value;
-  S.items.push(newItem(BLD.th,BLD.ro,BLD.en,c,0,""));
+  S.items.push(newItem(BLD.th,BLD.ro,BLD.en,c,0,"","en"));
   const ok=save();render();markChanged();
   toast(ok?"✓ Saved to "+c:"⚠ Not saved permanently",!ok);
 };
@@ -7431,8 +7444,8 @@ $("catExp").onclick=async()=>{
 };
 let SKIPSAVED=false;
 function normQ(x){return String(x||"").toLowerCase().replace(/[^\p{L}\p{N}\s]/gu," ").replace(/\s+/g," ").trim()}
-function savedFor(q){const n=normQ(q);if(!n)return null;return S.items.find(i=>normQ(i.en)===n&&getText(i,S.lang).t)||null}
-function savedRev(q){const n=normQ(q);if(!n)return null;return S.items.find(i=>{const x=getText(i,S.lang);return i.en&&x.t&&normQ(x.t)===n})||null}
+function savedFor(q){const n=normQ(q);if(!n)return null;return S.items.find(i=>normQ(bLabel(i))===n&&getText(i,S.lang).t)||null}
+function savedRev(q){const n=normQ(q);if(!n)return null;return S.items.find(i=>{const x=getText(i,S.lang);return bLabel(i)&&x.t&&normQ(x.t)===n})||null}
 async function webTrBoth(q,from,to,toCode,mmFrom){
   const key="2|"+from+"|"+to+"|"+q+(toCode==="th"&&S.reg==="formal"?"|formal":"");
   if(!SKIPSAVED){const c=cget(key);if(c){LASTSRC=c.src||"";return c}}
@@ -7441,12 +7454,13 @@ async function webTrBoth(q,from,to,toCode,mmFrom){
   const [g,m]=await Promise.allSettled([tryTwice(()=>gtx(q,from,to)),tryTwice(()=>mm(q,(mmFrom||from)+"|"+to))]);
   const rm=LASTRM;let src=LASTSRC;
   const gt=g.status==="fulfilled"?g.value:"",mt=m.status==="fulfilled"?m.value:"";
-  if(toCode==="en"&&gt&&src.split("-")[0].toLowerCase()==="en")return{sameLang:true,t:gt,src};
+  const bm=BLG().mm.split("-")[0].toLowerCase();
+  if(toCode===BASE()&&gt&&src.split("-")[0].toLowerCase()===bm)return{sameLang:true,t:gt,src};
   const gOK=!!gt&&plausible(gt,q,toCode),mOK=!!mt&&plausible(mt,q,toCode);
   const lo=x=>String(x||"").toLowerCase().trim();
   let x=null,xt="",xOK=false;
   if(!gOK||!mOK||lo(gt)===lo(mt)){x=await Promise.allSettled([xP]).then(a=>a[0]);xt=x.status==="fulfilled"?x.value.t:"";xOK=!!xt&&plausible(xt,q,toCode);if(!gOK&&xt&&x.value.src)src=x.value.src}
-  if(toCode==="en"&&!gOK&&xt&&src.split("-")[0].toLowerCase()==="en")return{sameLang:true,t:xt,src};
+  if(toCode===BASE()&&!gOK&&xt&&src.split("-")[0].toLowerCase()===bm)return{sameLang:true,t:xt,src};
   if(!gOK&&!mOK&&!xOK){
     const w1=g.status==="rejected"?why(g.reason):(gt?"the answer didn't look like "+nm(toCode):"no answer");
     const w2=m.status==="rejected"?(QUOTA?"daily free limit reached":why(m.reason)):(mt?"the answer didn't look like "+nm(toCode):"no answer");
@@ -7467,9 +7481,9 @@ window.addEventListener("online",updOnline);window.addEventListener("offline",up
 $("moreBack").onclick=async()=>{
   const o=$("moreBackOut");o.textContent="Checking…";
   try{
-    let t;const r=await aiTr(RES.th,S.lang,"en");
-    if(r)t=r.t;else t=await webTr(RES.th,LG().mm,"en");
-    o.innerHTML=`<label>Translated back to English</label><div class="note" style="margin:4px 0">${esc(t)}</div><div class="hint">Compare this with "${esc(RES.en)}". If the meaning has drifted, try Other ways to say it or reword your English.</div>`;
+    let t;const r=await aiTr(RES.th,S.lang,BASE());
+    if(r)t=r.t;else t=await webTr(RES.th,LG().mm,BLG().mm);
+    o.innerHTML=`<label>Translated back to ${esc(BLG().n)}</label><div class="note" style="margin:4px 0">${esc(t)}</div><div class="hint">Compare this with "${esc(RES.en)}". If the meaning has drifted, try Other ways to say it or reword your ${esc(BLG().n)}.</div>`;
   }catch(e){o.textContent="Couldn't check: "+why(e)}
 };
 $("moreFresh").onclick=async()=>{$("moreD").close();SKIPSAVED=true;try{await doTr()}finally{SKIPSAVED=false}};
@@ -7535,7 +7549,7 @@ function fillCat(sel){
 }
 $("cat").onchange=()=>{const n=$("cat").value==="__new";$("catNew").style.display=n?"":"none";if(n)$("catNew").focus()};
 async function webTranslate(en){
-  let t=await webTr(en,"en",LG().mm);
+  let t=await webTr(en,BLG().mm,LG().mm);
   if(S.lang==="th"){t=t.replace(/\s*(ครับ|ค่ะ|คะ)\s*$/,"").trim();if(!/[\u0e00-\u0e7f]/.test(t))throw new Error("the answer wasn't Thai")}
   return t;
 }
@@ -7547,7 +7561,7 @@ async function add(){
     try{th=await webTranslate($("en").value.trim());auto=true}
     catch(e){say("Couldn't translate: "+why(e)+"."+hintHost()+" Try again, or type the text yourself.",false);return}
   }
-  if(!th){say("Type an English word first.",false);$("en").focus();return}
+  if(!th){say("Type a word in "+BLG().n+" first.",false);$("en").focus();return}
   let c=$("cat").value;
   if(c==="__new"){c=$("catNew").value.trim();if(!c){say("Type a name for the new category.",false);$("catNew").focus();return}}
   S.items.push(newItem(th,$("ro").value.trim(),$("en").value.trim(),c,auto,ADDPH));ADDPH="";S.draft=null;
@@ -7565,9 +7579,10 @@ $("addD").onkeydown=e=>{if(e.key==="Enter"&&e.target.tagName!=="BUTTON"&&e.targe
 $("setBtn").onclick=()=>{
   if(!S.ghRepo&&/github\.io$/.test(location.hostname)){const rp=location.pathname.split("/")[1];if(rp)S.ghRepo=location.hostname.split(".")[0]+"/"+rp}
   $("catExpSel").innerHTML=cats().map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");$("aiKey").value=S.aiKey||"";$("ghToken").value=S.ghToken||"";$("ghRepo").value=S.ghRepo||"";$("ghAuto").checked=!!S.ghAuto;
-  $("mmEmail").value=S.mmEmail||"";$("sLight").checked=!!S.light;$("sLook").value=S.look||"";$("pol").value=S.pol;$("sRo").checked=S.ro;$("tLeg").innerHTML=S.lang==="th"||S.lang==="vi"?(S.lang==="th"?"MLHRF":"afsrxj").split("").map(t=>`<span>${ticon(t)}${TNAME[t]}</span>`).join(""):"";$("sEn").checked=S.en;$("sThai").checked=!!S.thUser;$("sThaiRow").style.display=NATIVE_LANGS.includes(S.lang)?"":"none";if(NATIVE_LANGS.includes(S.lang))$("sThaiTx").innerHTML=`<span lang="${S.lang}">${esc(U().learn)}</span> · I speak ${esc(LG().n)} and want to learn English`;$("setD").showModal()};
+  $("mmEmail").value=S.mmEmail||"";$("sLight").checked=!!S.light;$("sLook").value=S.look||"";$("pol").value=S.pol;$("sRo").checked=S.ro;$("tLeg").innerHTML=S.lang==="th"||S.lang==="vi"?(S.lang==="th"?"MLHRF":"afsrxj").split("").map(t=>`<span>${ticon(t)}${TNAME[t]}</span>`).join(""):"";$("sEn").checked=S.en;$("sEnTx").textContent="Show "+BLG().n;{const o=LANGS.slice().sort((a,b)=>a.n.localeCompare(b.n));$("sBase").innerHTML=`<option value="en">English</option>`+o.map(l=>`<option value="${l.c}">${esc(l.n)}${NAT[l.c]?" · "+esc(NAT[l.c]):""}</option>`).join("");$("sBase").value=S.base&&LANGS.some(l=>l.c===S.base)?S.base:"en"}$("sThai").checked=!!S.thUser;$("sThaiRow").style.display=NATIVE_LANGS.includes(S.lang)?"":"none";if(NATIVE_LANGS.includes(S.lang))$("sThaiTx").innerHTML=BASE()==="en"?`<span lang="${S.lang}">${esc(U().learn)}</span> · I speak ${esc(LG().n)} and want to learn English`:`I speak ${esc(LG().n)} and want to learn ${esc(BLG().n)}`;$("setD").showModal()};
 function setThai(on){S.thUser=on;save();setDir(TU()?"th":"en");thLabels();refreshLang();render();renderHist()}
 $("sThai").onchange=e=>setThai(e.target.checked);
+$("sBase").onchange=e=>{talkDrop();S.base=e.target.value==="en"?"":e.target.value;CONV=[];save();$("sEnTx").textContent="Show "+BLG().n;setDir(TU()?"th":"en");thLabels();refreshLang();render();renderHist();if(S.base&&S.base===S.lang)toast("That is the language on the main screen, so English is used until you pick another one there.")};
 $("thTop").onclick=()=>{talkDrop();setThai(!S.thUser)};
 $("setClose").onclick=()=>$("setD").close();$("setX").onclick=()=>$("setD").close();
 $("pol").onchange=e=>{S.pol=e.target.value;save();render()};
@@ -7875,44 +7890,44 @@ function micErr(err,ln){return err==="not-allowed"||err==="service-not-allowed"?
 let CONV=[],CVBUSY=false,CVGEN=0;
 function convTranslate(q,dir){return offHas(S.lang)?convOff(q,dir):convTranslate0(q,dir)}
 async function convOff(q,dir){
-  const off=async e=>{const t=await offTr(q,dir==="en"?"en":S.lang,dir==="en"?S.lang:"en");if(!t){if(e)throw e;return convTranslate0(q,dir)}return{t,ro:"",ph:"",off:1}};
+  const off=async e=>{const t=await offTrB(q,dir==="en"?BASE():S.lang,dir==="en"?S.lang:BASE());if(!t){if(e)throw e;return convTranslate0(q,dir)}return{t,ro:"",ph:"",off:1}};
   if(navigator.onLine===false&&!(dir==="en"?savedFor(q):savedRev(q)))return off(null);
   try{return await convTranslate0(q,dir)}catch(e){return off(e)}
 }
 async function convTranslate0(q,dir){
   if(dir==="en"){
     const m=savedFor(q);if(m){const x=getText(m,S.lang);return{t:x.t,ro:x.ro||"",ph:x.ph||""}}
-    const r=await aiTr(q,"en",S.lang);if(r)return{t:r.t,ro:r.ro||"",ph:r.ph||"",tn:r.tn||""};
-    const b=await webTrBoth(q,"en",LG().mm,S.lang,"en");
+    const r=await aiTr(q,BASE(),S.lang);if(r)return{t:r.t,ro:r.ro||"",ph:r.ph||"",tn:r.tn||""};
+    const b=await webTrBoth(q,BLG().mm,LG().mm,S.lang,BLG().mm);
     let t=b.t||"";if(S.lang==="th"){t=t.replace(/\s*(ครับ|ค่ะ|คะ)\s*$/,"").trim();if(!/[฀-๿]/.test(t))t=""}
     if(!t)throw new Error("the answer wasn't in "+LG().n);
     return{t,ro:"",ph:S.lang==="th"?"":(b.rm||"")};
   }
-  const m=savedRev(q);if(m)return{t:m.en};
-  const r=await aiTr(q,S.lang,"en");if(r)return{t:r.t};
-  const b=await webTrBoth(q,"auto","en","en",LG().mm);if(!b.t)throw new Error("no translation");return{t:b.t};
+  const m=savedRev(q);if(m)return{t:bLabel(m)};
+  const r=await aiTr(q,S.lang,BASE());if(r)return{t:r.t};
+  const b=await webTrBoth(q,"auto",BLG().mm,BASE(),LG().mm);if(!b.t)throw new Error("no translation");return{t:b.t};
 }
 function convPaint(){
   const T=LG().c==="th";
-  $("convMe").innerHTML=TU()?`🇬🇧 English<small lang="${S.lang}">${esc(U().them)}</small>`:`🇬🇧 Me<small>Speak English</small>`;
+  $("convMe").innerHTML=BASE()!=="en"?(TU()?`${esc(BLG().n)}<small lang="${S.lang}">${esc(U().them)}</small>`:`Me<small>Speak ${esc(BLG().n)}</small>`):TU()?`🇬🇧 English<small lang="${S.lang}">${esc(U().them)}</small>`:`🇬🇧 Me<small>Speak English</small>`;
   $("convThem").innerHTML=TU()?`<span lang="${S.lang}">${esc(U().flag+" "+U().me)}</span><small>${esc(U().meL)}</small>`:T?`<span lang="th">พูดภาษาไทย</span><small>Them: Thai</small>`:`${esc(LG().n)}<small>Them</small>`;
   $("convLog").innerHTML=CONV.length?CONV.map((c,k)=>{
     const thSide=c.who==="me";
     let pr="";if(thSide&&SOUNDS.includes(S.lang)&&S.ro!==false){const f=full({th:c.out,ro:c.ro,en:c.inp,cat:"x"});const h=toneHTML(f.th,c.ph||(c.ro?phonFromRo(c.ro):""),c.tn||"",true);pr=h?`<div class="rro">${h}</div>`:""}
-    return`<div class="cvb ${c.who}" data-k="${k}"><div class="cvo" dir="auto">${esc(c.inp)}</div><div class="cvt" dir="auto" lang="${thSide?S.lang:"en"}">${esc(thSide?full({th:c.out,ro:"",en:"",cat:"x"}).th:c.out)}</div>${pr}${!thSide&&TU()?`<div class="rro">${enHTML(c.out)}</div>`:""}<button class="ib cvplay" type="button" data-k="${k}">${SPK}Play</button></div>`}).join(""):NL()?`<div class="hint" style="text-align:center;margin-top:30px" lang="${S.lang}">${NL().shr.convHint.split("{ME}").join(esc(U().me)).split("{L}").join(esc(LG().n))}</div>`:`<div class="hint" style="text-align:center;margin-top:30px">Tap <b>Me</b> and speak English. Tap the other button and let them speak ${esc(LG().n)}. Each line is translated and, with Auto-play on, played straight away. Tap Play to hear a line again.</div>`;
+    return`<div class="cvb ${c.who}" data-k="${k}"><div class="cvo" dir="auto">${esc(c.inp)}</div><div class="cvt" dir="auto" lang="${thSide?S.lang:BASE()}">${esc(thSide?full({th:c.out,ro:"",en:"",cat:"x"}).th:c.out)}</div>${pr}${!thSide&&TU()&&BASE()==="en"?`<div class="rro">${enHTML(c.out)}</div>`:""}<button class="ib cvplay" type="button" data-k="${k}">${SPK}Play</button></div>`}).join(""):NL()?`<div class="hint" style="text-align:center;margin-top:30px" lang="${S.lang}">${NL().shr.convHint.split("{ME}").join(esc(U().me)).split("{L}").join(esc(LG().n))}</div>`:`<div class="hint" style="text-align:center;margin-top:30px">Tap <b>Me</b> and speak English. Tap the other button and let them speak ${esc(LG().n)}. Each line is translated and, with Auto-play on, played straight away. Tap Play to hear a line again.</div>`;
   $("convAuto").textContent="Auto-play: "+(S.convAuto!==false?"On":"Off");$("convAuto").setAttribute("aria-pressed",S.convAuto!==false);
   const L=$("convLog");L.scrollTop=L.scrollHeight;
 }
-function convPlay(c){if(c.who==="me")speak({th:c.out,ro:c.ro||"",en:c.inp,cat:"x",np:0});else speak({th:c.out,ro:"",en:c.inp,cat:"x",np:1,lang:"en"},"en-US")}
+function convPlay(c){if(c.who==="me")speak({th:c.out,ro:c.ro||"",en:c.inp,cat:"x",np:0});else speak({th:c.out,ro:"",en:c.inp,cat:"x",np:1,lang:BASE()},BTTS())}
 async function convTalk(who){
   if(stopListen())return;
   if(CVBUSY)return;CVBUSY=true;const g=CVGEN;
   const btn=$(who==="me"?"convMe":"convThem");btn.classList.add("rec");
   $("convMsg").innerHTML=`<span>Listening… speak now</span><canvas id="wave" aria-hidden="true"></canvas>`;
-  const r=await listenOnce(who==="me"?"en-US":LG().tts,t=>{const s=$("convMsg").querySelector("span");if(s)s.textContent=t});
+  const r=await listenOnce(who==="me"?BTTS():LG().tts,t=>{const s=$("convMsg").querySelector("span");if(s)s.textContent=t});
   btn.classList.remove("rec");
   if(g!==CVGEN)return;
-  if(!r.txt){$("convMsg").textContent=micErr(r.err,who==="me"?"English":LG().n);CVBUSY=false;return}
+  if(!r.txt){$("convMsg").textContent=micErr(r.err,who==="me"?BLG().n:LG().n);CVBUSY=false;return}
   $("convMsg").textContent="Translating…";
   try{const o=await convTranslate(r.txt,who==="me"?"en":"th");if(g!==CVGEN)return;const c={who,inp:r.txt,out:o.t,ro:o.ro||"",ph:o.ph||"",tn:o.tn||""};CONV.push(c);$("convMsg").textContent=o.off?OFF_NOTE:"";convPaint();if(S.convAuto!==false)setTimeout(()=>{if(!LSN&&g===CVGEN&&!$("conv").hidden)convPlay(c)},800)}
   catch(e){if(g===CVGEN)$("convMsg").textContent="Couldn't translate: "+why(e)+"."}
@@ -7947,18 +7962,18 @@ function prPaint(){
   const v={...it,...vw(it)},f=full(v);
   if(TU()&&!v.th&&!PRQ.has(it.id+S.lang)){PRQ.add(it.id+S.lang);const L0=S.lang;translateItem(it,L0).then(ok=>{if(ok){save();paintTile(it.id);if(prItem()===it&&S.lang===L0&&!$("prac").hidden)prPaint()}}).catch(()=>{})}
   if(TU()){$("pracHead").textContent="🎯 "+U().prh+" "+(PR.i+1)+" / "+PR.list.length;$("pracListen").innerHTML=SPK+bi("ฟัง","Listen");
-    $("pracEn").textContent=v.th||"";$("pracEn").lang=S.lang;$("pracTh").textContent=it.en;$("pracTh").lang="en";$("pracRo").innerHTML=enHTML(it.en);$("pracRes").textContent="";
+    $("pracEn").textContent=v.th||"";$("pracEn").lang=S.lang;$("pracTh").textContent=bLabel(it);$("pracTh").lang=BASE();$("pracRo").innerHTML=BASE()==="en"?enHTML(it.en):"";$("pracRes").textContent="";
     $("pracPrev").disabled=PR.i===0;$("pracNext").disabled=PR.i>=PR.list.length-1;return}
-  $("pracEn").lang="en";
+  $("pracEn").lang=BASE();
   $("pracHead").textContent="🎯 Practice "+(PR.i+1)+" / "+PR.list.length;
-  $("pracEn").textContent=it.en||"";
+  $("pracEn").textContent=bLabel(it);
   $("pracTh").textContent=f.th;$("pracTh").lang=S.lang;
   $("pracRo").innerHTML=f.ro?toneHTML(f.th,f.ro,"",true):(T?toneHTML(f.th,"","",true):"");
   $("pracRes").textContent="";
   $("pracPrev").disabled=PR.i===0;$("pracNext").disabled=PR.i>=PR.list.length-1;
 }
 function prOpen(){
-  const pool=S.items.filter(i=>TU()?i.en&&/[a-z]/i.test(i.en):getText(i,S.lang).t);
+  const pool=S.items.filter(i=>TU()?(BASE()==="en"?i.en&&/[a-z]/i.test(i.en):!!bLabel(i)):getText(i,S.lang).t);
   const inCat=cat&&cat!=="All"&&cat!=="__r"&&cat!=="__t"&&cat!=="__f"?pool.filter(i=>i.cat===cat):cat==="__f"?pool.filter(i=>i.fav):pool;
   PR={list:inCat.length?inCat:pool,i:0};$("prac").hidden=false;prPaint();
 }
@@ -7967,11 +7982,11 @@ async function prSay(){
   const it=prItem();if(!it)return;
   const b=$("pracSay");b.classList.add("rec");b.textContent="Listening…";
   $("pracRes").innerHTML=`<canvas id="wave" aria-hidden="true"></canvas>`;
-  const tu=TU();const r=await listenOnce(tu?"en-US":LG().tts,t=>{});
+  const tu=TU();const r=await listenOnce(tu?BTTS():LG().tts,t=>{});
   b.classList.remove("rec");b.textContent="🎤 Say it";
   if(prItem()!==it||$("prac").hidden)return;
-  if(!r.txt){$("pracRes").textContent=micErr(r.err,tu?"English":LG().n);return}
-  if(tu){const tgt=prNorm(it.en),h=prNorm(r.txt),sc=1-lev(h,tgt)/Math.max(h.length,tgt.length,1);
+  if(!r.txt){$("pracRes").textContent=micErr(r.err,tu?BLG().n:LG().n);return}
+  if(tu){const tgt=prNorm(bLabel(it)),h=prNorm(r.txt),sc=1-lev(h,tgt)/Math.max(h.length,tgt.length,1);
     $("pracRes").innerHTML=`${esc(sc>=0.85?U().great+" Great!":sc>=0.55?U().close+" · Close!":U().notq+" · Not quite")}<span class="heard" dir="auto">${esc(U().heard)} ${esc(r.txt)}</span>`;
     $("pracRes").style.color=sc>=0.85?"var(--ok,#7bd88f)":"";return}
   const v={...it,...vw(it)};const tgt=prNorm(v.th),sp=prNorm(spokenTh(v.th)),h=prNorm(r.txt);
@@ -7982,7 +7997,7 @@ async function prSay(){
 }
 $("pracBtn").onclick=prOpen;
 $("pracClose").onclick=()=>{stopListen();$("prac").hidden=true};
-$("pracListen").onclick=()=>{const it=prItem();if(!it)return;if(TU())speak({th:it.en,en:"",cat:"x",np:1,lang:"en"},"en-US");else speak({...it,...vw(it)})};
+$("pracListen").onclick=()=>{const it=prItem();if(!it)return;if(TU())speak({th:bLabel(it),en:"",cat:"x",np:1,lang:BASE()},BTTS());else speak({...it,...vw(it)})};
 $("pracSay").onclick=prSay;
 $("pracPrev").onclick=()=>{if(PR.i>0){stopListen();PR.i--;prPaint()}};
 $("pracNext").onclick=()=>{if(PR.i<PR.list.length-1){stopListen();PR.i++;prPaint()}};
