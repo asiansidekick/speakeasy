@@ -813,7 +813,7 @@ html[data-th="light"]:not([data-look]) .offdone .offok{color:#15803d}
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 21 Oct 2026, build 98</div>
+  <div class="hint">Version: 21 Oct 2026, build 99</div>
   <input type="file" id="file" accept=".json,application/json" hidden>
   <div id="bs" style="font-size:var(--fs-s);color:var(--mute);min-height:18px;margin-top:6px"></div>
   <div class="act" style="justify-content:space-between">
@@ -826,7 +826,7 @@ html[data-th="light"]:not([data-look]) .offdone .offok{color:#15803d}
 const BAKED=/*B*/null/*E*/;
 const D={
 "Basics":["สวัสดี|sa-wat-dee|Hello","ขอบคุณ|khop khun|Thank you","ไม่เป็นไร|mai pen rai|You're welcome / no problem","ขอโทษ|khor thot|Sorry / excuse me","ใช่|chai|Yes (that's right)","ไม่ใช่|mai chai|No (that's not it)","ได้|dai|OK / can do","ไม่ได้|mai dai|Can't / not allowed","ไปก่อนนะ|pai gon na|Bye, I'm off","เข้าใจแล้ว|khao jai laeo|I understand","ไม่เข้าใจ|mai khao jai|I don't understand","พูดช้าๆ หน่อยได้ไหม|phuut chaa-chaa noi dai mai|Can you speak slowly?","พูดอีกทีได้ไหม|phuut eek thii dai mai|Can you say it again?","พูดไทยได้นิดหน่อย|phuut thai dai nit noi|I speak a little Thai","พูดอังกฤษได้ไหม|phuut ang-grit dai mai|Do you speak English?"],
-"Eating":["ขอเมนูหน่อย|khor may-nuu noi|Menu, please","ขอน้ำเปล่าหน่อย|khor nam plao noi|Water, please","เช็คบิลด้วย|chek bin duay|Check, please","อร่อยมาก|a-roi maak|Delicious","ไม่เผ็ด|mai phet|Not spicy","เผ็ดนิดหน่อย|phet nit noi|A little spicy","ไม่ใส่ผักชี|mai sai phak chee|No coriander","ไม่กินเนื้อสัตว์|mai gin neua sat|I don't eat meat (vegetarian)","แพ้ถั่วลิสง|phae thua li-song|I'm allergic to peanuts","ขออีกอันนึง|khor eek an neung|One more, please","ห่อกลับบ้านด้วย|hor glap baan duay|Takeaway, please"],
+"Eating":["ขอเมนูหน่อย|khor may-nuu noi|Menu, please","ขอน้ำเปล่าหน่อย|khor nam plao noi|Water, please","เช็คบิลด้วย|chek bin duay|Check, please","อร่อยมาก|a-roi maak|Delicious","ไม่เผ็ด|mai phet|Not spicy","เผ็ดนิดหน่อย|phet nit noi|A little spicy","ไม่ใส่ผักชี|mai sai phak chee|No coriander","ไม่กินเนื้อสัตว์|mai gin neua sat|I don't eat meat (vegetarian)","เป็นวีแกน ไม่กินเนื้อ ปลา ไข่ นม|pen wii-gaen, mai gin neua plaa khai nom|I'm vegan (no meat, fish, egg or milk)","แพ้ถั่วลิสง|phae thua li-song|I'm allergic to peanuts","ขออีกอันนึง|khor eek an neung|One more, please","ห่อกลับบ้านด้วย|hor glap baan duay|Takeaway, please"],
 "Getting around":["ห้องน้ำอยู่ไหน|hong nam yuu nai|Where's the toilet?","ไปสนามบิน|pai sa-naam bin|To the airport","ไปโรงแรม|pai rong raem|To the hotel","กดมิเตอร์ได้ไหม|got mi-toe dai mai|Can you use the meter?","จอดตรงนี้|jot trong nii|Stop here","เลี้ยวซ้าย|liao saai|Turn left","เลี้ยวขวา|liao khwaa|Turn right","ตรงไป|trong pai|Straight ahead","ไกลไหม|glai mai|Is it far?","รถไฟฟ้าอยู่ไหน|rot fai faa yuu nai|Where's the skytrain station?"],
 "Shopping":["อันนี้เท่าไหร่|an nii thao rai|How much is this?","แพงไป|phaeng pai|Too expensive","ลดหน่อยได้ไหม|lot noi dai mai|Can you discount it?","ขอดูอันนี้หน่อย|khor duu an nii noi|Can I see this one?","เอาอันนี้|ao an nii|I'll take this","รูดบัตรได้ไหม|ruut bat dai mai|Can I pay by card?","มีไซส์ใหญ่กว่านี้ไหม|mii sai yai gwaa nii mai|Do you have a bigger size?"],
 "Numbers":["หนึ่ง|neung|1","สอง|song|2","สาม|saam|3","สี่|sii|4","ห้า|haa|5","หก|hok|6","เจ็ด|jet|7","แปด|paet|8","เก้า|gao|9","สิบ|sip|10","ร้อย|roi|100","พัน|phan|1,000"],
@@ -1191,6 +1191,19 @@ function applyP15(){
   });
   S.applied.push(P15.key);save();
 }
+const P20={key:'vegan1',after:"I don't eat meat (vegetarian)",add:[["Eating","เป็นวีแกน ไม่กินเนื้อ ปลา ไข่ นม","pen wii-gaen, mai gin neua plaa khai nom","I'm vegan (no meat, fish, egg or milk)",0]]};
+function applyP20(){
+  if(!Array.isArray(S.applied))S.applied=[];
+  if(S.applied.includes(P20.key))return;
+  P20.add.forEach(([cat,t,ro,en,np])=>{
+    if(S.items.some(i=>i.th===t||i.en===en))return;
+    const it={id:uid(),th:t,ro,en,cat,np};
+    let at=S.items.findIndex(x=>x.cat===cat&&x.en===P20.after);
+    if(at<0)S.items.forEach((x,n)=>{if(x.cat===cat)at=n});
+    if(at<0)S.items.push(it);else S.items.splice(at+1,0,it);
+  });
+  S.applied.push(P20.key);save();
+}
 const P16={key:'cori1',add:[["Eating","ไม่ใส่ผักชี","mai sai phak chee","No coriander",0]]};
 function applyP16(){
   if(!Array.isArray(S.applied))S.applied=[];
@@ -1241,6 +1254,7 @@ const FR_PH={
 "A little spicy":"Un peu épicé, s'il vous plaît.",
 "No coriander":"Sans coriandre, s'il vous plaît.",
 "I don't eat meat (vegetarian)":{f:"Je mange pas de viande, je suis végétarien.",p:"Je ne mange pas de viande, je suis végétarien."},
+"I'm vegan (no meat, fish, egg or milk)":{f:"Je suis vegan, pas de viande, pas de poisson, pas d'œufs, pas de lait.",p:"Je suis végane : pas de viande, de poisson, d'œufs ni de produits laitiers, s'il vous plaît."},
 "I'm allergic to peanuts":"Je suis allergique aux cacahuètes.",
 "One more, please":"Encore un, s'il vous plaît.",
 "Takeaway, please":"À emporter, s'il vous plaît.",
@@ -1699,6 +1713,7 @@ const ZH_PH={
 "A little spicy":"要微辣。|yào wēi là",
 "No coriander":"不要香菜。|bú yào xiāng cài",
 "I don't eat meat (vegetarian)":"我不吃肉，我吃素。|wǒ bù chī ròu, wǒ chī sù",
+"I'm vegan (no meat, fish, egg or milk)":"我吃纯素，不吃肉、鱼、蛋和奶。|wǒ chī chún sù, bù chī ròu, yú, dàn hé nǎi",
 "I'm allergic to peanuts":"我对花生过敏。|wǒ duì huā shēng guò mǐn",
 "One more, please":"请再来一个。|qǐng zài lái yí ge",
 "Takeaway, please":"打包，谢谢。|dǎ bāo, xiè xie",
@@ -2127,6 +2142,7 @@ const ZT_PH={
 "A little spicy":"小辣就好。|xiǎo là jiù hǎo",
 "No coriander":"不要香菜。|bú yào xiāng cài",
 "I don't eat meat (vegetarian)":"我不吃肉，我吃素。|wǒ bù chī ròu, wǒ chī sù",
+"I'm vegan (no meat, fish, egg or milk)":"我吃全素，不吃肉、魚、蛋和奶。|wǒ chī quán sù, bù chī ròu, yú, dàn hé nǎi",
 "I'm allergic to peanuts":"我對花生過敏。|wǒ duì huā shēng guò mǐn",
 "One more, please":"麻煩再來一個。|má fán zài lái yí gè",
 "Takeaway, please":"外帶，謝謝。|wài dài, xiè xiè",
@@ -2555,6 +2571,7 @@ const YUE_PH={
 "A little spicy":"要小辣，唔該。|jiu3 siu2 laat6, m4 goi1",
 "No coriander":"走芫茜，唔該。|zau2 jim4 sai1, m4 goi1",
 "I don't eat meat (vegetarian)":"我唔食肉，我食素㗎。|ngo5 m4 sik6 juk6, ngo5 sik6 sou3 ga3",
+"I'm vegan (no meat, fish, egg or milk)":"我食全素，唔食肉、魚、蛋同奶。|ngo5 sik6 cyun4 sou3, m4 sik6 juk6, jyu4, daan2 tung4 naai5",
 "I'm allergic to peanuts":"我對花生敏感。|ngo5 deoi3 faa1 sang1 man5 gam2",
 "One more, please":"唔該，再嚟多個。|m4 goi1, zoi3 lai4 do1 go3",
 "Takeaway, please":"唔該，拎走。|m4 goi1, ling1 zau2",
@@ -2999,6 +3016,7 @@ const JA_PH={
 "A little spicy":"少しだけ辛くしてください。",
 "No coriander":"パクチー抜きでお願いします。",
 "I don't eat meat (vegetarian)":{f:"肉は食べないんだ、ベジタリアンだから。",p:"肉は食べられません。ベジタリアンです。"},
+"I'm vegan (no meat, fish, egg or milk)":{f:"ヴィーガンだから、肉も魚も卵も乳製品も食べないんだ。",p:"ヴィーガンなので、肉、魚、卵、乳製品は食べられません。"},
 "I'm allergic to peanuts":"ピーナッツアレルギーがあります。",
 "One more, please":"もう一つください。",
 "Takeaway, please":"持ち帰りでお願いします。",
@@ -3472,6 +3490,7 @@ const KO_PH={
 "A little spicy":"조금만 맵게 해 주세요.",
 "No coriander":"고수 빼 주세요.",
 "I don't eat meat (vegetarian)":{f:"나 고기 안 먹어. 채식주의자야.",p:"저는 고기를 안 먹어요. 채식주의자예요."},
+"I'm vegan (no meat, fish, egg or milk)":{f:"나 비건이야. 고기, 생선, 계란, 우유 다 안 먹어.",p:"저는 비건이에요. 고기, 생선, 계란, 유제품을 안 먹어요."},
 "I'm allergic to peanuts":"땅콩 알레르기가 있어요.",
 "One more, please":"하나 더 주세요.",
 "Takeaway, please":"포장해 주세요.",
@@ -3947,6 +3966,7 @@ const VI_PH={
 "A little spicy":"Cay ít thôi ạ.",
 "No coriander":"Không cho rau mùi ạ.",
 "I don't eat meat (vegetarian)":{f:"Mình không ăn thịt, mình ăn chay.",p:"Em không ăn thịt, em ăn chay ạ."},
+"I'm vegan (no meat, fish, egg or milk)":{f:"Mình ăn chay thuần, không thịt, cá, trứng, sữa.",p:"Em ăn chay thuần ạ, không ăn thịt, cá, trứng và sữa."},
 "I'm allergic to peanuts":"Em bị dị ứng lạc, đậu phộng ạ.",
 "One more, please":"Cho em thêm một cái nữa ạ.",
 "Takeaway, please":"Cho em mang về ạ.",
@@ -4405,6 +4425,7 @@ const MS_PH={
 "A little spicy":"Pedas sikit je, ya.",
 "No coriander":"Jangan letak daun ketumbar, ya.",
 "I don't eat meat (vegetarian)":{f:"Aku tak makan daging, aku vegetarian.",p:"Saya tidak makan daging, saya vegetarian."},
+"I'm vegan (no meat, fish, egg or milk)":{f:"Aku vegan, tak makan daging, ikan, telur, susu.",p:"Saya vegan, saya tidak makan daging, ikan, telur atau susu."},
 "I'm allergic to peanuts":"Saya alah kepada kacang tanah.",
 "One more, please":"Tambah satu lagi, ya.",
 "Takeaway, please":"Bungkus, ya.",
@@ -4863,6 +4884,7 @@ const TL_PH={
 "A little spicy":"Konting anghang lang po.",
 "No coriander":"Walang wansuy po.",
 "I don't eat meat (vegetarian)":{f:"Hindi ako kumakain ng karne, vegetarian ako.",p:"Hindi po ako kumakain ng karne, vegetarian po ako."},
+"I'm vegan (no meat, fish, egg or milk)":{f:"Vegan ako, walang karne, isda, itlog o gatas.",p:"Vegan po ako, hindi po ako kumakain ng karne, isda, itlog o gatas."},
 "I'm allergic to peanuts":"Allergic po ako sa mani.",
 "One more, please":"Isa pa po.",
 "Takeaway, please":"Take-out po.",
@@ -5341,7 +5363,7 @@ function bakedMerge(){
   fromBaked();mine.forEach(i=>S.items.push(i));
   S.bakedV=BAKED.v;save();
 }
-function load(){try{const r=localStorage.getItem(KEY);if(r){const d=JSON.parse(r);if(d&&Array.isArray(d.items)){S=Object.assign(S,d);if(!("rate" in d))S.rate=d.slow?0.55:0.9;if(!("polite" in d)){S.polite=S.pol!=="";if(!S.pol)S.pol="m"}if(!Array.isArray(S.seen))S.seen=OLD.slice();const add=Object.keys(D).filter(c=>!S.seen.includes(c));if(add.length){defaults().filter(i=>add.includes(i.cat)).forEach(i=>S.items.push(i));S.seen=Object.keys(D);save()}bakedMerge();applyPatches();applyPatches2();applyP3();applyP4();applyP5();applyP6();applyP7();applyP8();applyP9();applyP10();applyP11();applyP12();applyP13();applyP14();applyP15();applyP16();applyP17();applyP18();applyP19();applyPH_vi();applyPH_ko();return}}}catch(e){}S.items=defaults();S.seen=Object.keys(D);S.applied=Object.keys(PATCHES);if(BAKED&&BAKED.items){fromBaked();S.bakedV=BAKED.v}applyPatches2();applyP3();applyP4();applyP5();applyP6();applyP7();applyP8();applyP9();applyP10();applyP11();applyP12();applyP13();applyP14();applyP15()}
+function load(){try{const r=localStorage.getItem(KEY);if(r){const d=JSON.parse(r);if(d&&Array.isArray(d.items)){S=Object.assign(S,d);if(!("rate" in d))S.rate=d.slow?0.55:0.9;if(!("polite" in d)){S.polite=S.pol!=="";if(!S.pol)S.pol="m"}if(!Array.isArray(S.seen))S.seen=OLD.slice();const add=Object.keys(D).filter(c=>!S.seen.includes(c));if(add.length){defaults().filter(i=>add.includes(i.cat)).forEach(i=>S.items.push(i));S.seen=Object.keys(D);save()}bakedMerge();applyPatches();applyPatches2();applyP3();applyP4();applyP5();applyP6();applyP7();applyP8();applyP9();applyP10();applyP11();applyP12();applyP13();applyP14();applyP15();applyP16();applyP20();applyP17();applyP18();applyP19();applyPH_vi();applyPH_ko();return}}}catch(e){}S.items=defaults();S.seen=Object.keys(D);S.applied=Object.keys(PATCHES);if(BAKED&&BAKED.items){fromBaked();S.bakedV=BAKED.v}applyPatches2();applyP3();applyP4();applyP5();applyP6();applyP7();applyP8();applyP9();applyP10();applyP11();applyP12();applyP13();applyP14();applyP15()}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));return localStorage.getItem(KEY)!==null}catch(e){return false}}
 function testStore(){try{localStorage.setItem('__t','1');localStorage.removeItem('__t');return true}catch(e){return false}}
 const STORE_OK=testStore();
@@ -7556,7 +7578,7 @@ $("sLight").onchange=e=>{S.light=e.target.checked;save();applyTheme()};
 $("sRo").onchange=e=>{S.ro=e.target.checked;save();render()};
 $("sEn").onchange=e=>{S.en=e.target.checked;save();render()};
 $("voice").onchange=e=>{S.voice=e.target.value;save();speak({th:"สวัสดี",cat:"Basics"},"th-TH")};
-$("reset").onclick=()=>{if(confirm("Replace all phrases with the defaults? Your added phrases will be lost.")){S.items=defaults();S.deleted=[];S.seen=Object.keys(D);S.applied=Object.keys(PATCHES);if(BAKED&&BAKED.items){fromBaked();S.bakedV=BAKED.v}applyPatches2();applyP3();applyP4();applyP5();applyP6();applyP7();applyP8();applyP9();applyP10();applyP11();applyP12();applyP13();applyP14();applyP15();applyP16();applyP17();applyP18();applyP19();applyPH_vi();applyPH_ko();["tech1","pros1","blood1","call1","cof1","num2","numFirst"].forEach(k=>delete S[k]);save();location.reload()}};
+$("reset").onclick=()=>{if(confirm("Replace all phrases with the defaults? Your added phrases will be lost.")){S.items=defaults();S.deleted=[];S.seen=Object.keys(D);S.applied=Object.keys(PATCHES);if(BAKED&&BAKED.items){fromBaked();S.bakedV=BAKED.v}applyPatches2();applyP3();applyP4();applyP5();applyP6();applyP7();applyP8();applyP9();applyP10();applyP11();applyP12();applyP13();applyP14();applyP15();applyP16();applyP20();applyP17();applyP18();applyP19();applyPH_vi();applyPH_ko();["tech1","pros1","blood1","call1","cof1","num2","numFirst"].forEach(k=>delete S[k]);save();location.reload()}};
 
 
 /* number keypad: digits -> Thai words, worked out on the phone (no internet needed) */
