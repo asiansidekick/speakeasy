@@ -816,7 +816,7 @@ html[data-th="light"]:not([data-look]) .offdone .offok{color:#15803d}
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 26 Oct 2026, build 104</div>
+  <div class="hint">Version: 26 Oct 2026, build 105</div>
   <input type="file" id="file" accept=".json,application/json" hidden>
   <div id="bs" style="font-size:var(--fs-s);color:var(--mute);min-height:18px;margin-top:6px"></div>
   <div class="act" style="justify-content:space-between">
@@ -5790,7 +5790,429 @@ const ES_PH={
 "Hide":{f:"¡Escóndete!",p:"¡Escóndase!"},
 "One more":"Uno más."
 };
-const PH_TABLES={fr:FR_PH,zh:ZH_PH,zt:ZT_PH,yue:YUE_PH,ja:JA_PH,ko:KO_PH,vi:VI_PH,ms:MS_PH,tl:TL_PH,es:ES_PH};
+/* Mexican Spanish, more colloquial in Friends mode (build 105) */
+Object.assign(ES_PH,{
+"Hello":{f:"¡Qué onda!",p:"¡Buenos días!"},
+"Can't / not allowed":{f:"Nel, no se puede.",p:"Eso no está permitido."},
+"Bye, I'm off":{f:"Bueno, ya me voy. ¡Ahí nos vemos!",p:"Bueno, me retiro. ¡Hasta luego!"},
+"Can you say it again?":{f:"¿Mande? ¿Me lo repites?",p:"¿Me lo podría repetir, por favor?"},
+"Delicious":{f:"¡Está bien rico!",p:"¡Está delicioso!"},
+"Can I get more?":{f:"¿Me pasas tantito más?",p:"¿Me podría servir un poco más?"},
+"Hurry a bit, please":{f:"¡Pícale tantito, porfa!",p:"¿Se podría apurar un poco, por favor?"},
+"Traffic's terrible":"¡Está cañón el tráfico!",
+"How much is this?":{f:"¿Cuánto es?",p:"Disculpe, ¿cuánto cuesta esto?"},
+"How's it going?":{f:"¿Qué onda, cómo andas?",p:"¿Cómo está usted?"},
+"I'm fine":{f:"Aquí nomás, bien, ¿y tú?",p:"Muy bien, gracias. ¿Y usted?"},
+"See you again":{f:"¡Ahí nos vemos!",p:"¡Hasta pronto, fue un gusto!"},
+"What's your call time?":{f:"¿A qué hora te llaman?",p:"¿A qué hora es su llamado?"},
+"Wait":{f:"¡Espérate!",p:"¡Espere!"},
+"Stand back":{f:"¡Hazte pa'trás!",p:"¡Hágase para atrás!"},
+"Everyone stand back":"¡Todos pa'trás!",
+"I'm exhausted":{f:"Ando muerto.",p:"Estoy agotado."},
+"I'm drunk":"Ya ando bien pedo.",
+"Killer! (slang: awesome)":"¡Está de pelos!",
+"I'm so hungry":"¡Traigo un hambre!",
+"It's so hot":"¡Hace un calorón!",
+"Chill / no stress":"Relájate, todo chido.",
+"What should we do?":"¿Qué onda, qué hacemos?",
+"Wanna go out?":"¿Salimos un rato?",
+"Dunno":"Quién sabe.",
+"Wait a sec":"Aguántame tantito.",
+"Where've you been? (casual hello)":"¿Quiubo, dónde andabas?",
+"So much fun":"¡Nos la estamos pasando bien chido!",
+"Thanks (to a friend)":"¡Gracias, carnal!",
+"I'm off then":"Bueno, ya me voy. ¡Ahí se ven!",
+"Hide / get out of sight":{f:"¡Escóndete, rápido!",p:"¡Escóndase!"}
+});
+/* Spanish from Spain: tú for Friends (with Spain slang: vale, tío, guay, mola), usted for Polite/Formal,
+   Spain set and everyday words (citación, plató, regleta, móviles, gafas, pajita, gambas, aparcamiento).
+   Same keys as ES_PH; anything not listed here is the same in Spain and Mexico. */
+const ESP_PH=Object.assign({},ES_PH,{
+"Hello":{f:"¡Hola, qué tal!",p:"¡Buenos días!"},
+"Thank you":{f:"¡Gracias!",p:"Muchas gracias."},
+"You're welcome / no problem":{f:"¡De nada!",p:"No hay de qué."},
+"Sorry / excuse me":{f:"¡Perdona!",p:"Disculpe."},
+"Yes (that's right)":"Sí, eso es.",
+"OK / can do":{f:"¡Vale!",p:"De acuerdo, no hay problema."},
+"Can't / not allowed":{f:"No se puede, tío.",p:"Eso no está permitido."},
+"Bye, I'm off":{f:"Venga, me piro. ¡Hasta luego!",p:"Bueno, me marcho. ¡Hasta luego!"},
+"I understand":"Vale, entendido.",
+"I don't understand":{f:"No te pillo.",p:"No le entiendo."},
+"Can you say it again?":{f:"¿Me lo repites?",p:"¿Me lo podría repetir, por favor?"},
+"Water, please":"Agua, por favor.",
+"Delicious":{f:"¡Está buenísimo!",p:"¡Está delicioso!"},
+"Not spicy":"Que no pique, por favor.",
+"A little spicy":"Un poco picante, por favor.",
+"I'm allergic to peanuts":"Soy alérgico a los cacahuetes.",
+"Grilled chicken":"Pollo a la plancha",
+"Boiled egg":"Huevo duro",
+"Fried egg":"Huevo frito",
+"Shrimp":"Gambas",
+"I'm full":{f:"¡Estoy llenísimo, no puedo más!",p:"Estoy lleno, gracias."},
+"Can I get more?":{f:"¿Me pones un poco más?",p:"¿Me podría poner un poco más?"},
+"Where's the toilet?":{f:"¿Dónde está el baño?",p:"Perdone, ¿dónde están los servicios?"},
+"Stop here":"Pare aquí, por favor.",
+"Turn left":"Gire a la izquierda.",
+"Turn right":"Gire a la derecha.",
+"Straight ahead":"Todo recto.",
+"We're here":"¡Ya hemos llegado!",
+"Is it much further?":"¿Queda mucho?",
+"Hurry a bit, please":{f:"Date un poco de prisa, porfa.",p:"¿Podría darse un poco de prisa, por favor?"},
+"Traffic's terrible":"¡Hay un atasco tremendo!",
+"How much is this?":{f:"¿Cuánto es?",p:"Perdone, ¿cuánto cuesta esto?"},
+"Too expensive":"Es muy caro.",
+"Can I see this one?":"¿Puedo ver este?",
+"Just looking":"Solo estoy mirando, gracias.",
+"Any more discount?":"¿Me lo deja un poco más barato?",
+"How's it going?":{f:"¿Qué tal, tío?",p:"¿Cómo está usted?"},
+"I'm fine":{f:"Bien, ¿y tú?",p:"Muy bien, gracias. ¿Y usted?"},
+"Nice to meet you":{f:"¡Encantado!",p:"Encantado de conocerle."},
+"Really fun":{f:"¡Mola un montón!",p:"¡Es muy divertido!"},
+"See you again":{f:"¡Nos vemos!",p:"¡Hasta pronto, ha sido un placer!"},
+"Congratulations":{f:"¡Enhorabuena!",p:"¡Muchas felicidades!"},
+"Don't be shy / no need to be formal":{f:"¡Venga, no te cortes!",p:"No se preocupe, con toda confianza."},
+"Miss you":"Te echo de menos.",
+"See you soon":"¡Hasta pronto!",
+"Help!":"¡Socorro!",
+"I feel unwell":"Me encuentro mal.",
+"Take a break":"Vamos a hacer un descanso.",
+"That's a wrap":"¡Se acabó, recogemos por hoy!",
+"Film set":"Plató",
+"Assistant director":"Ayudante de dirección",
+"Props":"Atrezo",
+"Editing":"Montaje",
+"Lighting department":"Eléctricos",
+"Grip department":"Maquinistas",
+"Costume / wardrobe department":"Vestuario",
+"Makeup department":"Maquillaje",
+"Set construction":"Construcción de decorados",
+"Production department":"Producción",
+"Editing department":"Montaje",
+"Camera assistant":"Ayudante de cámara",
+"Gaffer (head electrician)":"Jefe de eléctricos",
+"Grip":"Maquinista",
+"Sound recordist":"Jefe de sonido",
+"Boom operator":"Pertiguista",
+"Costume designer":"Figurinista",
+"Makeup artist":"Maquillador",
+"Script supervisor (continuity)":"Script (continuidad)",
+"Production manager":"Jefe de producción",
+"Production assistant (PA)":"Auxiliar de producción",
+"Editor":"Montador",
+"Still photographer":"Foto fija",
+"Can I talk to the assistant director?":{f:"¿Puedo hablar con el ayudante de dirección?",p:"¿Podría hablar con el ayudante de dirección, por favor?"},
+"Next set-up":"¡Siguiente plano!",
+"Scene one, take two":"Secuencia uno, toma dos.",
+"Set up the camera":"Vamos a montar la cámara.",
+"Wide shot":"Plano general",
+"Pan the camera":"Hacemos una panorámica.",
+"Zoom in":"Acercar el zoom",
+"Zoom out":"Alejar el zoom",
+"Out of focus":"Está desenfocado.",
+"Boom mic":"Pértiga",
+"Silence your phones, please":"¡Móviles en silencio, por favor!",
+"Do not enter":"Prohibido el paso",
+"Lunch break":"Pausa para comer",
+"Where's craft services (crafty)?":{f:"¿Dónde está el catering?",p:"Disculpe, ¿dónde está el catering?"},
+"Where's the snack table?":{f:"¿Dónde está la mesa del picoteo?",p:"Disculpe, ¿dónde está la mesa del picoteo?"},
+"Call time":"Citación",
+"Your call time":{f:"Tu citación",p:"Su citación"},
+"My call time":"Mi citación",
+"What's your call time?":{f:"¿A qué hora estás citado?",p:"¿A qué hora está citado?"},
+"Can we shoot here?":{f:"¿Podemos rodar aquí?",p:"¿Podríamos rodar aquí?"},
+"Do we need a filming permit?":"¿Necesitamos permiso de rodaje?",
+"Great job":"¡Buen trabajo!",
+"Lens":"Óptica",
+"Tripod":"Trípode",
+"Light stand":"Pie de luz",
+"LED light":"Foco LED",
+"Generator":"Generador",
+"Powerboard / extension cord":"Regleta",
+"Headphones":"Auriculares",
+"Walkie-talkie":"Walkie",
+"Lavalier mic":"Micro de corbata",
+"Frame rate":"Fotogramas por segundo",
+"Which lens are you using?":{f:"¿Qué óptica llevas?",p:"¿Qué óptica lleva?"},
+"What's the frame rate set to?":"¿A cuántos fotogramas estamos?",
+"The battery's dead":"Se ha acabado la batería.",
+"The signal dropped":"Se ha caído la señal.",
+"The power's out":"Se ha ido la luz.",
+"Clear the frame":"¡Despejad el cuadro!",
+"Edge of frame":"Borde del cuadro",
+"Stand back":{f:"¡Échate para atrás!",p:"¡Échese para atrás!"},
+"Everyone stand back":"¡Todos atrás!",
+"Careful, slippery":"¡Cuidado, que resbala!",
+"Stop right now":"¡Alto, parad todo!",
+"Turn it on":{f:"¡Enciéndelo!",p:"¡Enciéndalo!"},
+"Turn on the fan to clear the smoke":{f:"Enciende el ventilador para sacar el humo.",p:"Encienda el ventilador para sacar el humo, por favor."},
+"Hide / get out of sight":{f:"¡Escóndete!",p:"¡Escóndase!"},
+"Safety officer":"Responsable de seguridad",
+"Forklift":"Carretilla elevadora",
+"Rain off":"¡Cortad la lluvia!",
+"Lighter":"Mechero",
+"Safety glasses":"Gafas de protección",
+"SFX|Turn left":{f:"¡Gira a la izquierda!",p:"¡Gire a la izquierda!"},
+"SFX|Turn right":{f:"¡Gira a la derecha!",p:"¡Gire a la derecha!"},
+"Where's the drinking water?":{f:"¿Dónde hay agua para beber?",p:"Disculpe, ¿dónde hay agua para beber?"},
+"What's my call time?":"¿A qué hora estoy citado?",
+"What's tomorrow's call time?":"¿A qué hora es la citación mañana?",
+"How many scenes are there today?":"¿Cuántas secuencias tenemos hoy?",
+"Where are we filming tomorrow?":"¿Dónde rodamos mañana?",
+"Where's the parking?":{f:"¿Dónde está el parking?",p:"Disculpe, ¿dónde está el aparcamiento?"},
+"Who's the assistant director?":{f:"¿Quién es el ayudante de dirección?",p:"Disculpe, ¿quién es el ayudante de dirección?"},
+"Cool! / Awesome":"¡Qué guay!",
+"Amazing! / The best":"¡Es la leche!",
+"Killer! (slang: awesome)":"¡Mola mazo!",
+"Wow!":"¡Hala!",
+"Seriously? / For real?":"¿En serio?",
+"No way!":"¡No me digas!",
+"Oh my god!":"¡Madre mía!",
+"Yeah (very casual)":"Sí, sí.",
+"Sure, all good":"¡Vale, todo bien!",
+"Let's do it / go for it":"¡Venga, vamos!",
+"Go ahead":{f:"¡Venga, adelante!",p:"Adelante, por favor."},
+"Chill / no stress":"Tranqui, sin agobios.",
+"Dunno":"Ni idea.",
+"I'm confused":"Estoy un poco liado.",
+"Wait a sec":"Espera un segundo.",
+"Be right back":"Ahora vuelvo.",
+"I'm off then":"Bueno, me piro.",
+"What's up?":"¿Qué pasa, tío?",
+"Where've you been? (casual hello)":"¡Hombre! ¿Dónde te metías?",
+"Eaten yet? (casual hello)":"¿Has comido ya?",
+"Already ate":"Ya he comido.",
+"I'm so hungry":"¡Tengo un hambre que me muero!",
+"I'm so sleepy":"Tengo un sueño que flipas.",
+"It's so hot":"¡Qué calor hace!",
+"I'm exhausted":{f:"Estoy reventado.",p:"Estoy agotado."},
+"I'm bored / fed up":"Estoy harto.",
+"So much fun":"¡Nos lo estamos pasando genial!",
+"So cute":"¡Qué mono!",
+"I'm drunk":"Voy un poco pedo.",
+"Thanks (to a friend)":"¡Gracias, tío, eres un sol!",
+"So satisfying! / Pure bliss":"¡Qué gustazo!",
+"Annoying! (slang)":"¡Qué rollo!",
+"Got played / got tricked":"¡Me han timado!",
+"Absolutely stunning":"¡Es precioso!",
+"Busted! Cat's out of the bag":"¡Te pillé!",
+"Nailed it / killed it":"¡Lo has bordado!",
+"*eye roll*":"Ya, claro...",
+"Don't even think about it":"¡Ni de coña!",
+"I'm broke":"Estoy sin blanca.",
+"Got it / I get it":"¡Pillado!",
+"I'm so into it":"¡Me flipa!",
+"Super cool":"¡Mola mucho!",
+"You got this! Keep going":"¡Tú puedes, ánimo!",
+"Just a sec":"¡Un segundo!",
+"Lucky break":"¡Qué potra!",
+"Right?":"¿A que sí?",
+"What? / What's that?":"¿Qué? ¿Qué es eso?",
+"OK then / fine":"Bueno, vale.",
+"That's it / exactly":"¡Eso es!",
+"Give me a hand, come on":"¡Venga, échame una mano!",
+"Wanna go out?":"¿Salimos esta noche?",
+"It's fine, right?":"No pasa nada, ¿no?",
+"Uh oh, we're in trouble":"¡Ay, la hemos liado!",
+"Time for makeup":"Es la hora de maquillaje.",
+"Sorry, I'm naked":{f:"¡Perdona, estoy en pelotas!",p:"Disculpe, no estoy vestido."},
+"Don't rub it":{f:"No te frotes.",p:"No se frote."},
+"Don't eat or drink yet":{f:"Todavía no comas ni bebas nada.",p:"Todavía no coma ni beba nada."},
+"Use a straw":{f:"Usa una pajita.",p:"Use una pajita, por favor."},
+"Remover":"Disolvente",
+"Silicone piece":"Pieza de silicona",
+"Tissue":"Pañuelo de papel",
+"Cut!":"¡Corten!",
+"Good, approved":"¡Bien, esta vale!",
+"One more take":"¡Otra toma!",
+"Everyone to your positions":"¡Todos a sus puestos!",
+"Next scene":"¡Siguiente secuencia!",
+"Start shooting":"¡Rodando!",
+"Look at the camera":{f:"Mira a cámara.",p:"Mire a cámara."},
+"Don't look at the camera":{f:"No mires a cámara.",p:"No mire a cámara."},
+"Costume department":"Vestuario",
+"Extension cord":"Alargador",
+"That's enough":"¡Ya está bien!",
+"What should we do?":"¿Qué hacemos?",
+"Hide":{f:"¡Escóndete!",p:"¡Escóndase!"}
+});
+/* Spanish from Argentina (Buenos Aires): vos for Friends (podés, tenés, mirá) with porteño slang (che, dale, copado, re, laburo),
+   usted for Polite/Formal, Argentine words (maní, sorbete, zapatilla, handy, citación, langostinos). */
+const ESA_PH=Object.assign({},ES_PH,{
+"Hello":{f:"¡Hola, che!",p:"¡Buen día!"},
+"Thank you":{f:"¡Gracias!",p:"Muchas gracias."},
+"You're welcome / no problem":{f:"¡De nada!",p:"De nada, por favor."},
+"OK / can do":{f:"¡Dale!",p:"Sí, claro, no hay problema."},
+"Can't / not allowed":{f:"No se puede, che.",p:"Eso no está permitido."},
+"Bye, I'm off":{f:"Bueno, me voy. ¡Chau!",p:"Bueno, me retiro. ¡Hasta luego!"},
+"I understand":"Entendí.",
+"Can you speak slowly?":{f:"¿Podés hablar más despacio?",p:"¿Podría hablar más despacio, por favor?"},
+"Can you say it again?":{f:"¿Me lo repetís?",p:"¿Me lo podría repetir, por favor?"},
+"Do you speak English?":{f:"¿Hablás inglés?",p:"¿Habla usted inglés?"},
+"Delicious":{f:"¡Está re rico!",p:"¡Está delicioso!"},
+"Not spicy":"Que no sea picante, por favor.",
+"A little spicy":"Un poco picante, por favor.",
+"I'm allergic to peanuts":"Soy alérgico al maní.",
+"Grilled chicken":"Pollo a la parrilla",
+"Boiled egg":"Huevo duro",
+"Fried egg":"Huevo frito",
+"Shrimp":"Langostinos",
+"Eat here":"Para comer acá.",
+"I'm full":{f:"¡Estoy re lleno, no doy más!",p:"Estoy satisfecho, gracias."},
+"Can I get more?":{f:"¿Me das un poco más?",p:"¿Me podría servir un poco más?"},
+"Can you use the meter?":"¿Puede poner el reloj, por favor?",
+"Stop here":"Acá, por favor.",
+"Turn left":"Doble a la izquierda.",
+"Turn right":"Doble a la derecha.",
+"Straight ahead":"Derecho.",
+"Hurry a bit, please":{f:"Apurate un poco, porfa.",p:"¿Se podría apurar un poco, por favor?"},
+"Traffic's terrible":"¡Qué quilombo de tránsito!",
+"How much is this?":{f:"¿Cuánto sale?",p:"Disculpe, ¿cuánto cuesta esto?"},
+"Just looking":"Solo estoy mirando, gracias.",
+"Any more discount?":"¿No me lo deja un poco más barato?",
+"How's it going?":{f:"¿Qué onda? ¿Todo bien?",p:"¿Cómo está usted?"},
+"I'm fine":{f:"Todo bien, ¿y vos?",p:"Muy bien, gracias. ¿Y usted?"},
+"Nice to meet you":{f:"¡Un gusto!",p:"Es un placer conocerlo."},
+"What's your name?":{f:"¿Cómo te llamás?",p:"¿Cómo se llama usted?"},
+"Really fun":{f:"¡Está re copado!",p:"¡Es muy divertido!"},
+"Beautiful":"¡Qué lindo!",
+"Don't be shy / no need to be formal":{f:"¡Dale, no tengas vergüenza!",p:"No se preocupe, con confianza."},
+"Good luck":"¡Suerte!",
+"Please call the police":{f:"¡Llamá a la policía!",p:"¡Llame a la policía, por favor!"},
+"Please call an ambulance":{f:"¡Llamá a una ambulancia!",p:"¡Llame a una ambulancia, por favor!"},
+"Take a break":"Vamos a hacer un corte.",
+"That's a wrap":"¡Terminamos por hoy!",
+"Editing":"Montaje",
+"Grip department":"Maquinistas",
+"Grip":"Maquinista",
+"Costume designer":"Vestuarista",
+"Makeup artist":"Maquillador",
+"Script supervisor (continuity)":"Continuista",
+"Production manager":"Jefe de producción",
+"Editor":"Montajista",
+"Still photographer":"Fotógrafo de foto fija",
+"Editing department":"Departamento de montaje",
+"Next set-up":"¡Siguiente plano!",
+"Set up the lights":"Vamos a armar las luces.",
+"Wide shot":"Plano general",
+"Lunch break":"Corte para almorzar",
+"Where's craft services (crafty)?":{f:"¿Dónde está el catering?",p:"Disculpe, ¿dónde está el catering?"},
+"Where's the snack table?":{f:"¿Dónde está la mesa de snacks?",p:"Disculpe, ¿dónde está la mesa de snacks?"},
+"Call time":"Citación",
+"Your call time":{f:"Tu citación",p:"Su citación"},
+"My call time":"Mi citación",
+"What's your call time?":{f:"¿A qué hora estás citado?",p:"¿A qué hora está citado?"},
+"Can we shoot here?":{f:"¿Podemos filmar acá?",p:"¿Podríamos filmar acá?"},
+"Great job":"¡Excelente laburo!",
+"Tripod":"Trípode",
+"Light stand":"Pie de luz",
+"LED light":"Luz LED",
+"Generator":"Grupo electrógeno",
+"Powerboard / extension cord":"Zapatilla",
+"Headphones":"Auriculares",
+"Walkie-talkie":"Handy",
+"Lavalier mic":"Micrófono corbatero",
+"The battery's dead":"Se terminó la batería.",
+"The signal dropped":"Se cortó la señal.",
+"The power's out":"Se cortó la luz.",
+"Hide / get out of sight":{f:"¡Escondete!",p:"¡Escóndase!"},
+"Get out of shot":{f:"¡Salí de cuadro!",p:"¡Salga de cuadro, por favor!"},
+"Stand back":{f:"¡Correte para atrás!",p:"¡Córrase para atrás!"},
+"Wait":{f:"¡Esperá!",p:"¡Espere!"},
+"Turn it on":{f:"¡Prendelo!",p:"¡Préndalo!"},
+"Turn it off":{f:"¡Apagalo!",p:"¡Apáguelo!"},
+"Turn on the fan to clear the smoke":{f:"Prendé el ventilador para sacar el humo.",p:"Prenda el ventilador para sacar el humo, por favor."},
+"Forklift":"Autoelevador",
+"Take away (remove it)":{f:"Sacalo.",p:"Sáquelo, por favor."},
+"Safety glasses":"Anteojos de seguridad",
+"SFX|Turn left":{f:"¡Girá a la izquierda!",p:"¡Gire a la izquierda!"},
+"SFX|Turn right":{f:"¡Girá a la derecha!",p:"¡Gire a la derecha!"},
+"When's lunch?":{f:"¿A qué hora almorzamos?",p:"¿A qué hora es el almuerzo?"},
+"What's my call time?":"¿A qué hora es mi citación?",
+"What's tomorrow's call time?":"¿A qué hora es la citación mañana?",
+"Where are we filming tomorrow?":"¿Dónde filmamos mañana?",
+"Cool! / Awesome":"¡Qué copado!",
+"Amazing! / The best":"¡Es lo más!",
+"Killer! (slang: awesome)":"¡Está zarpado!",
+"Spot on / perfect":"¡Joya!",
+"Wow!":"¡Uau!",
+"Seriously? / For real?":"¿Posta?",
+"No way!":"¡No te puedo creer!",
+"Yeah (very casual)":"Sí, sí.",
+"Sure thing":"¡Obvio!",
+"Sure, all good":"¡Dale, todo bien!",
+"Let's do it / go for it":"¡Dale, vamos!",
+"Let's go!":"¡Vamos!",
+"Go ahead":{f:"¡Dale, adelante!",p:"Adelante, por favor."},
+"Chill / no stress":"Tranqui, todo bien.",
+"Forget it / whatever":"Olvidate.",
+"Don't worry about it":{f:"¡Quedate tranquilo!",p:"No se preocupe."},
+"I'm confused":"Estoy re perdido.",
+"Wait a sec":"Esperá un segundo.",
+"Be right back":"Ya vuelvo.",
+"What's up?":"¿Qué hacés, che?",
+"What are you up to?":"¿Qué andás haciendo?",
+"Where've you been? (casual hello)":"¿Qué hacés? ¿Dónde andabas?",
+"I'm so sleepy":"Tengo un sueño bárbaro.",
+"It's so hot":"¡Qué calor que hace!",
+"I'm exhausted":{f:"Estoy fundido.",p:"Estoy agotado."},
+"I can't take any more":"No doy más.",
+"I'm bored / fed up":"Estoy podrido.",
+"So much fun":"¡La estamos pasando bárbaro!",
+"I'm drunk":"Estoy re en pedo.",
+"Thanks (to a friend)":"¡Gracias, sos un genio!",
+"So satisfying! / Pure bliss":"¡Qué placer!",
+"Just for fun / just joking":"¡Es joda!",
+"Annoying! (slang)":"¡Qué pesado!",
+"Got played / got tricked":"¡Me engañaron!",
+"Busted! Cat's out of the bag":"¡Te agarré!",
+"Nailed it / killed it":"¡La rompiste!",
+"*eye roll*":"Ay, sí, claro...",
+"Don't even think about it":"¡Ni loco!",
+"I'm broke":"Estoy seco.",
+"Got it / I get it":"¡Ya entendí!",
+"Super cool":"¡Está re copado!",
+"You got this! Keep going":"¡Vos podés, dale!",
+"Just a sec":"¡Un toque!",
+"Right?":"¿No?",
+"What? / What's that?":"¿Qué? ¿Qué es eso?",
+"Up to you":{f:"Como quieras.",p:"Como usted prefiera."},
+"OK then / fine":"Bueno, dale.",
+"Give me a hand, come on":"¡Dale, dame una mano!",
+"It's fine, right?":"No pasa nada, ¿no?",
+"Uh oh, we're in trouble":"¡Uh, estamos al horno!",
+"Make yourself at home / as you like":{f:"Estás en tu casa.",p:"Está usted en su casa."},
+"Time for makeup":"Es hora de maquillaje.",
+"Sorry, I'm naked":{f:"¡Perdón, estoy en bolas!",p:"Disculpe, no estoy vestido."},
+"Close your eyes":{f:"Cerrá los ojos.",p:"Cierre los ojos."},
+"Open your eyes":{f:"Abrí los ojos.",p:"Abra los ojos."},
+"Look up":{f:"Mirá hacia arriba.",p:"Mire hacia arriba."},
+"Look down":{f:"Mirá hacia abajo.",p:"Mire hacia abajo."},
+"Relax your face":{f:"Relajá la cara.",p:"Relaje la cara."},
+"Is it too hot?":{f:"¿Tenés mucho calor?",p:"¿Tiene mucho calor?"},
+"Tell me if it hurts":{f:"Avisame si te duele.",p:"Avíseme si le duele."},
+"Any allergies?":{f:"¿Tenés alguna alergia?",p:"¿Tiene alguna alergia?"},
+"Don't rub it":{f:"No te frotes.",p:"No se frote."},
+"Use a straw":{f:"Usá un sorbete.",p:"Use un sorbete, por favor."},
+"Silicone piece":"Pieza de silicona",
+"Tissue":"Pañuelito descartable",
+"Cut!":"¡Corten!",
+"Good, approved":"¡Bien, va!",
+"Stand here":{f:"Ponete acá.",p:"Póngase acá, por favor."},
+"Look at the camera":{f:"Mirá a cámara.",p:"Mire a cámara."},
+"Don't look at the camera":{f:"No mires a cámara.",p:"No mire a cámara."},
+"Speak louder":{f:"Hablá más fuerte.",p:"Hable más fuerte, por favor."},
+"Extension cord":"Alargue",
+"That's enough":"Ya está.",
+"What should we do?":"¿Qué hacemos?",
+"See you again":{f:"¡Nos vemos!",p:"¡Hasta pronto, fue un gusto!"},
+"Everyone stand back":"¡Todos para atrás!",
+"I'm so hungry":"¡Me muero de hambre!",
+"Dunno":"Ni idea.",
+"I'm off then":"Bueno, me voy. ¡Chau!",
+"Edge of frame":"Borde del cuadro",
+"Hide":{f:"¡Escondete!",p:"¡Escóndase!"}
+});
+const PH_TABLES={fr:FR_PH,zh:ZH_PH,zt:ZT_PH,yue:YUE_PH,ja:JA_PH,ko:KO_PH,vi:VI_PH,ms:MS_PH,tl:TL_PH,es:ES_PH,esp:ESP_PH,esa:ESA_PH};
 // built-in text for item i in language L for the current register: {t, ph} or null
 function builtinFull(i,L){
   const T=PH_TABLES[L];if(!T||!i||!i.en)return null;
@@ -5849,11 +6271,11 @@ const LANGS=[
 {c:"th",n:"Thai",tts:"th-TH",mm:"th"},{c:"vi",n:"Vietnamese",tts:"vi-VN",mm:"vi"},{c:"lo",n:"Lao",tts:"lo-LA",mm:"lo"},{c:"km",n:"Khmer",tts:"km-KH",mm:"km"},
 {c:"zh",n:"Chinese (Mandarin)",tts:"zh-CN",mm:"zh-CN"},{c:"ja",n:"Japanese",tts:"ja-JP",mm:"ja"},{c:"ko",n:"Korean",tts:"ko-KR",mm:"ko"},
 {c:"id",n:"Indonesian",tts:"id-ID",mm:"id"},{c:"ms",n:"Malay",tts:"ms-MY",mm:"ms"},{c:"tl",n:"Filipino",tts:"fil-PH",mm:"tl"},{c:"hi",n:"Hindi",tts:"hi-IN",mm:"hi"},
-{c:"es",n:"Spanish",tts:"es-MX",mm:"es"},{c:"fr",n:"French",tts:"fr-FR",mm:"fr"},{c:"de",n:"German",tts:"de-DE",mm:"de"},{c:"it",n:"Italian",tts:"it-IT",mm:"it"},
+{c:"es",n:"Spanish",tts:"es-MX",mm:"es"},{c:"esp",n:"Spanish (Spain)",tts:"es-ES",mm:"es"},{c:"esa",n:"Spanish (Argentina)",tts:"es-AR",mm:"es"},{c:"fr",n:"French",tts:"fr-FR",mm:"fr"},{c:"de",n:"German",tts:"de-DE",mm:"de"},{c:"it",n:"Italian",tts:"it-IT",mm:"it"},
 {c:"pt",n:"Portuguese",tts:"pt-BR",mm:"pt"},{c:"ru",n:"Russian",tts:"ru-RU",mm:"ru"},{c:"ar",n:"Arabic",tts:"ar-SA",mm:"ar"},{c:"uz",n:"Uzbek",tts:"uz-UZ",mm:"uz"},
 {c:"zt",n:"Chinese (Taiwan)",tts:"zh-TW",mm:"zh-TW"},{c:"my",n:"Burmese",tts:"my-MM",mm:"my"},{c:"ta",n:"Tamil",tts:"ta-IN",mm:"ta"},{c:"bn",n:"Bengali",tts:"bn-BD",mm:"bn"},{c:"ur",n:"Urdu",tts:"ur-PK",mm:"ur"},{c:"fa",n:"Persian",tts:"fa-IR",mm:"fa"},{c:"tr",n:"Turkish",tts:"tr-TR",mm:"tr"},{c:"pl",n:"Polish",tts:"pl-PL",mm:"pl"},{c:"nl",n:"Dutch",tts:"nl-NL",mm:"nl"},{c:"sv",n:"Swedish",tts:"sv-SE",mm:"sv"},{c:"el",n:"Greek",tts:"el-GR",mm:"el"},{c:"he",n:"Hebrew",tts:"he-IL",mm:"he"},{c:"uk",n:"Ukrainian",tts:"uk-UA",mm:"uk"},{c:"ne",n:"Nepali",tts:"ne-NP",mm:"ne"},{c:"si",n:"Sinhala",tts:"si-LK",mm:"si"},{c:"mn",n:"Mongolian",tts:"mn-MN",mm:"mn"},{c:"kk",n:"Kazakh",tts:"kk-KZ",mm:"kk"},{c:"sw",n:"Swahili",tts:"sw-KE",mm:"sw"},{c:"cs",n:"Czech",tts:"cs-CZ",mm:"cs"},{c:"ro",n:"Romanian",tts:"ro-RO",mm:"ro"},{c:"hu",n:"Hungarian",tts:"hu-HU",mm:"hu"},
 {c:"yue",n:"Cantonese",tts:"zh-HK",mm:"yue",vx:1},{c:"ceb",n:"Cebuano",tts:"ceb-PH",mm:"ceb"},{c:"jv",n:"Javanese",tts:"jv-ID",mm:"jw"},{c:"pa",n:"Punjabi",tts:"pa-IN",mm:"pa"},{c:"mr",n:"Marathi",tts:"mr-IN",mm:"mr"},{c:"te",n:"Telugu",tts:"te-IN",mm:"te"}];
-const NAT={th:"ไทย",vi:"Tiếng Việt",lo:"ລາວ",km:"ខ្មែរ",zh:"中文",ja:"日本語",ko:"한국어",id:"Bahasa Indonesia",ms:"Bahasa Melayu",tl:"Filipino",hi:"हिन्दी",es:"Español",fr:"Français",de:"Deutsch",it:"Italiano",pt:"Português",ru:"Русский",ar:"العربية",uz:"Oʻzbekcha",zt:"繁體中文(台灣)",my:"မြန်မာ",ta:"தமிழ்",bn:"বাংলা",ur:"اردو",fa:"فارسی",tr:"Türkçe",pl:"Polski",nl:"Nederlands",sv:"Svenska",el:"Ελληνικά",he:"עברית",uk:"Українська",ne:"नेपाली",si:"සිංහල",mn:"Монгол",kk:"Қазақша",sw:"Kiswahili",cs:"Čeština",ro:"Română",hu:"Magyar",yue:"廣東話",ceb:"Sinugboanon",jv:"Basa Jawa",pa:"ਪੰਜਾਬੀ",mr:"मराठी",te:"తెలుగు"};
+const NAT={th:"ไทย",vi:"Tiếng Việt",lo:"ລາວ",km:"ខ្មែរ",zh:"中文",ja:"日本語",ko:"한국어",id:"Bahasa Indonesia",ms:"Bahasa Melayu",tl:"Filipino",hi:"हिन्दी",es:"Español",esp:"Español (España)",esa:"Español (Argentina)",fr:"Français",de:"Deutsch",it:"Italiano",pt:"Português",ru:"Русский",ar:"العربية",uz:"Oʻzbekcha",zt:"繁體中文(台灣)",my:"မြန်မာ",ta:"தமிழ்",bn:"বাংলা",ur:"اردو",fa:"فارسی",tr:"Türkçe",pl:"Polski",nl:"Nederlands",sv:"Svenska",el:"Ελληνικά",he:"עברית",uk:"Українська",ne:"नेपाली",si:"සිංහල",mn:"Монгол",kk:"Қазақша",sw:"Kiswahili",cs:"Čeština",ro:"Română",hu:"Magyar",yue:"廣東話",ceb:"Sinugboanon",jv:"Basa Jawa",pa:"ਪੰਜਾਬੀ",mr:"मराठी",te:"తెలుగు"};
 function LG(){return LANGS.find(l=>l.c===S.lang)||LANGS[0]}
 /* My language (Settings): the side the user speaks. English unless changed; if it matches the language being learned, English is used */
 const BL_EN={c:"en",n:"English",tts:"en-US",mm:"en"};
@@ -6011,9 +6433,12 @@ function ltPron(text,L){return ltWords(text,L).join(" ")}
 /* Spanish (Mexico): sounds for English speakers, syllable by syllable, stressed syllable in capitals
    ("¿Dónde está el baño?" -> DOHN-deh es-TAH el BAH-nyoh). Spanish is spelt the way it sounds; the traps are
    j/ge/gi = h, ll/y = y, ñ = ny, silent h and u in que/qui/gue/gui, z/ce/ci = s (Latin American), x in México = h. */
+// accent of the Spanish being sounded out: es Mexico, esp Spain, esa Argentina
+let ES_VAR="es";
+const ESL=()=>S.lang==="es"||S.lang==="esp"||S.lang==="esa";
 const ES_V="aeiouáéíóúü",ES_ACC="áéíóú",ES_WEAK="iuü";
 const ES_ON=new Set(["pl","pr","bl","br","cl","cr","dr","tr","fl","fr","gl","gr","tl","ch","ll","rr"]);
-const ES_SP={méxico:"MEH-hee-koh",mexico:"MEH-hee-koh",mexicano:"meh-hee-KAH-noh",mexicana:"meh-hee-KAH-nah",oaxaca:"wah-HAH-kah",xalapa:"hah-LAH-pah",y:"ee",o:"oh",a:"ah",e:"eh",u:"oo",ok:"oh-KAY",wifi:"WY-fy",led:"led",iso:"EE-soh",qr:"koo-EH-rreh",dolly:"DOH-lee",steadicam:"STEH-dee-kahm",set:"set",gaffer:"GAH-fer",script:"es-KREEPT",boom:"boom",craft:"krahft",skytrain:"SKY-trayn",walkie:"WOH-kee",vegano:"beh-GAH-noh"};
+const ES_SP={euro:"EH-oo-roh",euros:"EH-oo-rohs",méxico:"MEH-hee-koh",mexico:"MEH-hee-koh",mexicano:"meh-hee-KAH-noh",mexicana:"meh-hee-KAH-nah",oaxaca:"wah-HAH-kah",xalapa:"hah-LAH-pah",y:"ee",o:"oh",a:"ah",e:"eh",u:"oo",ok:"oh-KAY",wifi:"WY-fy",led:"led",iso:"EE-soh",qr:"koo-EH-rreh",dolly:"DOH-lee",steadicam:"STEH-dee-kahm",set:"set",gaffer:"GAH-fer",script:"es-KREEPT",boom:"boom",craft:"krahft",skytrain:"SKY-trayn",walkie:"WOH-kee",vegano:"beh-GAH-noh"};
 function esSyls(w){
   // split into letters, keeping ch, ll, rr together
   const L=[];for(let i=0;i<w.length;){const two=w.slice(i,i+2);if(two==="ch"||two==="ll"||two==="rr"){L.push(two);i+=2}else{L.push(w[i]);i++}}
@@ -6049,15 +6474,15 @@ function esSylSound(s,first,prev){
   let o="";const on=s.on;
   for(let i=0;i<on.length;i++){const c=on[i],nx=on[i+1]||s.nu[0]||"";
     if(c==="h")continue;
-    if(c==="c")o+=/[eéií]/.test(nx)?"s":"k";
+    if(c==="c")o+=/[eéií]/.test(nx)?(ES_VAR==="esp"?"th":"s"):"k";
     else if(c==="g")o+=/[eéií]/.test(nx)?"h":"g";
     else if(c==="q")o+="k";
     else if(c==="u")o+=prev==="gü"?"w":"";
     else if(c==="j")o+="h";
-    else if(c==="ll"||c==="y")o+="y";
+    else if(c==="ll"||c==="y")o+=ES_VAR==="esa"?"sh":"y";
     else if(c==="ñ")o+="ny";
     else if(c==="v")o+="b";
-    else if(c==="z")o+="s";
+    else if(c==="z")o+=ES_VAR==="esp"?"th":"s";
     else if(c==="x")o+=first&&!i?"s":"ks";
     else if(c==="r")o+=!i&&(first||prev==="n"||prev==="l"||prev==="s")?"rr":"r";
     else o+=c;
@@ -6073,18 +6498,18 @@ function esSylSound(s,first,prev){
   if(/^(q|g)$/.test(s.on.filter(c=>c!=="u").slice(-1)[0]||"")&&s.on[s.on.length-1]==="u")v={e:cl?"e":"eh",i:"ee",é:"eh",í:"ee"}[n]||v;
   if(o.endsWith("y")&&v[0]==="y")v=v.slice(1);
   if(o.endsWith("w")&&v[0]==="w")v=v.slice(1);
-  let c="";for(const x of s.co){if(x==="h")continue;c+=x==="z"?"s":x==="c"?"k":x==="x"?"ks":x==="j"?"h":x==="v"?"b":x==="ll"||x==="y"?"y":x==="ñ"?"ny":x==="g"?"g":x}
+  let c="";for(const x of s.co){if(x==="h")continue;c+=x==="z"?(ES_VAR==="esp"?"th":"s"):x==="c"?"k":x==="x"?"ks":x==="j"?"h":x==="v"?"b":x==="ll"||x==="y"?"y":x==="ñ"?"ny":x==="g"?"g":x}
   return o+v+c;
 }
 function esWord(w){
-  const lw=w.toLowerCase();if(ES_SP[lw])return ES_SP[lw];
+  const lw=w.toLowerCase().replace(/['’]/g,"");if(ES_SP[lw])return ES_SP[lw];
   if(!/^[a-záéíóúüñ]+$/.test(lw))return null;
   const S=esSyls(lw);if(!S||!S.length)return null;
   const st=esStress(S,lw);
   return S.map((s,k)=>{const prev=k?(S[k-1].co.slice(-1)[0]||""):"";let x=esSylSound(s,k===0,prev);if(lw.slice(0,3)==="güe"&&!k)x=x.replace(/^g/,"gw");return S.length>1&&k===st?x.toUpperCase():x}).join("-");
 }
-function esWords(text){return String(text||"").replace(/-/g," ").split(/[\s,.!?¿¡;:"“”()…–—]+/).filter(Boolean).map(w=>esWord(w)||w.toLowerCase())}
-function esPron(text){return esWords(text).join(" ")}
+function esWords(text,L){ES_VAR=L||"es";return String(text||"").replace(/-/g," ").split(/[\s,.!?¿¡;:"“”()…–—]+/).filter(Boolean).map(w=>esWord(w)||w.toLowerCase())}
+function esPron(text,L){return esWords(text,L).join(" ")}
 /* Spanish (Mexico) numbers for the keypad and number tiles: 21 veintiuno, 500 quinientos, 1,000,000 un millón */
 const ES_U=["cero","uno","dos","tres","cuatro","cinco","seis","siete","ocho","nueve","diez","once","doce","trece","catorce","quince","dieciséis","diecisiete","dieciocho","diecinueve","veinte","veintiuno","veintidós","veintitrés","veinticuatro","veinticinco","veintiséis","veintisiete","veintiocho","veintinueve"];
 const ES_T=["","","","treinta","cuarenta","cincuenta","sesenta","setenta","ochenta","noventa"];
@@ -6104,16 +6529,16 @@ function esNumWords(ip){const gs=[];let x=ip;while(x.length){gs.unshift(+x.slice
   return w.join(" ")}
 // uno before a noun or mil: un / veintiún
 function esShort(t){return t.replace(/\buno$/,"un").replace(/veintiuno$/,"veintiún")}
-function esNum(str,unit){
+function esNum(str,unit,L){
   let [ip,fp]=String(str).split(".");ip=(ip||"").replace(/^0+(?=\d)/,"");
   const zero=!ip||/^0+$/.test(ip);let w=zero?"cero":esNumWords(ip);
   if(fp!==undefined&&fp!=="")w+=" punto"+[...fp].map(c=>" "+ES_U[+c]).join("");
   if(unit){const one=w==="uno",fem=unit==="beer",de=/(millón|millones)$/.test(w)?" de":"";
     if(fem)w=w.replace(/ientos\b/g,"ientas").replace(/\buno$/,"una").replace(/veintiuno$/,"veintiuna");else w=esShort(w);
-    w+=de+({baht:one?" peso":" pesos",beer:one?" cerveza":" cervezas",coffee:one?" café":" cafés"})[unit]}
-  return{th:w,ro:esPron(w)};
+    w+=de+({baht:L==="esp"?(one?" euro":" euros"):(one?" peso":" pesos"),beer:one?" cerveza":" cervezas",coffee:one?" café":" cafés"})[unit]}
+  return{th:w,ro:esPron(w,L)};
 }
-const SOUNDS=["th","vi","ms","tl","es"];
+const SOUNDS=["th","vi","ms","tl","es","esp","esa"];
 const GL_FIX={th:{"ครับ":"(polite)","ค่ะ":"(polite)","คะ":"(polite)","นะ":"(soft)","จ้ะ":"(friendly)","จ้า":"(friendly)","ไหม":"(question)","มั้ย":"(question)","ได้":"can","ไม่":"not","หน่อย":"please","ด้วย":"please","คับ":"(polite)","เหรอ":"(really?)","ล่ะ":"(then?)","สิ":"(do it)","เลย":"(right now)"},vi:{"ạ":"(polite)","nhé":"(ok?)","không":"no / (question)","ơi":"(hey)","nhỉ":"(right?)"},tl:{po:"(polite)",ho:"(polite)"},ms:{lah:"(emphasis)"}};
 const VI_WORDS=new Set("cái này|cái kia|cái đó|cái gì|bao nhiêu|bao giờ|bao lâu|nhà vệ sinh|vệ sinh|cảm ơn|xin chào|xin lỗi|tạm biệt|khách sạn|nhà hàng|cà phê|sân bay|bệnh viện|nhà thuốc|hiệu thuốc|cảnh sát|ngân hàng|siêu thị|chợ đêm|đường phố|thành phố|xe buýt|xe máy|xe ôm|tắc xi|taxi|máy bay|tàu hỏa|ga tàu|vé tàu|hộ chiếu|điện thoại|máy quay|máy ảnh|diễn viên|đạo diễn|quay phim|bộ phim|hóa trang|trang điểm|hành động|ở đâu|ở đây|ở đó|bên trái|bên phải|đi thẳng|rẽ trái|rẽ phải|bây giờ|hôm nay|ngày mai|hôm qua|buổi sáng|buổi chiều|buổi tối|ban đêm|tuần sau|tháng sau|thời gian|mấy giờ|một chút|chút xíu|làm ơn|giúp đỡ|giúp tôi|được không|không sao|không có|không phải|có thể|có không|tại sao|như thế nào|thế nào|như vậy|vì sao|người việt|việt nam|tiếng việt|tiếng anh|người nước ngoài|nước ngoài|nước suối|nước đá|nước mía|bia hơi|thức ăn|đồ ăn|ăn sáng|ăn trưa|ăn tối|thực đơn|hóa đơn|tính tiền|tiền mặt|thẻ tín dụng|giảm giá|đắt quá|rẻ quá|ngon quá|rất ngon|bánh mì|phở bò|phở gà|cơm gà|cơm tấm|bún chả|nem rán|chả giò|gỏi cuốn|rau thơm|hải sản|thịt bò|thịt gà|thịt heo|thịt lợn|trứng gà|đồ uống|trà đá|sinh tố|ăn chay|dị ứng|đậu phộng|không cay|ít cay|ít đường|không đá|bác sĩ|đau bụng|đau đầu|cấp cứu|nguy hiểm|an toàn|khẩn cấp|đi bộ|chờ đợi|chờ một chút|đợi một chút|bắt đầu|kết thúc|nghỉ ngơi|làm việc|công việc|hiểu không|không hiểu|biết không|không biết|chụp ảnh|mua sắm|quần áo|giày dép|kích cỡ|màu sắc|phòng tắm|phòng ngủ|điều hòa|wifi|mật khẩu|ổ cắm|sạc pin|đẹp quá|vui vẻ|hạnh phúc|bạn bè|gia đình|anh ấy|chị ấy|cô ấy|ông ấy|bà ấy|chúng tôi|chúng ta|các bạn|mọi người|tất cả|cũng được|đúng rồi|sai rồi|xong rồi|chưa xong|sẵn sàng|chuẩn bị|lần nữa|một lần|hai lần|lần đầu|cẩn thận|chậm lại|nhanh lên|nói chậm|im lặng|yên lặng|đồng hồ|hôm nào|lúc nào|ai đó|cái nào|chỗ nào|đâu đó|tiếp theo|cảnh quay|máu giả|tóc giả|râu giả".split("|"));
 /* common Thai words with the meaning they usually have in a sentence (a one-word web lookup often picks a rarer sense) */
@@ -6733,7 +7158,7 @@ function toneHTML(th,ph,tn,force){
   if(ZHL()&&th&&/[\u3400-\u9fff]/.test(th)){const P=zhPron(th,S.lang);if(P)return `<span class="tn" data-g="${esc(th)}">${P.ro.map((x,k)=>`<span class="ts">${ticon(P.tn[k])}${esc(x)}</span>`).join("")}</span>`}
   if(S.lang==="vi"&&th){const P=viPron(th);if(P)return `<span class="tn" data-g="${esc(th)}">${P.ro.map((x,k)=>`<span class="ts">${ticon(P.tn[k])}${esc(x)}</span>`).join("")}</span>`}
   if((S.lang==="ms"||S.lang==="tl")&&th){const w=ltWords(th,S.lang);if(w.length)return `<span class="tn" data-g="${esc(th)}">${w.map(x=>`<span class="ts">${esc(x)}</span>`).join("")}</span>`;return esc(ph||"")}
-  if(S.lang==="es"&&th){const w=esWords(th);if(w.length)return `<span class="tn" data-g="${esc(th)}">${w.map(x=>`<span class="ts">${esc(x)}</span>`).join("")}</span>`;return esc(ph||"")}
+  if(ESL()&&th){const w=esWords(th,S.lang);if(w.length)return `<span class="tn" data-g="${esc(th)}">${w.map(x=>`<span class="ts">${esc(x)}</span>`).join("")}</span>`;return esc(ph||"")}
   if(S.lang!=="th"||!th)return esc(ph||"");
   let sy=String(ph||"").trim().split(/\s+/).filter(Boolean),t=tn||"";
   const pm=String(th).match(/(ครับ|ค่ะ|คะ)$/);
@@ -6797,7 +7222,7 @@ function jpEn(r){
   const ini=(b.match(/^(gw|kw|ng|[bpmfdtnlgkhwzcsj])/)||[""])[0],f=b.slice(ini.length),F=JP_F[f];if(F==null)return b;
   const I=ini?JP_I[ini]:"";return I==="y"&&F[0]==="y"?F:I+F;
 }
-function sx(r){if(ZHL()&&/[\u3400-\u9fff]/.test(r.t||r.th||"")){const P=zhPron(r.t||r.th,S.lang);if(P)return P.ro.join(" ")}if(S.lang==="vi"){const P=viPron(r.t||r.th);if(P)return P.ro.join(" ")}if(S.lang==="ms"||S.lang==="tl"){const p=ltPron(r.t||r.th,S.lang);if(p)return p}if(S.lang==="es"){const p=esPron(r.t||r.th);if(p)return p}return r.ph||(r.ro?(S.lang==="th"?phonFromRo(r.ro):r.ro):"")}
+function sx(r){if(ZHL()&&/[\u3400-\u9fff]/.test(r.t||r.th||"")){const P=zhPron(r.t||r.th,S.lang);if(P)return P.ro.join(" ")}if(S.lang==="vi"){const P=viPron(r.t||r.th);if(P)return P.ro.join(" ")}if(S.lang==="ms"||S.lang==="tl"){const p=ltPron(r.t||r.th,S.lang);if(p)return p}if(ESL()){const p=esPron(r.t||r.th,S.lang);if(p)return p}return r.ph||(r.ro?(S.lang==="th"?phonFromRo(r.ro):r.ro):"")}
 function full(i){
   let th=i.th,ro=i.ro||"";
   if(S.polite&&S.pol&&(i.lang||S.lang)==="th"&&i.cat!=="Numbers"&&!i.np){
@@ -6814,7 +7239,7 @@ function pickVoice(tts){
   const list=allV.filter(v=>v.lang.toLowerCase().replace("_","-").startsWith(code));
   if(!tts&&LG().vx){const full=LG().tts.toLowerCase(),yue=LG().c==="yue";return allV.find(v=>{const l=v.lang.toLowerCase().replace("_","-");return l===full||(yue&&(l.startsWith("yue")||l==="zh-yue"))})}
   if(S.voice&&code==="th"){const v=list.find(v=>v.voiceURI===S.voice);if(v)return v}
-  const ex=(tts||LG().tts).toLowerCase();return list.find(v=>v.lang.toLowerCase().replace("_","-")===ex)||(code==="zh"&&list.find(v=>!/hk|yue/i.test(v.lang)))||(ex==="es-mx"&&(list.find(v=>/^es[-_](us|419)/i.test(v.lang))||list.find(v=>!/^es[-_]es/i.test(v.lang))))||list[0];
+  const ex=(tts||LG().tts).toLowerCase();return list.find(v=>v.lang.toLowerCase().replace("_","-")===ex)||(code==="zh"&&list.find(v=>!/hk|yue/i.test(v.lang)))||((ex==="es-mx"||ex==="es-ar")&&(list.find(v=>/^es[-_](us|419)/i.test(v.lang))||list.find(v=>!/^es[-_]es/i.test(v.lang))))||list[0];
 }
 function loadVoices(){
   if(!("speechSynthesis" in window))return;
@@ -6850,7 +7275,9 @@ const SPOKEN_TTS=[[/หรือเปล่า/g,"รึเป่า"],[/ไม
 /* Casual spoken French and Spanish for Friends mode audio */
 const SPOKEN_FR=[[/\bce n'est\b/gi,"c'est"],[/\bje ne sais pas\b/gi,"chais pas"],[/\bje sais pas\b/gi,"chais pas"],[/\bil n'y a\b/gi,"y a"],[/\bil y a\b/gi,"y a"],[/\bje suis\b/gi,"chuis"],[/\btu es\b/gi,"t'es"],[/\btu as\b/gi,"t'as"],[/\btu avais\b/gi,"t'avais"],[/\bil faut\b/gi,"faut"],[/\bparce que\b/gi,"pasque"],[/\bcela\b/gi,"ça"],[/\bs'il te plaît\b/gi,"s'te plaît"],
  [/\bne\s+(\S+)\s+(pas|plus|jamais|rien|personne)\b/gi,"$1 $2"],[/\bn'(\S+)\s+(pas|plus|jamais|rien|personne)\b/gi,"$1 $2"],[/(?<!\p{L})(j|c|m|t|s|l|d|qu)e\s+(?=[aeiouéèêàâîôû])/giu,"$1'"]];
-const SPOKEN_ES=[[/\bpara\b/gi,"pa"],[/\bnada\b/gi,"na"]];
+const SPOKEN_ES=[[/\bpara\b/gi,"pa"],[/\bnada\b/gi,"na"],[/\bpues\b/gi,"pos"]];
+const SPOKEN_ESP=[[/\bpara\b/gi,"pa"],[/\bnada\b/gi,"na"],[/\b([a-záéíóúñ]{2,})ado\b/gi,"$1ao"]];
+const SPOKEN_ESA=[[/\bpara\b/gi,"pa"],[/\bnada\b/gi,"na"]];
 const SPOKEN_MS=[[/\btidak\b/gi,"tak"],[/\bsudah\b/gi,"dah"],[/\bhendak\b/gi,"nak"],[/\bmahu\b/gi,"nak"],[/\bsahaja\b/gi,"je"],[/\bsaja\b/gi,"je"],[/\bbegitu\b/gi,"gitu"],[/\bbegini\b/gi,"gini"],[/\bbagaimana\b/gi,"macam mana"],[/\bkenapa\b/gi,"apasal"],[/\bbetul\b/gi,"betul"]];
 function spokenRe(t,L){let r=t;L.forEach(([a,b])=>{r=r.replace(a,b)});return r}
 function spokenTh(t){if(!t||!/[฀-๿]/.test(t))return t;let r=t;SPOKEN_TTS.forEach(([a,b])=>{r=r.replace(a,b)});return r}
@@ -6860,7 +7287,7 @@ function speak(i,tts){
   if(!("speechSynthesis" in window)){toast("Speech isn't supported in this browser.",true);return}
   const ss=window.speechSynthesis;
   const lc=(tts||LG().tts||"").slice(0,2).toLowerCase(),fr=regNow()==="friends";
-  const u=new SpeechSynthesisUtterance(!fr?f.th:lc==="th"&&/[฀-๿]/.test(f.th||"")?spokenTh(f.th):lc==="fr"?spokenRe(f.th,SPOKEN_FR):lc==="es"?spokenRe(f.th,SPOKEN_ES):lc==="ms"?spokenRe(f.th,SPOKEN_MS):f.th);
+  const u=new SpeechSynthesisUtterance(!fr?f.th:lc==="th"&&/[฀-๿]/.test(f.th||"")?spokenTh(f.th):lc==="fr"?spokenRe(f.th,SPOKEN_FR):lc==="es"?spokenRe(f.th,/^es-es/i.test(tts||LG().tts)?SPOKEN_ESP:/^es-ar/i.test(tts||LG().tts)?SPOKEN_ESA:SPOKEN_ES):lc==="ms"?spokenRe(f.th,SPOKEN_MS):f.th);
   u.lang=tts||LG().tts;u.rate=S.rate||0.9;
   const v=pickVoice(tts);
   if(v){u.voice=v;u.lang=v.lang}
@@ -7356,6 +7783,9 @@ const OFF_CACHE="speakeasy-offline-v1";
 // To add a language: upload its reg-<code>.json and model files to the folder, then add the code here.
 // (Mozilla also has English<->X models for vi zh ja ko id ms tl hi es fr de it pt ru ar zt ta bn ur fa tr pl nl sv el he uk cs ro hu mr te.)
 const OFF_LANGS=["th","vi","ms","tl","es"];
+// Spanish from Spain and Argentina use the same Spanish offline download
+const OFF_ALIAS={esp:"es",esa:"es"};
+function OA(c){return OFF_ALIAS[c]||c}
 const OFF_MOZ={zh:"zh-Hans",zt:"zh-Hant"};
 // library files of @browsermt/bergamot-translator 0.4.9: path, bytes, sha256
 const OFF_LIBF=[["translator.js",30661,"b46f0ccf834392caf097cf4eed968d72e3ec8a855faaabe1b57bcc5f661994a5"],["translator-worker.js",17191,"90257af9ee0758983501bdce77ca7ec168cd7360d4689298c20a81b0251d6b62"],["bergamot-translator-worker.js",80474,"748b2418418a2ffc6e70721aeb10098d8e6fb589ea156b91f4ae8bc3490d8f7a"],["bergamot-translator-worker.wasm",5174294,"95a2b58dd6773bf1b3f345d71f9149928b9f75f4ec9c9064c0b3e42c298671b2"]];
@@ -7364,7 +7794,7 @@ const OFF_NOTE="Translated offline";
 const OFF_CAN=(()=>{try{return typeof caches!=="undefined"&&typeof WebAssembly!=="undefined"&&typeof Worker!=="undefined"&&!!(window.crypto&&crypto.subtle)&&typeof Blob!=="undefined"}catch(e){return false}})();
 let OFFDL=null,OFFENG=null,OFFQ=Promise.resolve(),OFFMSG={},OFFLASTERR="",OFFUI="",OFFENGC="";
 function offName(c){const l=LANGS.find(x=>x.c===c);return(l?l.n:c).replace(/\s*\(.*?\)\s*/g," ").trim()}
-function offHas(c){return OFF_CAN&&!!(S.offl&&S.offl[c])&&OFF_LANGS.indexOf(c)>=0}
+function offHas(c){c=OA(c);return OFF_CAN&&!!(S.offl&&S.offl[c])&&OFF_LANGS.indexOf(c)>=0}
 function offKey(c){return"https://speakeasy-offline.invalid/manifest/"+c+".json"}
 function offHex(b){return Array.from(new Uint8Array(b),x=>x.toString(16).padStart(2,"0")).join("")}
 function offVer(v){const m=String(v||"0").match(/^([\d.]+)(.*)$/)||["","0",""];return{n:m[1].split(".").map(x=>+x||0),pre:m[2]?1:0}}
@@ -7495,6 +7925,7 @@ function offEngine(){
   return p;
 }
 async function offTr(q,from,to){
+  from=OA(from);to=OA(to);
   const c=from==="en"?to:from;if(!q||!offHas(c))return null;
   // one language's models at a time: phones (and the 2 GB WASM heap) run out with several large models loaded
   if(OFFENGC!==c){if(OFFENGC)offReset();OFFENGC=c}
@@ -7529,7 +7960,7 @@ async function offShow(q,tok){
 }
 function offStandalone(){try{return navigator.standalone===true||matchMedia("(display-mode: standalone)").matches}catch(e){return false}}
 function offProg(){
-  const d=OFFDL;if(!d||d.code!==S.lang)return;const t=$("offPT"),b=$("offPB");if(!t||!b)return;
+  const d=OFFDL;if(!d||d.code!==OA(S.lang))return;const t=$("offPT"),b=$("offPB");if(!t||!b)return;
   const mb=x=>Math.round(x/1048576);
   // if it has to wrap, keep "X of Y MB" together on the second line
   const th=offTH();
@@ -7537,7 +7968,7 @@ function offProg(){
   b.style.width=(d.total?Math.min(100,Math.round(d.got/d.total*100)):0)+"%";
 }
 function offPaint(){
-  const row=$("offRow");if(!row)return;const c=S.lang;
+  const row=$("offRow");if(!row)return;const c=OA(S.lang);
   if(!OFF_CAN||OFF_LANGS.indexOf(c)<0){if(OFFUI!==""){row.innerHTML="";OFFUI=""}row.style.display="none";return}
   const n=esc(offName(c)),th=offTH();let h;
   const LA=th?` lang="${S.lang}"`:"",o=(k,en)=>th?OT(k,en):en;
@@ -7549,7 +7980,7 @@ function offPaint(){
   row.classList.toggle("wide",!!(OFFDL&&OFFDL.code===c||OFFMSG[c]));
   row.style.display="";offProg();
 }
-$("offRow").onclick=e=>{if(e.target.closest("#offBtn"))offDownload(S.lang)};
+$("offRow").onclick=e=>{if(e.target.closest("#offBtn"))offDownload(OA(S.lang))};
 (async()=>{try{if(!OFF_CAN)return;const cache=await caches.open(OFF_CACHE);let ch=0;
   for(const c of OFF_LANGS)if(!(S.offl&&S.offl[c])&&await cache.match(offKey(c))){S.offl=S.offl||{};S.offl[c]=Date.now();ch=1}
   if(ch){save();offPaint()}}catch(e){}})();
@@ -7591,7 +8022,7 @@ function setText(i,L,t,ro,auto,ph){
   if(L==="th"){i.th=t;i.ro=ro||"";i.ph=ph||"";i.auto=auto?1:0}
   else{if(!t){if(i.tr)delete i.tr[L];return}i.tr=i.tr||{};i.tr[L]={t,ro:ro||"",ph:ph||"",auto:auto?1:0}}
 }
-function vw(i){if(CUR[S.lang]&&i.cat==="Numbers"&&/^\d[\d,]*$/.test(i.en||"")){const n=(i.en||"").replace(/,/g,""),r=TU()?(S.lang==="vi"?viNum(n,""):S.lang==="es"?esNum(n,""):ltNum(n,"",S.lang)):numFor(n,"");return{th:r.th,ro:r.ro,auto:0,en:i.en}}const x=getText(i,S.lang);return{th:x.t,ro:sx(x),auto:x.auto,en:bLabel(i)}}
+function vw(i){if(CUR[S.lang]&&i.cat==="Numbers"&&/^\d[\d,]*$/.test(i.en||"")){const n=(i.en||"").replace(/,/g,""),r=TU()?(S.lang==="vi"?viNum(n,""):ESL()?esNum(n,"",S.lang):ltNum(n,"",S.lang)):numFor(n,"");return{th:r.th,ro:r.ro,auto:0,en:i.en}}const x=getText(i,S.lang);return{th:x.t,ro:sx(x),auto:x.auto,en:bLabel(i)}}
 function srcFor(i){
   if(i.en)return{q:i.en,from:i.bl||"en"};
   if(i.th)return{q:i.th,from:"th"};
@@ -7701,7 +8132,7 @@ async function webTr(q,from,to){
   throw new Error(LASTERR);
 }
 async function aiTr(q,from,to){
-  const prompt=`Translate this ${to==="en"?"text (probably "+nm(from)+", but detect the language if it is different)":nm(from)+" text"} into ${nm(to)} the way a native speaker would actually say it out loud on a film set or while travelling: everyday spoken register, not textbook or word-for-word. Drop pronouns when obvious, use the loanwords crews really use (in Thai: เทค, ซีน, คอลไทม์), and add softeners (in Thai: หน่อย, ด้วย, นะ) where natural.${S.reg==="formal"?" For Thai, use polite, respectful spoken Thai for strangers, elders, officials and clients: full forms like อะไร, ไหม, อย่างไร or ยังไง, no slang, and ผม for a male speaker or ดิฉัน/ฉัน for a female one. Keep it natural, not stiff written Thai.":` For Thai, write it the way Thais really talk, not how they write: use spoken forms like ไร for อะไร, ยังไง/ไง for อย่างไร, นึง for หนึ่ง after a classifier, มั้ย for ไหม, ป่ะ or รึเปล่า for หรือไม่, เท่าไหร่, เดี๋ยว, แป๊บนึง, and casual endings like อ่ะ, ดิ, เนอะ, ละ when they fit. Use ผม for a male speaker and ฉัน or เรา for a female one, or drop it.`}${regNow()==="friends"&&(to==="fr"||to==="es")?(to==="fr"?" For French, talk like friends: use tu, not vous, and everyday spoken French.":" For Spanish, talk like friends: use tú, not usted, and everyday spoken Mexican Spanish."):(to==="fr"?" For French, use vous: polite everyday French.":to==="es"?" For Spanish, use usted: polite everyday Mexican Spanish.":"")}${to==="ms"?(regNow()!=="friends"?" For Malay, use polite Malaysian Malay.":" For Malay, use everyday Malaysian Malay the way friends talk: tak, nak, dah, je, and lah where natural."):""}${to==="tl"?(regNow()!=="friends"?" For Filipino, be polite and add po where natural.":" For Filipino, use everyday spoken Tagalog the way friends talk, Taglish words where Filipinos really use them."):""} No politeness particle at the end. Reply with ONLY JSON: {"t":"the translation","ro":"standard romanization if the translation is not written in Latin letters, with syllables separated by hyphens or spaces, otherwise an empty string","tn":"only for Thai: the spoken tone of each syllable in ro, one letter per syllable in order (M mid, L low, F falling, H high, R rising); otherwise an empty string","ph":"how an English speaker should say the translation, written with plain English letters and spaces only: no symbols, no accents, no hyphens, no tone marks, no IPA. Empty string if the translation is English","alts":[{"label":"Formal or Casual or similar","t":"another natural way to say it","ro":"","ph":""}]}\nGive 0 to 2 alternatives: usually one labelled "Slang" with how Thai friends would say it among themselves (current slang is fine if it fits), and one labelled "Polite" for strangers or elders, and an empty alts array if there is no useful alternative.\nText: ${q}`;
+  const prompt=`Translate this ${to==="en"?"text (probably "+nm(from)+", but detect the language if it is different)":nm(from)+" text"} into ${nm(to)} the way a native speaker would actually say it out loud on a film set or while travelling: everyday spoken register, not textbook or word-for-word. Drop pronouns when obvious, use the loanwords crews really use (in Thai: เทค, ซีน, คอลไทม์), and add softeners (in Thai: หน่อย, ด้วย, นะ) where natural.${S.reg==="formal"?" For Thai, use polite, respectful spoken Thai for strangers, elders, officials and clients: full forms like อะไร, ไหม, อย่างไร or ยังไง, no slang, and ผม for a male speaker or ดิฉัน/ฉัน for a female one. Keep it natural, not stiff written Thai.":` For Thai, write it the way Thais really talk, not how they write: use spoken forms like ไร for อะไร, ยังไง/ไง for อย่างไร, นึง for หนึ่ง after a classifier, มั้ย for ไหม, ป่ะ or รึเปล่า for หรือไม่, เท่าไหร่, เดี๋ยว, แป๊บนึง, and casual endings like อ่ะ, ดิ, เนอะ, ละ when they fit. Use ผม for a male speaker and ฉัน or เรา for a female one, or drop it.`}${regNow()==="friends"&&(to==="fr"||to==="es"||to==="esp"||to==="esa")?(to==="fr"?" For French, talk like friends: use tu, not vous, and everyday spoken French.":to==="esp"?" For Spanish from Spain, talk like friends: use tú and everyday spoken Spain Spanish (vale, tío, guay, mola where natural).":to==="esa"?" For Argentine Spanish, talk like friends: use vos (vos podés, tenés, mirá) and everyday Buenos Aires Spanish (che, dale, re, copado where natural).":" For Spanish, talk like friends: use tú, not usted, and everyday spoken Mexican Spanish (contractions like pa' and slang like qué onda, chido where natural)."):(to==="fr"?" For French, use vous: polite everyday French.":to==="es"?" For Spanish, use usted: polite everyday Mexican Spanish.":to==="esp"?" For Spanish from Spain, use usted: polite everyday Spain Spanish.":to==="esa"?" For Argentine Spanish, use usted: polite everyday Argentine Spanish.":"")}${to==="ms"?(regNow()!=="friends"?" For Malay, use polite Malaysian Malay.":" For Malay, use everyday Malaysian Malay the way friends talk: tak, nak, dah, je, and lah where natural."):""}${to==="tl"?(regNow()!=="friends"?" For Filipino, be polite and add po where natural.":" For Filipino, use everyday spoken Tagalog the way friends talk, Taglish words where Filipinos really use them."):""} No politeness particle at the end. Reply with ONLY JSON: {"t":"the translation","ro":"standard romanization if the translation is not written in Latin letters, with syllables separated by hyphens or spaces, otherwise an empty string","tn":"only for Thai: the spoken tone of each syllable in ro, one letter per syllable in order (M mid, L low, F falling, H high, R rising); otherwise an empty string","ph":"how an English speaker should say the translation, written with plain English letters and spaces only: no symbols, no accents, no hyphens, no tone marks, no IPA. Empty string if the translation is English","alts":[{"label":"Formal or Casual or similar","t":"another natural way to say it","ro":"","ph":""}]}\nGive 0 to 2 alternatives: usually one labelled "Slang" with how Thai friends would say it among themselves (current slang is fine if it fits), and one labelled "Polite" for strangers or elders, and an empty alts array if there is no useful alternative.\nText: ${q}`;
   let r=null;
   if(SM){r=await SM.json(prompt)}
   else if(S.aiKey){
@@ -8275,18 +8706,18 @@ function enNum(v,u){
   if(!n)w.push("zero");
   for(const[sz,nm]of[[1e9,"billion"],[1e6,"million"],[1e3,"thousand"],[1,""]]){const k=Math.floor(n/sz);if(k){w.push(h(k)+(nm?" "+nm:""));n%=sz}}
   let t=w.join(" ");if(b!==undefined)t+=" point "+[...b].map(d=>O[+d]).join(" ");
-  if(u){const one=v==="1";t+=" "+(u==="baht"?({vi:"dong",ms:"ringgit",tl:one?"peso":"pesos",es:one?"peso":"pesos"}[S.lang]||"baht"):u==="beer"?(one?"beer":"beers"):(one?"coffee":"coffees"))}
+  if(u){const one=v==="1";t+=" "+(u==="baht"?({vi:"dong",ms:"ringgit",tl:one?"peso":"pesos",es:one?"peso":"pesos",esp:one?"euro":"euros",esa:one?"peso":"pesos"}[S.lang]||"baht"):u==="beer"?(one?"beer":"beers"):(one?"coffee":"coffees"))}
   return{th:t,ro:"",tn:""};
 }
-function numFor(v,u){if(TU())return enNum(v,u);return S.lang==="vi"?viNum(v,u):S.lang==="ms"||S.lang==="tl"?ltNum(v,u,S.lang):S.lang==="es"?esNum(v,u):thNum(v,u)}
-const CUR={vi:[" ₫"," dong","₫ Dong"],ms:["RM "," ringgit","RM Ringgit"],tl:["₱"," pesos","₱ Peso"],es:["$"," pesos","$ Pesos"]};
+function numFor(v,u){if(TU())return enNum(v,u);return S.lang==="vi"?viNum(v,u):S.lang==="ms"||S.lang==="tl"?ltNum(v,u,S.lang):ESL()?esNum(v,u,S.lang):thNum(v,u)}
+const CUR={vi:[" ₫"," dong","₫ Dong"],ms:["RM "," ringgit","RM Ringgit"],tl:["₱"," pesos","₱ Peso"],es:["$"," pesos","$ Pesos"],esp:[" €"," euros","€ Euros"],esa:["$"," pesos","$ Pesos"]};
 function nUnit(k,i){return k==="baht"&&CUR[S.lang]?CUR[S.lang][i]:NUNIT[k][i]}
 function numLang(){return CUR[S.lang]?S.lang:"th"}
 let NKV="",NKB="";
 function nkU(){return S.numUnit!==undefined?S.numUnit:(S.numBaht?"baht":"")}
 function numFmt(v){if(!v)return"0";const [a,b]=v.split(".");return a.replace(/\B(?=(\d{3})+(?!\d))/g,",")+(b!==undefined?"."+b:"")}
 function numPaint(){
-  const pre=NKB==="baht"&&(S.lang==="ms"||S.lang==="tl"||S.lang==="es");$("nmVal").textContent=pre?nUnit(NKB,0)+numFmt(NKV):numFmt(NKV)+(NKB?nUnit(NKB,0):"");
+  const pre=NKB==="baht"&&(S.lang==="ms"||S.lang==="tl"||S.lang==="es"||S.lang==="esa");$("nmVal").textContent=pre?nUnit(NKB,0)+numFmt(NKV):numFmt(NKV)+(NKB?nUnit(NKB,0):"");
   $("nmTh").lang=TU()?"en":numLang();const ub=document.querySelector('#numD [data-u=baht]');if(ub)ub.textContent=CUR[S.lang]?CUR[S.lang][2]:"฿ Baht";
   document.querySelectorAll("#numD [data-u]").forEach(b=>{const on=b.dataset.u===NKB;b.classList.toggle("on",on);b.setAttribute("aria-pressed",on)});
   if(!NKV){$("nmTh").textContent="";$("nmRo").innerHTML="<span class='nmhint'>"+(TU()?esc(U().num)+" · ":"")+"Tap the numbers below</span>";return}
