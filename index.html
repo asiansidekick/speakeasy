@@ -816,7 +816,7 @@ html[data-th="light"]:not([data-look]) .offdone .offok{color:#15803d}
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 27 Oct 2026, build 109</div>
+  <div class="hint">Version: 27 Oct 2026, build 110</div>
   <input type="file" id="file" accept=".json,application/json" hidden>
   <div id="bs" style="font-size:var(--fs-s);color:var(--mute);min-height:18px;margin-top:6px"></div>
   <div class="act" style="justify-content:space-between">
@@ -8902,6 +8902,8 @@ if(!S.num2){try{const add=[["สองร้อย","song roi","200"],["สา�
   const its=add.map(([th,ro,en])=>({id:uid(),th,ro,en,cat:"Numbers",np:1}));
   if(at<0)S.items.push(...its);else S.items.splice(at+1,0,...its);S.num2=1;save()}catch(e){}}
 if(!S.numFirst){try{const c=cats();S.catOrder=["Numbers",...c.filter(x=>x!=="Numbers")];S.numFirst=1;save()}catch(e){}}
+/* one time: Profanity moved up, right after Numbers */
+if(!S.profUp){try{const c=cats().filter(x=>x!=="Profanity"),k=c.indexOf("Numbers");if(cats().includes("Profanity"))c.splice(k<0?0:k+1,0,"Profanity");S.catOrder=c;S.profUp=1;save()}catch(e){}}
 if(!S.fr1){S.regV=1;S.reg="casual";S.polite=false;S.fr1=1;save()}
 applyTheme();if(TU())setDir("th");thLabels();refreshLang();render();loadVoices();renderHist();
 if("speechSynthesis" in window)speechSynthesis.onvoiceschanged=loadVoices;
