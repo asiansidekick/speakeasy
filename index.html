@@ -816,7 +816,7 @@ html[data-th="light"]:not([data-look]) .offdone .offok{color:#15803d}
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 27 Oct 2026, build 110</div>
+  <div class="hint">Version: 28 Oct 2026, build 111</div>
   <input type="file" id="file" accept=".json,application/json" hidden>
   <div id="bs" style="font-size:var(--fs-s);color:var(--mute);min-height:18px;margin-top:6px"></div>
   <div class="act" style="justify-content:space-between">
@@ -1232,6 +1232,19 @@ function applyP22(){
     if(at<0)S.items.push(it);else S.items.splice(at+1,0,it);
   });
   S.applied.push(P22.key);save();
+}
+const P23={key:'fr1',add:[["Profanity", "เหี้ยเอ๊ย!", "hia oei!", "Fucking hell!", 1], ["Profanity", "ให้ตายสิ!", "hai taai si!", "Damn it all! (lit. name of God)", 1], ["Profanity", "ไปให้พ้น ไอ้งั่ง!", "pai hai phon, ai ngang!", "Get lost, you jerk!", 1], ["Profanity", "น่ารำคาญชะมัด!", "naa ram-khaan cha-mat!", "Pain in the ass!", 1], ["Profanity", "ไอ้สวะ!", "ai sa-wa!", "Piece of shit!", 1], ["Profanity", "ไอ้ขี้เกียจ!", "ai khii-kiat!", "Lazy slacker!", 1], ["Profanity", "ไอ้ขี้แพ้!", "ai khii-phae!", "Loser!", 1], ["Profanity", "ไอ้ขี้ประจบ!", "ai khii pra-jop!", "Brown-noser!", 1], ["Profanity", "ไอ้ขี้โกหก!", "ai khii ko-hok!", "Liar!", 1], ["Profanity", "เละเทะไปหมด!", "le-the pai mot!", "What a mess!", 1], ["Casual talk", "แย่ว่ะ!", "yae wa!", "That sucks!", 1], ["Casual talk", "แปลกๆ ว่ะ", "plaek plaek wa", "That's weird", 1], ["Casual talk", "ขี้เกียจว่ะ", "khii-kiat wa", "I can't be bothered", 1], ["Casual talk", "เซ็งว่ะ!", "seng wa!", "I'm gutted", 1], ["Casual talk", "เบื่อว่ะ!", "buea wa!", "I'm fed up!", 1], ["Casual talk", "เมาค้าง", "mao khaang", "I've got a hangover", 1], ["Casual talk", "เหนื่อยสุดๆ", "nueai sut sut", "I'm knackered", 1], ["Casual talk", "เฮ้ย ว่าไง?", "hoei, waa ngai?", "Yo! What's up?", 1], ["Casual talk", "ชอบมาก!", "chop maak!", "I love it!", 1]]};
+function applyP23(){
+  if(!Array.isArray(S.applied))S.applied=[];
+  if(S.applied.includes(P23.key))return;
+  P23.add.forEach(([cat,t,ro,en,np])=>{
+    if(S.items.some(i=>i.th===t||i.en===en))return;
+    const it={id:uid(),th:t,ro,en,cat,np};
+    let at=-1,any=-1;S.items.forEach((x,n)=>{if(x.cat===cat){any=n;if(x.np)at=n}});
+    if(at<0)at=any;
+    if(at<0)S.items.push(it);else S.items.splice(at+1,0,it);
+  });
+  S.applied.push(P23.key);save();
 }
 const P16={key:'cori1',add:[["Eating","ไม่ใส่ผักชี","mai sai phak chee","No coriander",0]]};
 function applyP16(){
@@ -6254,6 +6267,8 @@ Object.assign(ESA_PH,{"Fuck!": "¡La concha de la lora!", "Shit!": "¡Mierda!", 
 Object.assign(ES_PH,{"Motherfucker!": "¡Hijo de tu puta madre!", "You fucker!": "¡Pinche cabrón!", "Damn!": "¡Chale!", "Shit driving!": "¡Manejas de la chingada!", "Oh no! (lit. bad karma)": "¡Ay, no!", "Get lost!": "¡Lárgate!", "So annoying!": "¡Qué lata!", "Slut!": "¡Zorra!", "Whore!": "¡Puta!", "Son of a whore!": "¡Hijo de perra!", "You bastard! (lit. bad karma)": "¡Desgraciado!", "Scumbag!": "¡Ojete!", "Cunt face!": "¡Cara de panocha!", "Dickhead!": "¡Culero!", "Face like a foot!": "¡Cara de culo!", "You're crazy!": "¡Estás bien zafado!", "Shameless!": "¡Qué poca madre!", "Coward!": "¡Rajón!", "Foul mouth!": "¡Malhablado!"});
 Object.assign(ESP_PH,{"Motherfucker!": "¡Hijo de tu puta madre!", "You fucker!": "¡Capullo de mierda!", "Damn!": "¡Maldita sea!", "Shit driving!": "¡Conduces como el culo!", "Oh no! (lit. bad karma)": "¡Vaya por Dios!", "Get lost!": "¡Piérdete!", "So annoying!": "¡Qué coñazo!", "Slut!": "¡Guarra!", "Whore!": "¡Puta!", "Son of a whore!": "¡Hijo de las mil putas!", "You bastard! (lit. bad karma)": "¡Malnacido!", "Scumbag!": "¡Pedazo de mierda!", "Cunt face!": "¡Cara de coño!", "Dickhead!": "¡Capullo!", "Face like a foot!": "¡Caraculo!", "You're crazy!": "¡Estás como una cabra!", "Shameless!": "¡Qué jeta tienes!", "Coward!": "¡Cagueta!", "Foul mouth!": "¡Malhablado!"});
 Object.assign(ESA_PH,{"Motherfucker!": "¡La concha de tu madre!", "You fucker!": "¡Forro de mierda!", "Damn!": "¡Carajo!", "Shit driving!": "¡Manejás como el orto!", "Oh no! (lit. bad karma)": "¡Qué macana!", "Get lost!": "¡Andá a lavarte el culo!", "So annoying!": "¡Qué hinchapelotas!", "Slut!": "¡Trola!", "Whore!": "¡Puta!", "Son of a whore!": "¡Hijo de mil putas!", "You bastard! (lit. bad karma)": "¡Desgraciado!", "Scumbag!": "¡Lacra!", "Cunt face!": "¡Cara de concha!", "Dickhead!": "¡Pajero!", "Face like a foot!": "¡Cara de orto!", "You're crazy!": "¡Estás del tomate!", "Shameless!": "¡Qué caradura!", "Coward!": "¡Cagón!", "Foul mouth!": "¡Qué malhablado sos!"});
+/* French: checked insults for the Thai list, plus everyday French swearing and slang (fr1) */
+Object.assign(FR_PH,{"Motherfucker!": "Nique ta mère !", "You fucker!": "Enculé !", "Damn!": "Mince !", "Shit driving!": "Tu conduis comme un pied !", "Oh no! (lit. bad karma)": "Quelle poisse !", "Get lost!": "Casse-toi !", "So annoying!": "C'est chiant !", "Slut!": "Traînée !", "Whore!": "Pute !", "Son of a whore!": "Fils de pute !", "You bastard! (lit. bad karma)": "Espèce de salaud !", "Scumbag!": "Salopard !", "Cunt face!": "Sale con !", "Dickhead!": "Tête de nœud !", "Face like a foot!": "Tête à claques !", "You're crazy!": "T'es ouf !", "Shameless!": "Quel culot !", "Coward!": "Espèce de lâche !", "Foul mouth!": "Tu jures comme un charretier !", "Fucking hell!": "Putain de bordel de merde !", "Damn it all! (lit. name of God)": "Nom de Dieu !", "Get lost, you jerk!": "Casse-toi, pauvre con !", "Pain in the ass!": "Casse-couilles !", "Piece of shit!": "Sous-merde !", "Lazy slacker!": "Branleur !", "Loser!": "Tocard !", "Brown-noser!": "Lèche-cul !", "Liar!": "Mytho !", "What a mess!": "Quel bordel !", "That sucks!": "Ça craint !", "That's weird": "C'est chelou.", "I can't be bothered": "J'ai la flemme.", "I'm gutted": "J'ai le seum !", "I'm fed up!": "J'en ai marre !", "I've got a hangover": "J'ai la gueule de bois.", "I'm knackered": "Je suis crevé.", "Yo! What's up?": "Wesh, ça va ?", "I love it!": "Je kiffe !"});
 const PH_TABLES={fr:FR_PH,zh:ZH_PH,zt:ZT_PH,yue:YUE_PH,ja:JA_PH,ko:KO_PH,vi:VI_PH,ms:MS_PH,tl:TL_PH,es:ES_PH,esp:ESP_PH,esa:ESA_PH};
 // built-in text for item i in language L for the current register: {t, ph} or null
 function builtinFull(i,L){
@@ -6302,7 +6317,7 @@ function bakedMerge(){
   fromBaked();mine.forEach(i=>S.items.push(i));
   S.bakedV=BAKED.v;save();
 }
-function load(){try{const r=localStorage.getItem(KEY);if(r){const d=JSON.parse(r);if(d&&Array.isArray(d.items)){S=Object.assign(S,d);if(!("rate" in d))S.rate=d.slow?0.55:0.9;if(!("polite" in d)){S.polite=S.pol!=="";if(!S.pol)S.pol="m"}if(!Array.isArray(S.seen))S.seen=OLD.slice();const add=Object.keys(D).filter(c=>!S.seen.includes(c));if(add.length){defaults().filter(i=>add.includes(i.cat)).forEach(i=>S.items.push(i));S.seen=Object.keys(D);save()}bakedMerge();applyPatches();applyPatches2();applyP3();applyP4();applyP5();applyP6();applyP7();applyP8();applyP9();applyP10();applyP11();applyP12();applyP13();applyP14();applyP15();applyP16();applyP20();applyP21();applyP22();applyP17();applyP18();applyP19();applyPH_vi();applyPH_ko();return}}}catch(e){}S.items=defaults();S.seen=Object.keys(D);S.applied=Object.keys(PATCHES);if(BAKED&&BAKED.items){fromBaked();S.bakedV=BAKED.v}applyPatches2();applyP3();applyP4();applyP5();applyP6();applyP7();applyP8();applyP9();applyP10();applyP11();applyP12();applyP13();applyP14();applyP15();applyP21();applyP22()}
+function load(){try{const r=localStorage.getItem(KEY);if(r){const d=JSON.parse(r);if(d&&Array.isArray(d.items)){S=Object.assign(S,d);if(!("rate" in d))S.rate=d.slow?0.55:0.9;if(!("polite" in d)){S.polite=S.pol!=="";if(!S.pol)S.pol="m"}if(!Array.isArray(S.seen))S.seen=OLD.slice();const add=Object.keys(D).filter(c=>!S.seen.includes(c));if(add.length){defaults().filter(i=>add.includes(i.cat)).forEach(i=>S.items.push(i));S.seen=Object.keys(D);save()}bakedMerge();applyPatches();applyPatches2();applyP3();applyP4();applyP5();applyP6();applyP7();applyP8();applyP9();applyP10();applyP11();applyP12();applyP13();applyP14();applyP15();applyP16();applyP20();applyP21();applyP22();applyP23();applyP17();applyP18();applyP19();applyPH_vi();applyPH_ko();return}}}catch(e){}S.items=defaults();S.seen=Object.keys(D);S.applied=Object.keys(PATCHES);if(BAKED&&BAKED.items){fromBaked();S.bakedV=BAKED.v}applyPatches2();applyP3();applyP4();applyP5();applyP6();applyP7();applyP8();applyP9();applyP10();applyP11();applyP12();applyP13();applyP14();applyP15();applyP21();applyP22();applyP23()}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));return localStorage.getItem(KEY)!==null}catch(e){return false}}
 function testStore(){try{localStorage.setItem('__t','1');localStorage.removeItem('__t');return true}catch(e){return false}}
 const STORE_OK=testStore();
@@ -8693,7 +8708,7 @@ $("sLight").onchange=e=>{S.light=e.target.checked;save();applyTheme()};
 $("sRo").onchange=e=>{S.ro=e.target.checked;save();render()};
 $("sEn").onchange=e=>{S.en=e.target.checked;save();render()};
 $("voice").onchange=e=>{S.voice=e.target.value;save();speak({th:"สวัสดี",cat:"Basics"},"th-TH")};
-$("reset").onclick=()=>{if(confirm("Replace all phrases with the defaults? Your added phrases will be lost.")){S.items=defaults();S.deleted=[];S.seen=Object.keys(D);S.applied=Object.keys(PATCHES);if(BAKED&&BAKED.items){fromBaked();S.bakedV=BAKED.v}applyPatches2();applyP3();applyP4();applyP5();applyP6();applyP7();applyP8();applyP9();applyP10();applyP11();applyP12();applyP13();applyP14();applyP15();applyP16();applyP20();applyP21();applyP22();applyP17();applyP18();applyP19();applyPH_vi();applyPH_ko();["tech1","pros1","naked1","naked2","blood1","call1","cof1","num2","numFirst"].forEach(k=>delete S[k]);save();location.reload()}};
+$("reset").onclick=()=>{if(confirm("Replace all phrases with the defaults? Your added phrases will be lost.")){S.items=defaults();S.deleted=[];S.seen=Object.keys(D);S.applied=Object.keys(PATCHES);if(BAKED&&BAKED.items){fromBaked();S.bakedV=BAKED.v}applyPatches2();applyP3();applyP4();applyP5();applyP6();applyP7();applyP8();applyP9();applyP10();applyP11();applyP12();applyP13();applyP14();applyP15();applyP16();applyP20();applyP21();applyP22();applyP23();applyP17();applyP18();applyP19();applyPH_vi();applyPH_ko();["tech1","pros1","naked1","naked2","blood1","call1","cof1","num2","numFirst"].forEach(k=>delete S[k]);save();location.reload()}};
 
 
 /* number keypad: digits -> Thai words, worked out on the phone (no internet needed) */
