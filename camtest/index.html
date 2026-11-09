@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Speakeasy Live Camera Test</title>
+<meta name="robots" content="noindex">
+<style>
+[hidden]{display:none!important}
+:root{--bg:#000;--fg:#fff;--muted:#c9d2e3;--accent:#2f6fe4;--chip:rgba(16,24,44,.78);--lab:#ffe27a;color-scheme:dark}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font:18px -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;overflow:hidden}
+#stage{position:fixed;inset:0}
+video,#ov{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#ov{pointer-events:none}
+#top{position:fixed;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top,0px) + 10px) max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));background:linear-gradient(#000c,#0000);display:flex;justify-content:space-between;gap:12px;align-items:center}
+#top b{font-size:20px}
+#st{font-size:15px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
+#bot{position:fixed;left:0;right:0;bottom:0;padding:12px max(16px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 16px) max(16px,env(safe-area-inset-left,0px));background:linear-gradient(#0000,#000d);display:flex;flex-direction:column;gap:10px}
+.big{min-height:84px;border:0;border-radius:20px;background:var(--accent);color:#fff;font-family:inherit;font-weight:700;font-size:26px;width:100%}
+.big:focus-visible{outline:3px solid #fff;outline-offset:3px}
+#list{max-height:38vh;overflow:auto;background:var(--chip);border-radius:14px;display:none}
+#list div{padding:10px 14px;border-top:1px solid #ffffff22}
+#list div:first-child{border-top:0}
+#list .th{font-size:20px;font-weight:600}
+#list .en{font-size:20px;color:var(--lab)}
+#intro{position:fixed;inset:0;display:flex;flex-direction:column;justify-content:center;gap:16px;padding:24px max(20px,env(safe-area-inset-right,0px)) 24px max(20px,env(safe-area-inset-left,0px));background:#0d1426}
+#intro h1{margin:0;font-size:28px}
+#intro p{margin:0;color:var(--muted)}
+</style>
+</head><body>
+<div id="stage" hidden><video id="v" playsinline muted autoplay></video><canvas id="ov"></canvas></div>
+<div id="top" hidden><b>Live camera test</b><span id="st">Starting…</span></div>
+<div id="bot" hidden><div id="list"></div><button class="big" id="pause">Pause</button></div>
+<div id="intro">
+  <h1>Live camera test</h1>
+  <p>Point your phone at Thai text and the English appears on top. Uses online translation when you have signal, offline when you don't.</p>
+  <p id="prep">Getting the text reader ready…</p>
+  <button class="big" id="go" disabled>Start camera</button>
+  <p style="font-size:15px">This is a test page. The Speakeasy app is not changed.</p>
+</div>
+<script>
+// visiting this page within Speakeasy's offline cache scope would make the cache keep THIS page as the app; put the app back
+(async()=>{try{if(!navigator.onLine||!("caches" in self))return;const u=new URL("../index.html",location.href).href;const r=await fetch(u,{cache:"no-cache"});if(r.ok){const c=await caches.open("speakeasy-v1");await c.put(u,r)}}catch(e){}})();
+setTimeout(async()=>{try{const u=new URL("../index.html",location.href).href;const r=await fetch(u,{cache:"no-cache"});if(r.ok)(await caches.open("speakeasy-v1")).put(u,r)}catch(e){}},4000);
+
+const $=id=>document.getElementById(id);
+const THAI=/[฀-๿]/;
+const clean=s=>String(s||"").replace(/ํา/g,"ำ").replace(/([฀-๿]) (?=[฀-๿])/g,"$1").replace(/\s+/g," ").trim();
+const blobURL=(d,t)=>URL.createObjectURL(new Blob([d],{type:t}));
+let ready=false,paused=false,stream=null,last=[];
+const TC=new Map(); // Thai line -> English
+
+async function initOCR(){
+  const get=async n=>new Uint8Array(await (await fetch(n)).arrayBuffer());
+  await new Promise((ok,no)=>{const s=document.createElement("script");s.src="rusto.js";s.onload=ok;s.onerror=no;document.head.appendChild(s)});
+  const [w,det,rec,dict]=await Promise.all([get("rten.wasm"),get("det.rten"),get("th-rec.rten"),fetch("th-dict.txt").then(r=>r.text())]);
+  await RustoWeb.initialize({wasmUrl:blobURL(w,"application/wasm"),worker:false,models:{detection:det,recognition:rec,dictionary:dict}});
+}
+// online: one Google request for all new lines
+async function trOnline(lines){
+  const u="https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&sl=th&tl=en&q="+encodeURIComponent(lines.join("\n"));
+  const ctl=new AbortController(),t=setTimeout(()=>ctl.abort(),5000);
+  try{const j=await (await fetch(u,{signal:ctl.signal})).json();const out=(j[0]||[]).map(x=>x[0]).join("").split("\n").map(s=>s.trim());
+    if(out.length!==lines.length)return null;return out}finally{clearTimeout(t)}
+}
+// offline: the same Thai model Speakeasy downloads, loaded only when needed
+let OFF=null,OQ=Promise.resolve();
+function offEngine(){
+  if(OFF)return OFF;
+  OFF=(async()=>{
+    const L=n=>new URL("../"+n,location.href).href;
+    const txt=async n=>(await fetch(L(n))).text();
+    const gun=async n=>new Uint8Array(await new Response((await fetch(L(n))).body.pipeThrough(new DecompressionStream("gzip"))).arrayBuffer());
+    const wasm=blobURL(await (await fetch(L("bergamot-translator-worker.wasm"))).arrayBuffer(),"application/wasm");
+    const glue=blobURL(await txt("bergamot-translator-worker.js"),"text/javascript");
+    let w=await txt("translator-worker.js");
+    w=w.replace("new URL('./bergamot-translator-worker.wasm', self.location)",JSON.stringify(wasm)).replace("self.importScripts('bergamot-translator-worker.js')","self.importScripts("+JSON.stringify(glue)+")");
+    let m=await txt("translator.js");m=m.replace("new URL('./worker/translator-worker.js', import.meta.url)",JSON.stringify(blobURL(w,"text/javascript")));
+    const mod=await import(blobURL(m,"text/javascript"));
+    const files={model:await gun("then-model.bin.gz"),lex:await gun("then-lex.bin.gz"),vocab:await gun("then-vocab.spm.gz")};
+    const reg=[{from:"th",to:"en",files:{model:{name:"model",size:files.model.length},lex:{name:"lex",size:files.lex.length},vocab:{name:"vocab",size:files.vocab.length}}}];
+    class B extends mod.TranslatorBacking{async loadModelRegistery(){return reg}getTranslationModel(x,o){return this.loadTranslationModel(x,o)}async fetch(u){const f=files[u];return f.buffer.slice(f.byteOffset,f.byteOffset+f.byteLength)}}
+    const o={pivotLanguage:null,downloadTimeout:0,cacheSize:0};return new mod.LatencyOptimisedTranslator(o,new B(o));
+  })();
+  OFF.catch(()=>{OFF=null});return OFF;
+}
+async function trOffline(l){const tr=await offEngine();const p=OQ.then(()=>tr.translate({from:"th",to:"en",text:l,html:false}));OQ=p.catch(()=>{});const r=await p;return String(r&&r.target&&r.target.text||"").trim()}
+let mode="";
+async function translate(lines){
+  const need=[...new Set(lines.filter(l=>THAI.test(l)&&!TC.has(l)))];
+  if(!need.length)return;
+  let out=null;
+  if(navigator.onLine){try{out=await trOnline(need);mode="online"}catch(e){}}
+  if(!out){out=[];for(const l of need)out.push(await trOffline(l));mode="offline"}
+  need.forEach((l,i)=>{if(out[i])TC.set(l,out[i])});
+}
+
+const grab=document.createElement("canvas");
+async function tick(){
+  if(paused||!stream)return setTimeout(tick,300);
+  const v=$("v");if(!v.videoWidth)return setTimeout(tick,200);
+  const t0=performance.now();
+  const sc=Math.min(1,960/Math.max(v.videoWidth,v.videoHeight));
+  grab.width=Math.round(v.videoWidth*sc);grab.height=Math.round(v.videoHeight*sc);
+  grab.getContext("2d").drawImage(v,0,0,grab.width,grab.height);
+  let res=[];
+  try{res=await RustoWeb.detectText(grab,{output:"lines",textScore:0.6})}catch(e){}
+  const t1=performance.now();
+  const items=res.map(r=>({t:clean(r.text),f:r.frame})).filter(x=>x.t.length>1);
+  try{await translate(items.map(x=>x.t))}catch(e){}
+  if(!paused){last=items;draw(items,grab.width,grab.height)}
+  $("st").textContent=`read ${((t1-t0)/1000).toFixed(1)} s · ${mode||(navigator.onLine?"online":"offline")}`;
+  setTimeout(tick,150);
+}
+function draw(items,W,H){
+  const c=$("ov"),dpr=window.devicePixelRatio||1,cw=c.clientWidth,ch=c.clientHeight;
+  c.width=cw*dpr;c.height=ch*dpr;const x=c.getContext("2d");x.scale(dpr,dpr);
+  // same "cover" crop as the video
+  const s=Math.max(cw/W,ch/H),ox=(cw-W*s)/2,oy=(ch-H*s)/2;
+  for(const it of items){
+    const en=THAI.test(it.t)?TC.get(it.t):null;if(!en)continue;
+    const L=ox+it.f.left*s,T=oy+it.f.top*s,Wd=Math.max(it.f.width*s,60),Hd=it.f.height*s;
+    let fs=Math.max(16,Math.min(40,Hd*0.8));x.font=`700 ${fs}px -apple-system,system-ui,sans-serif`;
+    while(fs>14&&x.measureText(en).width>Math.max(Wd,cw*0.6)){fs-=1;x.font=`700 ${fs}px -apple-system,system-ui,sans-serif`}
+    const tw=x.measureText(en).width,bw=Math.min(cw-24,Math.max(Wd,tw+16)),bh=Math.max(Hd,fs*1.35);
+    const Lx=Math.max(12,Math.min(L,cw-bw-12)),Ty=Math.max(4,Math.min(T,ch-bh-4));
+    x.fillStyle="rgba(16,24,44,.94)";x.beginPath();x.roundRect?x.roundRect(Lx-4,Ty-2,bw+8,bh+4,8):x.rect(Lx-4,Ty-2,bw+8,bh+4);x.fill();
+    x.fillStyle="#ffe27a";x.textBaseline="middle";x.fillText(en,Lx+4,Ty+bh/2,bw-4);
+  }
+}
+function showList(){
+  const el=$("list");const rows=last.filter(i=>THAI.test(i.t));
+  el.innerHTML=rows.length?rows.map(i=>`<div><div class="th" lang="th"></div><div class="en"></div></div>`).join(""):"<div>No Thai text in view</div>";
+  [...el.children].forEach((d,k)=>{if(!rows[k])return;d.querySelector(".th").textContent=rows[k].t;d.querySelector(".en").textContent=TC.get(rows[k].t)||"…"});
+  el.style.display="block";
+}
+$("pause").onclick=()=>{paused=!paused;const v=$("v");
+  if(paused){v.pause();$("pause").textContent="Resume";showList()}else{v.play();$("pause").textContent="Pause";$("list").style.display="none"}};
+$("go").onclick=async()=>{
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:"environment"},width:{ideal:1920},height:{ideal:1080}}});
+    $("v").srcObject=stream;await $("v").play();
+    $("intro").hidden=true;$("stage").hidden=false;$("top").hidden=false;$("bot").hidden=false;
+    tick();
+  }catch(e){$("prep").textContent="Couldn't open the camera: "+(e&&e.message||e)}
+};
+// stop the camera when leaving, so it never holds the iPhone's camera or audio
+addEventListener("pagehide",()=>{try{stream&&stream.getTracks().forEach(t=>t.stop())}catch(e){}});
+initOCR().then(()=>{ready=true;$("prep").textContent="Ready.";$("go").disabled=false}).catch(e=>{$("prep").textContent="Couldn't load the text reader: "+(e&&e.message||e)});
+</script>
+</body></html>
