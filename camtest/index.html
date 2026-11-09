@@ -10,7 +10,7 @@
 html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font:18px -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;overflow:hidden}
 #stage{position:fixed;inset:0}
 video,#ov{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-#ov{pointer-events:none}
+#ov{pointer-events:none;transition:opacity .15s}
 #top{position:fixed;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top,0px) + 10px) max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));background:linear-gradient(#000c,#0000);display:flex;justify-content:space-between;gap:12px;align-items:center}
 #top b{font-size:20px}
 #st{font-size:15px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
@@ -49,11 +49,16 @@ const blobURL=(d,t)=>URL.createObjectURL(new Blob([d],{type:t}));
 let ready=false,paused=false,stream=null,last=[];
 const TC=new Map(); // Thai line -> English
 
+// the text reader runs in a background worker so the camera picture never stutters
+let W=null,WN=0;const WP=new Map();
+function wcall(msg,transfer){return new Promise((ok,no)=>{const id=++WN;WP.set(id,{ok,no});W.postMessage({id,...msg},transfer||[])})}
 async function initOCR(){
   const get=async n=>new Uint8Array(await (await fetch(n)).arrayBuffer());
-  await new Promise((ok,no)=>{const s=document.createElement("script");s.src="rusto.js";s.onload=ok;s.onerror=no;document.head.appendChild(s)});
-  const [w,det,rec,dict]=await Promise.all([get("rten.wasm"),get("det.rten"),get("th-rec.rten"),fetch("th-dict.txt").then(r=>r.text())]);
-  await RustoWeb.initialize({wasmUrl:blobURL(w,"application/wasm"),worker:false,models:{detection:det,recognition:rec,dictionary:dict}});
+  const [det,rec,dict]=await Promise.all([get("det.rten"),get("th-rec.rten"),fetch("th-dict.txt").then(r=>r.text())]);
+  W=new Worker("ocr-worker.js");
+  W.onmessage=e=>{const d=e.data,p=WP.get(d.id);if(!p)return;WP.delete(d.id);d.type==="ERROR"?p.no(new Error(d.error)):p.ok(d.results)};
+  W.onerror=e=>{for(const [,p] of WP)p.no(new Error(e.message||"worker"));WP.clear()};
+  await wcall({type:"INIT",config:{wasmUrl:new URL("rten.wasm",location.href).href,models:{detection:det,recognition:rec,dictionary:dict}}});
 }
 // online: one Google request for all new lines
 async function trOnline(lines){
@@ -95,46 +100,64 @@ async function translate(lines){
 }
 
 const grab=document.createElement("canvas");
+// tiny grey thumbnails tell us when the phone has moved since the frame that was read
+const TH=document.createElement("canvas");TH.width=TH.height=24;const THX=TH.getContext("2d",{willReadFrequently:true});
+function thumb(src){THX.drawImage(src,0,0,24,24);const d=THX.getImageData(0,0,24,24).data,o=new Uint8Array(576);for(let i=0;i<576;i++)o[i]=(d[i*4]+d[i*4+1]+d[i*4+2])/3;return o}
+function moved(a,b){if(!a||!b)return 99;let t=0;for(let i=0;i<576;i++)t+=Math.abs(a[i]-b[i]);return t/576}
+let shown=null,shownThumb=null,shownWH=[1,1],hiddenOv=false;
 async function tick(){
   if(paused||!stream)return setTimeout(tick,300);
   const v=$("v");if(!v.videoWidth)return setTimeout(tick,200);
   const t0=performance.now();
-  const sc=Math.min(1,960/Math.max(v.videoWidth,v.videoHeight));
+  const sc=Math.min(1,1280/Math.max(v.videoWidth,v.videoHeight));
   grab.width=Math.round(v.videoWidth*sc);grab.height=Math.round(v.videoHeight*sc);
-  grab.getContext("2d",{willReadFrequently:true}).drawImage(v,0,0,grab.width,grab.height);
+  const gx=grab.getContext("2d",{willReadFrequently:true});gx.drawImage(v,0,0,grab.width,grab.height);
+  const th=thumb(grab);
+  const img=gx.getImageData(0,0,grab.width,grab.height);
   let res=[];
-  try{res=await RustoWeb.detectText(grab,{output:"lines",textScore:0.6})}catch(e){}
+  try{res=await wcall({type:"DETECT",image:{data:img.data,width:img.width,height:img.height},options:{output:"lines",textScore:0.6,maxSideLen:736}})}catch(e){}
   const t1=performance.now();
-  const items=res.map(r=>({t:clean(r.text),f:r.frame})).filter(x=>x.t.length>1);
-  try{await translate(items.map(x=>x.t))}catch(e){}
-  if(!paused){last=items;draw(items,grab.width,grab.height)}
+  // only lines with Thai in them get a label
+  const items=(res||[]).map(r=>({t:clean(r.text),f:r.frame})).filter(x=>x.t.length>1&&THAI.test(x.t));
+  if(!paused){
+    // if the phone moved while reading, these boxes would land in the wrong place: skip them
+    const now=thumb(v);
+    if(moved(th,now)<14){last=items;shown=items;shownThumb=th;shownWH=[grab.width,grab.height];draw();
+      translate(items.map(x=>x.t)).then(()=>{if(shown===items&&!paused)draw()}).catch(()=>{})}
+  }
   $("st").textContent=`read ${((t1-t0)/1000).toFixed(1)} s · ${mode||(navigator.onLine?"online":"offline")}`;
-  setTimeout(tick,150);
+  setTimeout(tick,50);
 }
-function draw(items,W,H){
+// hide the labels while the phone is moving, show them again when it settles back
+setInterval(()=>{if(paused||!shownThumb||!$("v").videoWidth)return;const m=moved(shownThumb,thumb($("v")));const h=m>16;if(h!==hiddenOv){hiddenOv=h;$("ov").style.opacity=h?"0":"1"}},150);
+function draw(){
+  const items=shown||[],[Wi,Hi]=shownWH;
   const c=$("ov"),dpr=window.devicePixelRatio||1,cw=c.clientWidth,ch=c.clientHeight;
   c.width=cw*dpr;c.height=ch*dpr;const x=c.getContext("2d");x.scale(dpr,dpr);
   // same "cover" crop as the video
-  const s=Math.max(cw/W,ch/H),ox=(cw-W*s)/2,oy=(ch-H*s)/2;
+  const s=Math.max(cw/Wi,ch/Hi),ox=(cw-Wi*s)/2,oy=(ch-Hi*s)/2;
+  const F=n=>`700 ${n}px -apple-system,system-ui,sans-serif`;
   for(const it of items){
-    const en=THAI.test(it.t)?TC.get(it.t):null;if(!en)continue;
-    const L=ox+it.f.left*s,T=oy+it.f.top*s,Wd=Math.max(it.f.width*s,60),Hd=it.f.height*s;
-    let fs=Math.max(16,Math.min(40,Hd*0.8));x.font=`700 ${fs}px -apple-system,system-ui,sans-serif`;
-    while(fs>14&&x.measureText(en).width>Math.max(Wd,cw*0.6)){fs-=1;x.font=`700 ${fs}px -apple-system,system-ui,sans-serif`}
-    const tw=x.measureText(en).width,bw=Math.min(cw-24,Math.max(Wd,tw+16)),bh=Math.max(Hd,fs*1.35);
-    const Lx=Math.max(12,Math.min(L,cw-bw-12)),Ty=Math.max(4,Math.min(T,ch-bh-4));
-    x.fillStyle="rgba(16,24,44,.94)";x.beginPath();x.roundRect?x.roundRect(Lx-4,Ty-2,bw+8,bh+4,8):x.rect(Lx-4,Ty-2,bw+8,bh+4);x.fill();
-    x.fillStyle="#ffe27a";x.textBaseline="middle";x.fillText(en,Lx+4,Ty+bh/2,bw-4);
+    const en=TC.get(it.t);if(!en)continue;
+    const L=ox+it.f.left*s,T=oy+it.f.top*s,Wd=it.f.width*s,Hd=it.f.height*s;
+    // the label covers the Thai line and stays its size, so labels don't pile on top of each other
+    const maxW=Math.min(cw-16,Math.max(Wd*1.25,110));
+    let fs=Math.max(13,Math.min(30,Hd*0.72));x.font=F(fs);
+    while(fs>11&&x.measureText(en).width>maxW-12){fs-=1;x.font=F(fs)}
+    const bw=Math.min(maxW,x.measureText(en).width+12),bh=fs*1.35;
+    const Lx=Math.max(8,Math.min(L,cw-bw-8)),Ty=Math.max(4,Math.min(T+(Hd-bh)/2,ch-bh-4));
+    x.fillStyle="rgba(16,24,44,.94)";x.beginPath();x.roundRect?x.roundRect(Lx,Ty,bw,bh,6):x.rect(Lx,Ty,bw,bh);x.fill();
+    x.fillStyle="#ffe27a";x.textBaseline="middle";x.fillText(en,Lx+6,Ty+bh/2,bw-12);
   }
 }
 function showList(){
-  const el=$("list");const rows=last.filter(i=>THAI.test(i.t));
+  const el=$("list");const rows=last;
   el.innerHTML=rows.length?rows.map(i=>`<div><div class="th" lang="th"></div><div class="en"></div></div>`).join(""):"<div>No Thai text in view</div>";
   [...el.children].forEach((d,k)=>{if(!rows[k])return;d.querySelector(".th").textContent=rows[k].t;d.querySelector(".en").textContent=TC.get(rows[k].t)||"…"});
   el.style.display="block";
 }
 $("pause").onclick=()=>{paused=!paused;const v=$("v");
-  if(paused){v.pause();$("pause").textContent="Resume";showList()}else{v.play();$("pause").textContent="Pause";$("list").style.display="none"}};
+  if(paused){v.pause();$("ov").style.opacity="1";$("pause").textContent="Resume";showList()}else{v.play();$("pause").textContent="Pause";$("list").style.display="none"}};
 $("go").onclick=async()=>{
   try{
     stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:"environment"},width:{ideal:1920},height:{ideal:1080}}});
