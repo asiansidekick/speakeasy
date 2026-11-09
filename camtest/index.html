@@ -101,7 +101,7 @@ async function tick(){
   const t0=performance.now();
   const sc=Math.min(1,960/Math.max(v.videoWidth,v.videoHeight));
   grab.width=Math.round(v.videoWidth*sc);grab.height=Math.round(v.videoHeight*sc);
-  grab.getContext("2d").drawImage(v,0,0,grab.width,grab.height);
+  grab.getContext("2d",{willReadFrequently:true}).drawImage(v,0,0,grab.width,grab.height);
   let res=[];
   try{res=await RustoWeb.detectText(grab,{output:"lines",textScore:0.6})}catch(e){}
   const t1=performance.now();
