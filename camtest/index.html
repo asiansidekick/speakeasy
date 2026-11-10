@@ -52,14 +52,28 @@ const TC=new Map(); // Thai line -> English
 // the text reader runs in a background worker so the camera picture never stutters
 let W=null,WN=0;const WP=new Map();
 function wcall(msg,transfer){return new Promise((ok,no)=>{const id=++WN;WP.set(id,{ok,no});W.postMessage({id,...msg},transfer||[])})}
+let MAIN=false;
+const timeout=(p,ms,what)=>Promise.race([p,new Promise((_,no)=>setTimeout(()=>no(new Error(what+" timed out")),ms))]);
 async function initOCR(){
-  const get=async n=>new Uint8Array(await (await fetch(n)).arrayBuffer());
+  const get=async n=>{const r=await fetch(n);if(!r.ok)throw new Error(n+" HTTP "+r.status);return new Uint8Array(await r.arrayBuffer())};
   const [det,rec,dict]=await Promise.all([get("det.rten"),get("th-rec.rten"),fetch("th-dict.txt").then(r=>r.text())]);
-  W=new Worker("ocr-worker.js");
-  W.onmessage=e=>{const d=e.data,p=WP.get(d.id);if(!p)return;WP.delete(d.id);d.type==="ERROR"?p.no(new Error(d.error)):p.ok(d.results)};
-  W.onerror=e=>{for(const [,p] of WP)p.no(new Error(e.message||"worker"));WP.clear()};
-  await wcall({type:"INIT",config:{wasmUrl:new URL("rten.wasm",location.href).href,models:{detection:det,recognition:rec,dictionary:dict}}});
+  try{
+    W=new Worker("ocr-worker.js");
+    W.onmessage=e=>{const d=e.data,p=WP.get(d.id);if(!p)return;WP.delete(d.id);d.type==="ERROR"?p.no(new Error(d.error)):p.ok(d.results)};
+    W.onerror=e=>{for(const [,p] of WP)p.no(new Error(e.message||"worker"));WP.clear()};
+    await timeout(wcall({type:"INIT",config:{wasmUrl:new URL("rten.wasm",location.href).href,models:{detection:det.slice(),recognition:rec.slice(),dictionary:dict}}}),30000,"background reader");
+    // make sure it really reads before trusting it
+    const c=document.createElement("canvas");c.width=64;c.height=32;const d=c.getContext("2d").getImageData(0,0,64,32);
+    await timeout(wcall({type:"DETECT",image:{data:d.data,width:64,height:32},options:{output:"lines"}}),15000,"background reader");
+  }catch(e){
+    // fall back to the version that worked on iPhone: the reader on the page itself
+    try{W&&W.terminate()}catch(x){}W=null;MAIN=true;
+    await new Promise((ok,no)=>{const s=document.createElement("script");s.src="rusto.js";s.onload=ok;s.onerror=()=>no(new Error("rusto.js"));document.head.appendChild(s)});
+    const w=await get("rten.wasm");
+    await RustoWeb.initialize({wasmUrl:blobURL(w,"application/wasm"),worker:false,models:{detection:det,recognition:rec,dictionary:dict}});
+  }
 }
+async function detect(img,canvas,opts){return MAIN?RustoWeb.detectText(canvas,opts):wcall({type:"DETECT",image:{data:img.data,width:img.width,height:img.height},options:opts})}
 // online: one Google request for all new lines
 async function trOnline(lines){
   const u="https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&sl=th&tl=en&q="+encodeURIComponent(lines.join("\n"));
@@ -115,7 +129,7 @@ async function tick(){
   const th=thumb(grab);
   const img=gx.getImageData(0,0,grab.width,grab.height);
   let res=[];
-  try{res=await wcall({type:"DETECT",image:{data:img.data,width:img.width,height:img.height},options:{output:"lines",textScore:0.6,maxSideLen:736}})}catch(e){}
+  try{res=await detect(img,grab,{output:"lines",textScore:0.6,maxSideLen:736})}catch(e){res=null;window.__err="error: "+(e&&e.message||e)}
   const t1=performance.now();
   // only lines with Thai in them get a label
   const items=(res||[]).map(r=>({t:clean(r.text),f:r.frame})).filter(x=>x.t.length>1&&THAI.test(x.t));
@@ -125,7 +139,7 @@ async function tick(){
     if(moved(th,now)<14){last=items;shown=items;shownThumb=th;shownWH=[grab.width,grab.height];draw();
       translate(items.map(x=>x.t)).then(()=>{if(shown===items&&!paused)draw()}).catch(()=>{})}
   }
-  $("st").textContent=`read ${((t1-t0)/1000).toFixed(1)} s · ${mode||(navigator.onLine?"online":"offline")}`;
+  $("st").textContent=res===null?window.__err:`read ${((t1-t0)/1000).toFixed(1)} s · ${mode||(navigator.onLine?"online":"offline")}`;
   setTimeout(tick,50);
 }
 // hide the labels while the phone is moving, show them again when it settles back
@@ -168,6 +182,6 @@ $("go").onclick=async()=>{
 };
 // stop the camera when leaving, so it never holds the iPhone's camera or audio
 addEventListener("pagehide",()=>{try{stream&&stream.getTracks().forEach(t=>t.stop())}catch(e){}});
-initOCR().then(()=>{ready=true;$("prep").textContent="Ready.";$("go").disabled=false}).catch(e=>{$("prep").textContent="Couldn't load the text reader: "+(e&&e.message||e)});
+initOCR().then(()=>{ready=true;$("prep").textContent=MAIN?"Ready (slower mode).":"Ready.";$("go").disabled=false}).catch(e=>{$("prep").textContent="Couldn't load the text reader: "+(e&&e.message||e)});
 </script>
 </body></html>
