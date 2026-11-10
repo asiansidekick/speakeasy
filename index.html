@@ -555,6 +555,16 @@ html[data-look] #convAuto[aria-pressed="true"]{background:#fde68a!important;colo
 .cvbtns .ib.rec{background:var(--danger);color:#fff;border-color:var(--danger)}
 .convrow{display:flex;margin-top:10px}
 .convrow .ib{flex:1}
+.act3>#phRow{flex:1 1 100%;order:8}
+.act3 #phRow .ib{min-height:64px;font-size:19px}
+.phres{margin-top:12px;background:var(--pill);color:var(--ink);border-radius:24px;padding:12px 18px}
+.phh{font-weight:700;font-size:var(--fs-m);margin-bottom:4px}
+.phr{padding:10px 0;border-top:1px solid var(--hl);min-width:0}
+.phr:first-of-type{border-top:0}
+.pho{font-size:var(--fs-m);color:var(--mute);overflow-wrap:anywhere}
+.pht{font-size:var(--fs-l);font-weight:600;overflow-wrap:anywhere}
+.phmsg{margin-top:12px;font-size:var(--fs-m);text-align:center}
+html[data-look="glass"] .phres{background:rgba(255,255,255,.14)}
 #pracBox{flex:1;overflow-y:auto;display:flex;flex-direction:column;justify-content:center;text-align:center;gap:10px;padding:10px 0}
 #pracEn{font-size:var(--fs-l);color:var(--mute)}
 #pracTh{font-size:40px;line-height:1.3;font-weight:600;font-family:system-ui,-apple-system,"Noto Sans Thai","Noto Sans",sans-serif;overflow-wrap:anywhere}
@@ -637,6 +647,7 @@ html[data-th="light"]:not([data-look]) .offdone .offok{color:#15803d}
   <div class="convrow" id="offRow" style="display:none"></div>
   <div class="convrow"><button class="ib" id="convBtn">💬 Conversation mode</button></div>
   <div class="convrow"><button class="ib" id="shareBtn">📲 Share this app</button></div>
+  <div class="convrow" id="phRow" style="display:none"><button class="ib" id="phBtn">📷 Translate a photo</button><input type="file" id="phFile" accept="image/*" hidden></div>
   </div>
   <div id="trOut"></div>
   <div id="hist"></div>
@@ -816,7 +827,7 @@ html[data-th="light"]:not([data-look]) .offdone .offok{color:#15803d}
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 10 Nov 2026, build 118</div>
+  <div class="hint">Version: 10 Nov 2026, build 119</div>
   <input type="file" id="file" accept=".json,application/json" hidden>
   <div id="bs" style="font-size:var(--fs-s);color:var(--mute);min-height:18px;margin-top:6px"></div>
   <div class="act" style="justify-content:space-between">
@@ -7985,6 +7996,7 @@ function thLabels(){
   $("q").placeholder=T?U().q:"Search phrases";
   const b=$("thTop");if(b){b.hidden=!NATIVE_LANGS.includes(S.lang);b.setAttribute("aria-pressed",TU());if(!b.hidden){b.innerHTML=`<span lang="${S.lang}">${esc((UI_L[S.lang]||UI_L.th).btn)}</span><small>${TU()?"On":"Off"}</small>`;b.setAttribute("aria-label",`${LG().n} mode: I speak ${LG().n} and want to learn ${BLG().n}`)}}
   try{thUIWatch();thUI()}catch(e){}
+  try{phPaint()}catch(e){}
 }
 function glWords(th,L){
   let ws=[];try{ws=[...new Intl.Segmenter(L,{granularity:"word"}).segment(th)].filter(x=>x.isWordLike).map(x=>x.segment)}catch(e){ws=th.split(/\s+/)}
@@ -8842,7 +8854,7 @@ async function offDownload(c){
     for(const fl of one)await offFetch(fl,cache,n=>{OFFDL.got+=n;offProg()});
     if(pf.length)await offFetchPack(L.pack,pf,cache,n=>{OFFDL.got+=n;offProg()});
     await cache.put(offKey(c),new Response(JSON.stringify({v:1,code:c,src:OFF_SRC,lib:offLibUrl(""),pairs:[{from:"en",to:c,files:L.to},{from:c,to:"en",files:L.from}]}),{headers:{"Content-Type":"application/json"}}));
-    S.offl=S.offl||{};S.offl[c]=Date.now();save();offReset();
+    S.offl=S.offl||{};S.offl[c]=Date.now();save();offReset();try{phPrefetch(c)}catch(e){}
     try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{})}catch(e){}
   }catch(e){OFFLASTERR=String(e&&e.message||e);OFFMSG[c]=offErrText(e)}
   OFFDL=null;offPaint();
@@ -8956,6 +8968,7 @@ function refreshLang(){
   whoLabels();
   const sw=$("polT").parentElement;if(sw)sw.style.display=S.lang==="th"?"":"none";
   try{offPaint()}catch(e){}
+  try{phPaint()}catch(e){}
 }
 $("lang").onchange=e=>{talkDrop();S.lang=e.target.value;CONV=[];save();cat="All";qs="";$("q").value="";setDir(TU()?"th":"en");thLabels();refreshLang();render();renderHist()};
 $("tabbar").onclick=e=>{
@@ -10005,6 +10018,128 @@ $("pracListen").onclick=()=>{const it=prItem();if(!it)return;if(TU())speak({th:b
 $("pracSay").onclick=prSay;
 $("pracPrev").onclick=()=>{if(PR.i>0){stopListen();PR.i--;prPaint()}};
 $("pracNext").onclick=()=>{if(PR.i<PR.list.length-1){stopListen();PR.i++;prPaint()}};
+/* Photo translation (build 119): the text in a photo is read on the phone (PaddleOCR models, RTen WebAssembly),
+   then translated online, or offline when that language is downloaded. The reader for each script downloads once
+   and is kept in its own cache, so it also works with no signal. */
+const PH_DIR="ocr/",PH_CACHE="speakeasy-ocr-v1";
+const PH_SZ={"rusto.js":28363,"rten.wasm":2544197,"det5.rten":4868608,"det6t.rten":1874240,
+ "rec-v6t.rten":4485096,"dict-v6t.txt":27156,"rec-ch.rten":16611460,"dict-ch.txt":74012,"rec-th.rten":7967736,"dict-th.txt":1767,
+ "rec-korean.rten":13495532,"dict-korean.txt":47451,"rec-eslav.rten":7964380,"dict-eslav.txt":1663,"rec-cyrillic.rten":8125520,"dict-cyrillic.txt":2781,
+ "rec-el.rten":7885456,"dict-el.txt":1103,"rec-arabic.rten":8075700,"dict-arabic.txt":2369,"rec-ta.rten":7962444,"dict-ta.txt":1723};
+// which reader each language uses (languages left out have no reader yet: Lao, Khmer, Burmese, Bengali, Hebrew, Sinhala, Punjabi, Hindi, Marathi, Nepali, Telugu)
+const PH_M={};
+"zh zt yue vi id ms tl es esp esa fr de it pt uz tr pl nl sv sw cs ro hu ceb jv".split(" ").forEach(c=>PH_M[c]="v6t");
+Object.assign(PH_M,{ja:"ch",th:"th",ko:"korean",ru:"eslav",uk:"eslav",mn:"cyrillic",kk:"cyrillic",el:"el",ar:"arabic",ur:"arabic",fa:"arabic",ta:"ta"});
+// the script of each non-Latin language, to tell its lines from English ones
+const PH_SCR={th:/[฀-๿]/,ja:/[぀-ヿ㐀-鿿]/,zh:/[㐀-鿿]/,zt:/[㐀-鿿]/,yue:/[㐀-鿿]/,ko:/[가-힯ᄀ-ᇿ]/,
+ ru:/[Ѐ-ӿ]/,uk:/[Ѐ-ӿ]/,mn:/[Ѐ-ӿ]/,kk:/[Ѐ-ӿ]/,el:/[Ͱ-Ͽἀ-῿]/,ar:/[؀-ۿ]/,ur:/[؀-ۿ]/,fa:/[؀-ۿ]/,ta:/[஀-௿]/};
+function phFiles(k){return["rusto.js","rten.wasm",k==="v6t"?"det6t.rten":"det5.rten","rec-"+k+".rten","dict-"+k+".txt"]}
+const PH_T={
+ en:{btn:"📷 Translate a photo",read:"Reading the photo…",prep:"Getting the photo reader ready (one time only)… $1 of $2 MB",none:"No text found. Try again closer, with the text filling the photo.",net:"The photo reader downloads once (about $1 MB). Connect to the internet and try again.",hd:"📷 From your photo",offx:"No internet, and this language isn't downloaded for offline use, so only the text it read is shown.",err:"Couldn't read that photo. Try another one."},
+ th:{btn:"📷 แปลจากรูปภาพ",read:"กำลังอ่านรูป…",prep:"กำลังเตรียมตัวอ่านรูป (ครั้งเดียว)… $1 จาก $2 MB",none:"ไม่พบตัวหนังสือ ลองถ่ายใกล้ขึ้นให้ตัวหนังสือเต็มรูป",net:"ตัวอ่านรูปต้องดาวน์โหลดครั้งแรก (ประมาณ $1 MB) กรุณาต่ออินเทอร์เน็ตแล้วลองอีกครั้ง",hd:"📷 จากรูปของคุณ",offx:"ไม่มีอินเทอร์เน็ต และยังไม่ได้ดาวน์โหลดภาษานี้ไว้ใช้ออฟไลน์ จึงแสดงเฉพาะตัวหนังสือที่อ่านได้",err:"อ่านรูปนี้ไม่ได้ ลองรูปอื่น"},
+ vi:{btn:"📷 Dịch ảnh",read:"Đang đọc ảnh…",prep:"Đang chuẩn bị trình đọc ảnh (chỉ một lần)… $1 / $2 MB",none:"Không tìm thấy chữ. Hãy chụp gần hơn để chữ đầy khung hình.",net:"Trình đọc ảnh cần tải một lần (khoảng $1 MB). Hãy kết nối mạng rồi thử lại.",hd:"📷 Từ ảnh của bạn",offx:"Không có mạng và ngôn ngữ này chưa được tải để dùng ngoại tuyến, nên chỉ hiện chữ đọc được.",err:"Không đọc được ảnh này. Hãy thử ảnh khác."},
+ ms:{btn:"📷 Terjemah foto",read:"Sedang membaca foto…",prep:"Menyediakan pembaca foto (sekali sahaja)… $1 daripada $2 MB",none:"Tiada teks ditemui. Cuba lagi dari dekat, biar teks memenuhi foto.",net:"Pembaca foto perlu dimuat turun sekali (kira-kira $1 MB). Sambung ke internet dan cuba lagi.",hd:"📷 Daripada foto anda",offx:"Tiada internet dan bahasa ini belum dimuat turun untuk kegunaan luar talian, jadi hanya teks yang dibaca ditunjukkan.",err:"Foto ini tidak dapat dibaca. Cuba foto lain."},
+ tl:{btn:"📷 Isalin ang litrato",read:"Binabasa ang litrato…",prep:"Inihahanda ang pambasa ng litrato (isang beses lang)… $1 sa $2 MB",none:"Walang nakitang teksto. Subukang ilapit, para mapuno ng teksto ang litrato.",net:"Kailangang i-download nang isang beses ang pambasa ng litrato (mga $1 MB). Kumonekta sa internet at subukan ulit.",hd:"📷 Mula sa iyong litrato",offx:"Walang internet at hindi pa naka-download ang wikang ito para sa offline, kaya ang nabasang teksto lang ang ipinapakita.",err:"Hindi mabasa ang litratong ito. Subukan ang iba."},
+ ja:{btn:"📷 写真を翻訳",read:"写真を読み取り中…",prep:"写真リーダーを準備中（初回のみ）… $1 / $2 MB",none:"文字が見つかりません。文字が写真いっぱいになるよう近づいて撮り直してください。",net:"写真リーダーは初回のみダウンロードが必要です（約$1 MB）。インターネットに接続して、もう一度お試しください。",hd:"📷 写真から",offx:"インターネットに接続されておらず、この言語はオフライン用にダウンロードされていないため、読み取った文字だけを表示しています。",err:"この写真は読み取れませんでした。別の写真でお試しください。"},
+ ko:{btn:"📷 사진 번역",read:"사진을 읽는 중…",prep:"사진 판독기 준비 중(처음 한 번만)… $1 / $2 MB",none:"글자를 찾지 못했습니다. 글자가 사진을 가득 채우도록 가까이에서 다시 찍어 보세요.",net:"사진 판독기는 처음 한 번 내려받아야 합니다(약 $1 MB). 인터넷에 연결한 뒤 다시 시도하세요.",hd:"📷 사진에서",offx:"인터넷이 없고 이 언어를 오프라인용으로 내려받지 않아서, 읽은 글자만 보여 줍니다.",err:"이 사진을 읽지 못했습니다. 다른 사진으로 해 보세요."},
+ zh:{btn:"📷 翻译照片",read:"正在读取照片…",prep:"正在准备照片识别（仅需一次）… $1 / $2 MB",none:"没有找到文字。请靠近一点再拍，让文字占满照片。",net:"照片识别需要先下载一次（约 $1 MB）。请连接网络后再试。",hd:"📷 来自你的照片",offx:"没有网络，而且这种语言还没有下载离线包，所以只显示识别出的文字。",err:"无法读取这张照片。请换一张试试。"},
+ zt:{btn:"📷 翻譯照片",read:"正在讀取照片…",prep:"正在準備照片辨識（只需一次）… $1 / $2 MB",none:"沒有找到文字。請靠近一點再拍，讓文字佔滿照片。",net:"照片辨識需要先下載一次（約 $1 MB）。請連上網路後再試。",hd:"📷 來自你的照片",offx:"沒有網路，而且這種語言還沒有下載離線包，所以只顯示辨識出的文字。",err:"無法讀取這張照片。請換一張試試。"},
+ yue:{btn:"📷 翻譯相",read:"讀緊張相…",prep:"準備緊讀相工具（得一次）… $1 / $2 MB",none:"搵唔到字。行近啲再影，等啲字填滿張相。",net:"讀相工具要下載一次（大約 $1 MB）。請連上網再試。",hd:"📷 你張相入面",offx:"冇網絡，而且呢種語言未下載離線包，所以淨係顯示讀到嘅字。",err:"讀唔到呢張相。試下另一張。"},
+ es:{btn:"📷 Traducir una foto",read:"Leyendo la foto…",prep:"Preparando el lector de fotos (solo una vez)… $1 de $2 MB",none:"No se encontró texto. Prueba de más cerca, que el texto llene la foto.",net:"El lector de fotos se descarga una vez (unos $1 MB). Conéctate a internet e inténtalo de nuevo.",hd:"📷 De tu foto",offx:"No hay internet y este idioma no está descargado para usarlo sin conexión, así que solo se muestra el texto leído.",err:"No se pudo leer esa foto. Prueba con otra."},
+ esa:{btn:"📷 Traducir una foto",read:"Leyendo la foto…",prep:"Preparando el lector de fotos (solo una vez)… $1 de $2 MB",none:"No se encontró texto. Probá de más cerca, que el texto llene la foto.",net:"El lector de fotos se descarga una vez (unos $1 MB). Conectate a internet e intentalo de nuevo.",hd:"📷 De tu foto",offx:"No hay internet y este idioma no está descargado para usarlo sin conexión, así que solo se muestra el texto leído.",err:"No se pudo leer esa foto. Probá con otra."},
+ it:{btn:"📷 Traduci una foto",read:"Sto leggendo la foto…",prep:"Preparo il lettore di foto (solo la prima volta)… $1 di $2 MB",none:"Nessun testo trovato. Riprova più vicino, con il testo che riempie la foto.",net:"Il lettore di foto si scarica una volta (circa $1 MB). Collegati a internet e riprova.",hd:"📷 Dalla tua foto",offx:"Niente internet e questa lingua non è scaricata per l'uso offline, quindi viene mostrato solo il testo letto.",err:"Non riesco a leggere questa foto. Provane un'altra."},
+ fr:{btn:"📷 Traduire une photo",read:"Lecture de la photo…",prep:"Préparation du lecteur de photos (une seule fois)… $1 sur $2 Mo",none:"Aucun texte trouvé. Réessayez plus près, avec le texte qui remplit la photo.",net:"Le lecteur de photos se télécharge une fois (environ $1 Mo). Connectez-vous à internet et réessayez.",hd:"📷 Depuis votre photo",offx:"Pas d'internet et cette langue n'est pas téléchargée pour le hors-ligne, donc seul le texte lu s'affiche.",err:"Impossible de lire cette photo. Essayez-en une autre."}};
+PH_T.esp=PH_T.es;
+function phL(){const u=UL();return u?(u==="esa"?"esa":u):""}
+function phT(k,...a){const t=(PH_T[phL()]||PH_T.en)[k]||PH_T.en[k];return String(t).replace(/\$(\d)/g,(m,i)=>a[i-1]!=null?a[i-1]:"")}
+function phPaint(){
+  const row=$("phRow");if(!row)return;
+  const ok=!!PH_M[S.lang]&&typeof WebAssembly==="object"&&"caches" in self;
+  row.style.display=ok?"":"none";
+  const b=$("phBtn"),l=phL();b.textContent=phT("btn");if(l)b.setAttribute("lang",l==="esa"||l==="esp"?"es":l);else b.removeAttribute("lang");
+}
+let PHENG=null,PHKEY="",PHBUSY=false;
+async function phGet(name,cache,prog){
+  const url=new URL(PH_DIR+name,location.href).href;
+  let r=await cache.match(url);
+  if(!r){
+    const n=await fetch(url,{cache:"no-cache"});if(!n.ok)throw new Error("HTTP "+n.status);
+    const buf=await n.arrayBuffer();if(prog)prog(buf.byteLength);
+    await cache.put(url,new Response(buf,{headers:{"Content-Type":"application/octet-stream"}}));return new Uint8Array(buf);
+  }
+  return new Uint8Array(await r.arrayBuffer());
+}
+async function phMissing(k){const cache=await caches.open(PH_CACHE);let mb=0;for(const f of phFiles(k))if(!await cache.match(new URL(PH_DIR+f,location.href).href))mb+=PH_SZ[f]||0;return mb}
+// downloads (if needed) and starts the reader for this language's script
+async function phEngine(k,onProg){
+  if(PHENG&&PHKEY===k)return PHENG;
+  const cache=await caches.open(PH_CACHE),miss=await phMissing(k);
+  if(miss&&navigator.onLine===false){const e=new Error("net");e.mb=Math.max(1,Math.round(miss/1048576));throw e}
+  let got=0;const prog=n=>{got+=n;if(onProg&&miss)onProg(got,miss)};
+  const F=phFiles(k),d=[];for(const f of F)d.push(await phGet(f,cache,prog));
+  if(typeof RustoWeb==="undefined"){
+    const u=URL.createObjectURL(new Blob([d[0]],{type:"text/javascript"}));
+    await new Promise((ok,no)=>{const s=document.createElement("script");s.src=u;s.onload=ok;s.onerror=()=>no(new Error("reader"));document.head.appendChild(s)});
+  }
+  if(PHENG){try{PHENG.terminate()}catch(e){}PHENG=null;PHKEY=""}
+  const e=new RustoWeb.WebOcrEngine();
+  await e.initialize({wasmUrl:URL.createObjectURL(new Blob([d[1]],{type:"application/wasm"})),worker:false,models:{detection:d[2],recognition:d[3],dictionary:new TextDecoder().decode(d[4])}});
+  PHENG=e;PHKEY=k;return e;
+}
+async function phPrefetch(c){const k=PH_M[c];if(!k)return;const cache=await caches.open(PH_CACHE);for(const f of phFiles(k))await phGet(f,cache)}
+function phClean(t,c){
+  t=String(t||"").replace(/\s+/g," ").trim();
+  if(c==="th")t=t.replace(/ํา/g,"ำ").replace(/([฀-๿]) (?=[฀-๿])/g,"$1");
+  if(/^(ja|zh|zt|yue)$/.test(c))t=t.replace(/([぀-ヿ㐀-鿿]) (?=[぀-ヿ㐀-鿿])/g,"$1");
+  // the reader gives right-to-left text in left-to-right order: turn it round, keeping numbers and Latin words as they were
+  if(/[؀-ۿ]/.test(t))t=[...t].reverse().join("").replace(/[0-9A-Za-z.,:%\/\-]+/g,w=>[...w].reverse().join(""));
+  return t;
+}
+function phMsg(t,busy){$("trOut").innerHTML=`<div class="phmsg"${phL()?` lang="${S.lang}"`:""}>${esc(t)}${busy?'<span class="dots" aria-hidden="true"><span></span><span></span><span></span></span>':""}</div>`}
+async function phTrLine(q,from,to){
+  if(navigator.onLine!==false){try{const t=await gtx(q,from==="auto"?"auto":from,to);if(t&&String(t).trim())return String(t).trim()}catch(e){}}
+  const f=from==="auto"?S.lang:null;
+  if(offHas(S.lang)){try{const t=await offTrB(q,f?S.lang:BASE(),f?BASE():S.lang);if(t)return t}catch(e){}}
+  return null;
+}
+async function phRun(file){
+  if(PHBUSY)return;PHBUSY=true;$("phBtn").disabled=true;talkDrop();TRTOK++;
+  const tok=TRTOK,k=PH_M[S.lang],c=S.lang;
+  try{
+    phMsg(phT("read"),true);
+    const eng=await phEngine(k,(g,t)=>{if(tok===TRTOK)phMsg(phT("prep",Math.round(g/1048576),Math.max(1,Math.round(t/1048576))),true)});
+    if(tok!==TRTOK)return;phMsg(phT("read"),true);
+    const url=URL.createObjectURL(file),img=new Image();img.src=url;
+    try{await img.decode()}finally{setTimeout(()=>URL.revokeObjectURL(url),1000)}
+    const sc=Math.min(1,1600/Math.max(img.naturalWidth,img.naturalHeight)),cv=document.createElement("canvas");
+    cv.width=Math.max(1,Math.round(img.naturalWidth*sc));cv.height=Math.max(1,Math.round(img.naturalHeight*sc));cv.getContext("2d").drawImage(img,0,0,cv.width,cv.height);
+    const res=await eng.detectText(cv,{output:"lines",textScore:0.6});
+    if(tok!==TRTOK)return;
+    const lines=[...new Set((res||[]).map(r=>phClean(r.text,c)).filter(l=>l.length>1&&/[\p{L}]/u.test(l)))].slice(0,40);
+    if(!lines.length){phMsg(phT("none"));return}
+    // which way each line goes: the language's own lines into my language; a native speaker's English lines into the language
+    const scr=PH_SCR[c],tu=TU();
+    const jobs=lines.map(l=>{const mine=scr?scr.test(l):!tu;return mine?(tu?null:["auto",BLG().mm]):(tu?[BLG().mm,LG().mm]:null)});
+    const out=new Array(lines.length).fill(null);let i=0;
+    const worker=async()=>{while(i<lines.length){const n=i++;const j=jobs[n];if(j){const t=await phTrLine(lines[n],j[0],j[1]);out[n]=t&&t.toLowerCase()!==lines[n].toLowerCase()?t:null}}};
+    await Promise.all([worker(),worker(),worker(),worker()]);
+    if(tok!==TRTOK)return;
+    const anyJob=jobs.some(Boolean),anyOut=out.some(x=>x);
+    const L=phL(),la=L?` lang="${c}"`:"";
+    let h=`<div class="phres"><div class="phh"${la}>${esc(phT("hd"))}</div>`;
+    lines.forEach((l,n)=>{const t=out[n];h+=`<div class="phr"><div class="${t?"pho":"pht"}" dir="auto">${esc(l)}</div>${t?`<div class="pht" dir="auto">${esc(t)}</div>`:""}</div>`});
+    h+="</div>";
+    if(anyJob&&!anyOut)h+=`<div class="phmsg"${la}>${esc(phT("offx"))}</div>`;
+    $("trOut").innerHTML=h;
+  }catch(e){
+    if(tok!==TRTOK)return;
+    phMsg(e&&e.message==="net"?phT("net",e.mb):phT("err"));
+  }finally{PHBUSY=false;$("phBtn").disabled=false}
+}
+$("phBtn").onclick=()=>{$("phFile").value="";$("phFile").click()};
+$("phFile").onchange=e=>{const f=e.target.files&&e.target.files[0];e.target.value="";if(f)phRun(f)};
+phPaint();
+
 updOnline();
 if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol)&&!window.__preview)navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
