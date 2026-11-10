@@ -134,16 +134,16 @@ async function tick(){
   // only lines with Thai in them get a label
   const items=(res||[]).map(r=>({t:clean(r.text),f:r.frame})).filter(x=>x.t.length>1&&THAI.test(x.t));
   if(!paused){
-    // if the phone moved while reading, these boxes would land in the wrong place: skip them
-    const now=thumb(v);
-    if(moved(th,now)<14){last=items;shown=items;shownThumb=th;shownWH=[grab.width,grab.height];draw();
-      translate(items.map(x=>x.t)).then(()=>{if(shown===items&&!paused)draw()}).catch(()=>{})}
+    last=items;shown=items;shownWH=[grab.width,grab.height];draw();
+    translate(items.map(x=>x.t)).then(()=>{if(shown===items&&!paused)draw()}).catch(()=>{});
   }
-  $("st").textContent=res===null?window.__err:`read ${((t1-t0)/1000).toFixed(1)} s · ${mode||(navigator.onLine?"online":"offline")}`;
+  $("st").textContent=res===null?window.__err:`${(res||[]).length?((last.length)+" Thai lines · "):""}read ${((t1-t0)/1000).toFixed(1)} s · ${mode||(navigator.onLine?"online":"offline")}`;
   setTimeout(tick,50);
 }
-// hide the labels while the phone is moving, show them again when it settles back
-setInterval(()=>{if(paused||!shownThumb||!$("v").videoWidth)return;const m=moved(shownThumb,thumb($("v")));const h=m>16;if(h!==hiddenOv){hiddenOv=h;$("ov").style.opacity=h?"0":"1"}},150);
+// hide the labels only while the phone is being swung around (big change between two quick looks)
+let prevT=null,still=0;
+setInterval(()=>{const v=$("v");if(paused||!v.videoWidth)return;const t=thumb(v),m=moved(prevT,t);prevT=t;
+  if(m>12){still=0;if(!hiddenOv){hiddenOv=true;$("ov").style.opacity="0"}}else if(++still>=2&&hiddenOv){hiddenOv=false;$("ov").style.opacity="1"}},150);
 function draw(){
   const items=shown||[],[Wi,Hi]=shownWH;
   const c=$("ov"),dpr=window.devicePixelRatio||1,cw=c.clientWidth,ch=c.clientHeight;
