@@ -816,7 +816,7 @@ html[data-th="light"]:not([data-look]) .offdone .offok{color:#15803d}
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 10 Nov 2026, build 115</div>
+  <div class="hint">Version: 10 Nov 2026, build 116</div>
   <input type="file" id="file" accept=".json,application/json" hidden>
   <div id="bs" style="font-size:var(--fs-s);color:var(--mute);min-height:18px;margin-top:6px"></div>
   <div class="act" style="justify-content:space-between">
@@ -7252,7 +7252,164 @@ function itNum(str,unit){
     w+=di+({baht:" euro",beer:one?" birra":" birre",coffee:" caffè"})[unit]}
   return{th:w,ro:itPron(w)};
 }
-const SOUNDS=["th","vi","ms","tl","es","esp","esa","it"];
+/* French: sounds for English speakers, syllable by syllable ("Où sont les toilettes ?" -> oo sohn lay twah-let).
+   French has no strong word stress, so nothing is in capitals. The traps: most final consonants are silent (except c, r, f, l),
+   final e is silent, nasal vowels (an/en = ahn, on = ohn, in/ain = an, un = uhn), eau/au = oh, ou = oo, oi = wah, u = ew,
+   ch = sh, j and soft g = zh, gn = ny, ill = y, qu = k. */
+const FRL=()=>S.lang==="fr";
+const FR_SP={est:"eh",et:"ay",les:"lay",des:"day",mes:"may",tes:"tay",ses:"say",ces:"say",je:"zhuh",le:"luh",de:"duh",ne:"nuh",que:"kuh",me:"muh",te:"tuh",se:"suh",ce:"suh",
+  un:"uhn",une:"ewn",vous:"voo",nous:"noo",tu:"tew",il:"eel",ils:"eel",elle:"el",elles:"el",on:"ohn",oui:"wee",non:"nohn",pas:"pah",plus:"plew",très:"treh",avec:"ah-vek",
+  pour:"poor",dans:"dahn",en:"ahn",au:"oh",aux:"oh",du:"dew",ou:"oo","où":"oo",qui:"kee",quoi:"kwah",moi:"mwah",toi:"twah",monsieur:"muh-syuh",madame:"mah-dahm",
+  femme:"fahm",fils:"fees",hier:"yehr",hiver:"ee-vehr",mer:"mehr",fer:"fehr",cher:"shehr",chère:"shehr",super:"sew-pehr",ok:"oh-kay",wifi:"wee-fee",led:"led",iso:"ee-zoh",
+  qr:"kew-ehr",set:"set",skytrain:"sky-trayn",steadicam:"stay-dee-kahm",dolly:"doh-lee",gaffer:"gah-fehr",boom:"boom",perche:"pehrsh",talkie:"toh-kee",walkie:"woh-kee",
+  vegan:"vay-gahn",ville:"veel",mille:"meel",tranquille:"trahn-keel",village:"vee-lahzh",cinq:"sank",six:"sees",dix:"dees",huit:"weet",sept:"set",neuf:"nuhf",vingt:"van",
+  cent:"sahn",cents:"sahn",euro:"uh-roh",euros:"uh-roh",ça:"sah","c'est":"say","s'il":"seel",bien:"byan",rien:"ryan",chien:"shyan",second:"suh-gohn",seconde:"suh-gohnd",
+  oignon:"oh-nyohn",abasourdi:"ah-bah-zoor-dee",sens:"sahn",technique:"tehk-neek",techniques:"tehk-neek",technicien:"tehk-nee-syan",compteur:"kohn-tuhr",zoom:"zoom",hf:"ahsh-ef",blanc:"blahn",blancs:"blahn",relax:"ruh-lahks",wesh:"wesh",secondes:"suh-gohnd",stress:"strehs",enfer:"ahn-fehr",hyper:"ee-pehr",soixante:"swah-sahnt",tuyau:"twee-yoh",bus:"bews",tous:"too",tout:"too",toute:"toot",toutes:"toot",gens:"zhahn",temps:"tahn",ils:"eel",
+  mais:"meh",jamais:"zhah-meh",fait:"feh",faut:"foh",veut:"vuh",peut:"puh",eux:"uh",yeux:"yuh",oeil:"uhy","œil":"uhy",pied:"pyay",clef:"klay",clé:"klay",
+  monsieur:"muh-syuh",messieurs:"may-syuh",automne:"oh-tun",août:"oot",club:"kluhb",sandwich:"sahnd-weetch",weekend:"wee-kend",parking:"pahr-keeng",
+  shooting:"shoo-teeng",casting:"kahs-teeng",make:"mayk",up:"uhp",cool:"kool",fun:"fuhn",grave:"grahv",putain:"pew-tan",merde:"mehrd",con:"kohn",connard:"koh-nahr",
+  enculé:"ahn-kew-lay",salaud:"sah-loh",salope:"sah-lohp",bordel:"bohr-del",chiant:"shyahn",chiante:"shyahnt",emmerde:"ahn-mehrd",emmerdes:"ahn-mehrd",ennui:"ahn-nwee",
+  femmes:"fahm",hommes:"ohm",homme:"ohm",sommes:"sohm",comme:"kohm",pomme:"pohm",donne:"dohn",bonne:"bohn",personne:"pehr-sohn",téléphone:"tay-lay-fohn",
+  prends:"prahn",prend:"prahn",vends:"vahn",attends:"ah-tahn",entends:"ahn-tahn",comprends:"kohn-prahn",apprends:"ah-prahn",
+  parlent:"pahrl",mangent:"mahnzh",disent:"deez",font:"fohn",sont:"sohn",ont:"ohn",vont:"vohn",aiment:"ehm",veulent:"vuhl",peuvent:"puhv",doivent:"dwahv",
+  "aujourd'hui":"oh-zhoor-dwee",quelqu:"kel-k",quelque:"kel-kuh",quelques:"kel-kuh",parce:"pahrs",lorsque:"lohrs-kuh",puisque:"pweess-kuh",ah:"ah",oh:"oh",eh:"eh",
+  hein:"an",bah:"bah",ouais:"weh",bof:"bohf",zut:"zewt",oups:"oops",chut:"shewt",ouf:"oof",aïe:"ahy",waouh:"wah-oo",bravo:"brah-voh",allô:"ah-loh"};
+const FR_V="aeiouyàâäéèêëîïôöùûüœæ";
+function frIsV(c){return !!c&&FR_V.includes(c)}
+// sound tokens for one word: {s, v}
+function frTokens(w0){
+  let w=w0;
+  // ill = y: travail, oreille, fille (not ville, mille)
+  w=w.replace(/(?<![qg])([aeu]|ou|eu|ue)il(l?)(?=[^aeiouyàâéèêëîïôûü]|e|$)/g,(m,a,l)=>a+"¥"+(l?"":"")).replace(/ill(?=[aeiouyéè]|$)/g,"i¥");
+  const T=[],n=w.length;
+  const V=s=>T.push({s,v:1}),C=s=>{if(T.length&&!T[T.length-1].v&&T[T.length-1].s===s)return;T.push({s,v:0})};
+  const nasal=k=>{const a=w[k],b=w[k+1];return (a==="n"||a==="m")&&!frIsV(b)&&b!=="n"&&b!=="m"&&b!=="¥"};
+  let i=0;
+  while(i<n){
+    const c=w[i],r=w.slice(i),rest=w.slice(i+1);
+    // word-final silent bits
+    if(i>0&&/^(e|es)$/.test(r)){break}
+    if(i>1&&/^ent$/.test(r)&&/[^aeiouy]/.test(w[i-1])&&0){break}
+    if(i>1&&n>3&&/^er$/.test(r)){V("ay");break}
+    if(i>0&&/^ez$/.test(r)){V("ay");break}
+    if(i>0&&/^et$/.test(r)){V("eh");break}
+    if(i>0&&/^[sxztdpg]+$/.test(r)&&r!=="ss"){break}
+    if(c==="¥"){C("y");i++;continue}
+    if(frIsV(c)){
+      if(r.startsWith("eau")){V("oh");i+=3;continue}
+      if(/^oin/.test(r)&&nasal(i+2)){V("wan");i+=3;continue}
+      if(/^(ain|aim|ein|eim)/.test(r)&&nasal(i+2)){V("an");i+=3;continue}
+      if(/^ien/.test(r)&&nasal(i+2)){C("y");V("an");i+=3;continue}
+      if(/^(au)/.test(r)){V("oh");i+=2;continue}
+      if(/^(ou|où|oû)/.test(r)){if(frIsV(w[i+2])){C("w");i+=2;continue}V("oo");i+=2;continue}
+      if(/^(oi|oî)/.test(r)){C("w");V("ah");i+=2;continue}
+      if(/^oy/.test(r)&&frIsV(w[i+2])){C("w");V("ah");C("y");i+=2;continue}
+      if(/^(ai|aî|ei|ay(?![aeiou]))/.test(r)){V("eh");i+=2;continue}
+      if(/^(eu|œu|œ)/.test(r)){V("uh");i+=r.startsWith("œ")&&r[1]!=="u"?1:2;continue}
+      if(/^ui/.test(r)&&!(i>0&&(w[i-1]==="q"||w[i-1]==="g"))){C("w");V("ee");i+=2;continue}
+      if(/^[ae][nm]/.test(r)&&nasal(i+1)){V("ahn");i+=2;continue}
+      if(/^o[nm]/.test(r)&&nasal(i+1)){V("ohn");i+=2;continue}
+      if(/^[iy][nm]/.test(r)&&nasal(i+1)){V("an");i+=2;continue}
+      if(/^u[nm]/.test(r)&&nasal(i+1)){V("uhn");i+=2;continue}
+      if(c==="é"){V("ay");i++;continue}
+      if("èêë".includes(c)){V("eh");i++;continue}
+      if(c==="e"){
+        // e + two consonants, or + a sounded final consonant: eh; otherwise a light uh
+        const m=rest.match(/^([^aeiouyàâéèêëîïôûü]*)/)[1];
+        const fin=i+1+m.length>=n;
+        const sounded=fin?m.replace(/[sxztdpg]+$/,""):m;
+        if(fin&&m&&!sounded){V(m==="d"?"ay":"eh");i++;continue}
+        if(m.length>=2&&!/^(.)\1$/.test(m)&&!/^[bcdfgkptv][rl]$/.test(m)&&!(fin&&!sounded)||(m.length>=2&&/^(.)\1$/.test(m))||(fin&&sounded.length>0&&/[crfl]$/.test(sounded))||m==="x"){V("eh")}else V(i===0?"eh":"uh");
+        i++;continue}
+      if("aàâä".includes(c)){V("ah");i++;continue}
+      if("iîïy".includes(c)){if(frIsV(w[i+1])&&i>0&&!/^(e|es|ent)$/.test(w.slice(i+1))){C("y");i++;continue}V("ee");i++;continue}
+      if("oôö".includes(c)){V("oh");i++;continue}
+      if("uûü".includes(c)){if(frIsV(w[i+1])&&w[i+1]!=="e"&&i>0&&!/[qg]/.test(w[i-1])){C("w");i++;continue}V("ew");i++;continue}
+      V(c);i++;continue}
+    // consonants
+    if(r.startsWith("ch")){C("sh");i+=2;continue}
+    if(r.startsWith("ph")){C("f");i+=2;continue}
+    if(r.startsWith("th")){C("t");i+=2;continue}
+    if(r.startsWith("gn")){C("ny");i+=2;continue}
+    if(r.startsWith("qu")){C("k");i+=2;continue}
+    if(/^gu[eéèêiîy]/.test(r)){C("g");i+=2;continue}
+    if(/^ge[aoâô]/.test(r)){C("zh");i+=2;continue}
+    if(/^cc[eéèêiîy]/.test(r)){C("k");C("s");i+=2;continue}
+    if(/^ti(on|en|el)/.test(r)&&i>0&&!/[sx]/.test(w[i-1])){C("s");i++;continue}
+    if(c==="ç"){C("s");i++;continue}
+    if(c==="c"){C(/[eéèêëiîy]/.test(w[i+1]||"")?"s":"k");i++;continue}
+    if(c==="g"){C(/[eéèêëiîy]/.test(w[i+1]||"")?"zh":"g");i++;continue}
+    if(c==="j"){C("zh");i++;continue}
+    if(c==="h"){i++;continue}
+    if(c==="s"){if(r.startsWith("ss")){C("s");i+=2;continue}C(i>0&&frIsV(w[i-1])&&frIsV(w[i+1])?"z":"s");i++;continue}
+    if(c==="x"){C(i===0?"gz":"ks");i++;continue}
+    if(c==="q"){C("k");i++;continue}
+    if(c==="w"){C("w");i++;continue}
+    C(c);i++;
+  }
+  return T;
+}
+function frSyls(T){
+  const S=[];let on=[],k=0;
+  while(k<T.length){
+    if(!T[k].v){on.push(T[k].s);k++;continue}
+    const nu=T[k].s;k++;
+    let j=k;while(j<T.length&&!T[j].v)j++;
+    const cs=T.slice(k,j).map(t=>t.s);let co=[];
+    if(j>=T.length){co=cs;k=j}
+    else if(cs.length<=1){co=[]}
+    else{let keep=1;if(/^[bkdfgptv]$/.test(cs[cs.length-2])&&/^[rl]$/.test(cs[cs.length-1]))keep=2;
+      if(/^[yw]$/.test(cs[cs.length-1]))keep=Math.min(cs.length,/^[bkdfgptv]$/.test(cs[cs.length-3]||"")&&/^[rl]$/.test(cs[cs.length-2])?3:2);
+      co=cs.slice(0,cs.length-keep);k+=co.length}
+    S.push({on,nu,co});on=[];
+  }
+  if(on.length){if(S.length)S[S.length-1].co.push(...on);else return null}
+  return S;
+}
+function frWord(w){
+  let lw=w.toLowerCase().replace(/’/g,"'");
+  if(FR_SP[lw])return FR_SP[lw];
+  const m=lw.match(/^(l|d|j|c|qu|n|s|m|t|jusqu|lorsqu|puisqu)'(.+)$/);
+  if(m){const pre={l:"l",d:"d",j:"zh",c:"s",qu:"k",n:"n",s:"s",m:"m",t:"t",jusqu:"zhews-k",lorsqu:"lohrs-k",puisqu:"pweess-k"}[m[1]];
+    const r=frWord(m[2]);if(!r)return null;return pre.includes("-")?pre+r:pre+r}
+  lw=lw.replace(/'/g,"");
+  if(FR_SP[lw])return FR_SP[lw];
+  if(!/^[a-zàâäéèêëîïôöùûüçœæ]+$/.test(lw))return null;
+  const S=frSyls(frTokens(lw));if(!S||!S.length)return null;
+  return S.map(s=>{let o=s.on.join("");let v=s.nu;if(o.endsWith("y")&&v[0]==="y")v=v.slice(1);if(o.endsWith("w")&&v[0]==="w")v=v.slice(1);return o+v+s.co.join("")}).join("-");
+}
+function frWords(text){return String(text||"").replace(/-/g," ").split(/[\s,.!?;:"“”()…–—«»  ]+/).filter(Boolean).map(w=>frWord(w)||w.toLowerCase())}
+function frPron(text){return frWords(text).join(" ")}
+/* French numbers for the keypad and number tiles: 21 vingt et un, 71 soixante et onze, 80 quatre-vingts, 99 quatre-vingt-dix-neuf */
+const FR_U=["zéro","un","deux","trois","quatre","cinq","six","sept","huit","neuf","dix","onze","douze","treize","quatorze","quinze","seize","dix-sept","dix-huit","dix-neuf"];
+const FR_T=["","","vingt","trente","quarante","cinquante","soixante"];
+function frNum2(r){if(r<20)return FR_U[r];
+  if(r<70){const t=FR_T[Math.floor(r/10)],u=r%10;return u===0?t:u===1?t+" et un":t+"-"+FR_U[u]}
+  if(r<80)return r===71?"soixante et onze":"soixante-"+FR_U[r-60];
+  if(r===80)return"quatre-vingts";
+  return"quatre-vingt-"+FR_U[r-80]}
+function frNum3(n,last){const h=Math.floor(n/100),r=n%100;let w=[];
+  if(h)w.push(h===1?"cent":FR_U[h]+(r||!last?" cent":" cents"));
+  if(r)w.push(frNum2(r));
+  let s=w.join(" ");if(!last)s=s.replace(/quatre-vingts$/,"quatre-vingt");return s}
+function frNumWords(ip){const gs=[];let x=ip;while(x.length){gs.unshift(+x.slice(-3));x=x.slice(0,-3)}
+  const w=[],n=gs.length;
+  gs.forEach((g,i)=>{const p=n-1-i;if(!g)return;
+    if(p===0)w.push(frNum3(g,true));
+    else if(p===1)w.push(g===1?"mille":frNum3(g,false)+" mille");
+    else if(p===2)w.push(g===1?"un million":frNum3(g,true)+" millions");
+    else if(p===3)w.push(g===1?"un milliard":frNum3(g,true)+" milliards");});
+  return w.join(" ")}
+function frNum(str,unit){
+  let [ip,fp]=String(str).split(".");ip=(ip||"").replace(/^0+(?=\d)/,"");
+  const zero=!ip||/^0+$/.test(ip);let w=zero?"zéro":frNumWords(ip);
+  if(fp!==undefined&&fp!=="")w+=" virgule"+[...fp].map(c=>" "+FR_U[+c]).join("");
+  if(unit){const one=w==="un",fem=unit==="beer",big=/(million|millions|milliard|milliards)$/.test(w);
+    if(fem)w=w.replace(/\bun$/,"une");
+    w+=({baht:(big?" d'":" ")+(one?"euro":"euros"),beer:(big?" de ":" ")+(one?"bière":"bières"),coffee:(big?" de ":" ")+(one?"café":"cafés")})[unit]}
+  return{th:w,ro:frPron(w)};
+}
+const SOUNDS=["th","vi","ms","tl","es","esp","esa","it","fr"];
 const GL_FIX={th:{"ครับ":"(polite)","ค่ะ":"(polite)","คะ":"(polite)","นะ":"(soft)","จ้ะ":"(friendly)","จ้า":"(friendly)","ไหม":"(question)","มั้ย":"(question)","ได้":"can","ไม่":"not","หน่อย":"please","ด้วย":"please","คับ":"(polite)","เหรอ":"(really?)","ล่ะ":"(then?)","สิ":"(do it)","เลย":"(right now)"},vi:{"ạ":"(polite)","nhé":"(ok?)","không":"no / (question)","ơi":"(hey)","nhỉ":"(right?)"},tl:{po:"(polite)",ho:"(polite)"},ms:{lah:"(emphasis)"}};
 const VI_WORDS=new Set("cái này|cái kia|cái đó|cái gì|bao nhiêu|bao giờ|bao lâu|nhà vệ sinh|vệ sinh|cảm ơn|xin chào|xin lỗi|tạm biệt|khách sạn|nhà hàng|cà phê|sân bay|bệnh viện|nhà thuốc|hiệu thuốc|cảnh sát|ngân hàng|siêu thị|chợ đêm|đường phố|thành phố|xe buýt|xe máy|xe ôm|tắc xi|taxi|máy bay|tàu hỏa|ga tàu|vé tàu|hộ chiếu|điện thoại|máy quay|máy ảnh|diễn viên|đạo diễn|quay phim|bộ phim|hóa trang|trang điểm|hành động|ở đâu|ở đây|ở đó|bên trái|bên phải|đi thẳng|rẽ trái|rẽ phải|bây giờ|hôm nay|ngày mai|hôm qua|buổi sáng|buổi chiều|buổi tối|ban đêm|tuần sau|tháng sau|thời gian|mấy giờ|một chút|chút xíu|làm ơn|giúp đỡ|giúp tôi|được không|không sao|không có|không phải|có thể|có không|tại sao|như thế nào|thế nào|như vậy|vì sao|người việt|việt nam|tiếng việt|tiếng anh|người nước ngoài|nước ngoài|nước suối|nước đá|nước mía|bia hơi|thức ăn|đồ ăn|ăn sáng|ăn trưa|ăn tối|thực đơn|hóa đơn|tính tiền|tiền mặt|thẻ tín dụng|giảm giá|đắt quá|rẻ quá|ngon quá|rất ngon|bánh mì|phở bò|phở gà|cơm gà|cơm tấm|bún chả|nem rán|chả giò|gỏi cuốn|rau thơm|hải sản|thịt bò|thịt gà|thịt heo|thịt lợn|trứng gà|đồ uống|trà đá|sinh tố|ăn chay|dị ứng|đậu phộng|không cay|ít cay|ít đường|không đá|bác sĩ|đau bụng|đau đầu|cấp cứu|nguy hiểm|an toàn|khẩn cấp|đi bộ|chờ đợi|chờ một chút|đợi một chút|bắt đầu|kết thúc|nghỉ ngơi|làm việc|công việc|hiểu không|không hiểu|biết không|không biết|chụp ảnh|mua sắm|quần áo|giày dép|kích cỡ|màu sắc|phòng tắm|phòng ngủ|điều hòa|wifi|mật khẩu|ổ cắm|sạc pin|đẹp quá|vui vẻ|hạnh phúc|bạn bè|gia đình|anh ấy|chị ấy|cô ấy|ông ấy|bà ấy|chúng tôi|chúng ta|các bạn|mọi người|tất cả|cũng được|đúng rồi|sai rồi|xong rồi|chưa xong|sẵn sàng|chuẩn bị|lần nữa|một lần|hai lần|lần đầu|cẩn thận|chậm lại|nhanh lên|nói chậm|im lặng|yên lặng|đồng hồ|hôm nào|lúc nào|ai đó|cái nào|chỗ nào|đâu đó|tiếp theo|cảnh quay|máu giả|tóc giả|râu giả".split("|"));
 /* common Thai words with the meaning they usually have in a sentence (a one-word web lookup often picks a rarer sense) */
@@ -7934,6 +8091,7 @@ function toneHTML(th,ph,tn,force){
   if((S.lang==="ms"||S.lang==="tl")&&th){const w=ltWords(th,S.lang);if(w.length)return `<span class="tn" data-g="${esc(th)}">${w.map(x=>`<span class="ts">${esc(x)}</span>`).join("")}</span>`;return esc(ph||"")}
   if(ESL()&&th){const w=esWords(th,S.lang);if(w.length)return `<span class="tn" data-g="${esc(th)}">${w.map(x=>`<span class="ts">${esc(x)}</span>`).join("")}</span>`;return esc(ph||"")}
   if(ITL()&&th){const w=itWords(th);if(w.length)return `<span class="tn" data-g="${esc(th)}">${w.map(x=>`<span class="ts">${esc(x)}</span>`).join("")}</span>`;return esc(ph||"")}
+  if(FRL()&&th){const w=frWords(th);if(w.length)return `<span class="tn" data-g="${esc(th)}">${w.map(x=>`<span class="ts">${esc(x)}</span>`).join("")}</span>`;return esc(ph||"")}
   if(S.lang!=="th"||!th)return esc(ph||"");
   let sy=String(ph||"").trim().split(/\s+/).filter(Boolean),t=tn||"";
   const pm=String(th).match(/(ครับ|ค่ะ|คะ)$/);
@@ -7997,7 +8155,7 @@ function jpEn(r){
   const ini=(b.match(/^(gw|kw|ng|[bpmfdtnlgkhwzcsj])/)||[""])[0],f=b.slice(ini.length),F=JP_F[f];if(F==null)return b;
   const I=ini?JP_I[ini]:"";return I==="y"&&F[0]==="y"?F:I+F;
 }
-function sx(r){if(ZHL()&&/[\u3400-\u9fff]/.test(r.t||r.th||"")){const P=zhPron(r.t||r.th,S.lang);if(P)return P.ro.join(" ")}if(S.lang==="vi"){const P=viPron(r.t||r.th);if(P)return P.ro.join(" ")}if(S.lang==="ms"||S.lang==="tl"){const p=ltPron(r.t||r.th,S.lang);if(p)return p}if(ESL()){const p=esPron(r.t||r.th,S.lang);if(p)return p}if(ITL()){const p=itPron(r.t||r.th);if(p)return p}return r.ph||(r.ro?(S.lang==="th"?phonFromRo(r.ro):r.ro):"")}
+function sx(r){if(ZHL()&&/[\u3400-\u9fff]/.test(r.t||r.th||"")){const P=zhPron(r.t||r.th,S.lang);if(P)return P.ro.join(" ")}if(S.lang==="vi"){const P=viPron(r.t||r.th);if(P)return P.ro.join(" ")}if(S.lang==="ms"||S.lang==="tl"){const p=ltPron(r.t||r.th,S.lang);if(p)return p}if(ESL()){const p=esPron(r.t||r.th,S.lang);if(p)return p}if(ITL()){const p=itPron(r.t||r.th);if(p)return p}if(FRL()){const p=frPron(r.t||r.th);if(p)return p}return r.ph||(r.ro?(S.lang==="th"?phonFromRo(r.ro):r.ro):"")}
 function full(i){
   let th=i.th,ro=i.ro||"";
   if(S.polite&&S.pol&&(i.lang||S.lang)==="th"&&i.cat!=="Numbers"&&!i.np){
@@ -8798,7 +8956,7 @@ function setText(i,L,t,ro,auto,ph){
   if(L==="th"){i.th=t;i.ro=ro||"";i.ph=ph||"";i.auto=auto?1:0}
   else{if(!t){if(i.tr)delete i.tr[L];return}i.tr=i.tr||{};i.tr[L]={t,ro:ro||"",ph:ph||"",auto:auto?1:0}}
 }
-function vw(i){if(CUR[S.lang]&&i.cat==="Numbers"&&/^\d[\d,]*$/.test(i.en||"")){const n=(i.en||"").replace(/,/g,""),r=TU()?(S.lang==="vi"?viNum(n,""):ESL()?esNum(n,"",S.lang):ITL()?itNum(n,""):ltNum(n,"",S.lang)):numFor(n,"");return{th:r.th,ro:r.ro,auto:0,en:i.en}}const x=getText(i,S.lang);return{th:x.t,ro:sx(x),auto:x.auto,en:bLabel(i)}}
+function vw(i){if(CUR[S.lang]&&i.cat==="Numbers"&&/^\d[\d,]*$/.test(i.en||"")){const n=(i.en||"").replace(/,/g,""),r=TU()?(S.lang==="vi"?viNum(n,""):ESL()?esNum(n,"",S.lang):ITL()?itNum(n,""):FRL()?frNum(n,""):ltNum(n,"",S.lang)):numFor(n,"");return{th:r.th,ro:r.ro,auto:0,en:i.en}}const x=getText(i,S.lang);return{th:x.t,ro:sx(x),auto:x.auto,en:bLabel(i)}}
 function srcFor(i){
   if(i.en)return{q:i.en,from:i.bl||"en"};
   if(i.th)return{q:i.th,from:"th"};
@@ -9482,11 +9640,11 @@ function enNum(v,u){
   if(!n)w.push("zero");
   for(const[sz,nm]of[[1e9,"billion"],[1e6,"million"],[1e3,"thousand"],[1,""]]){const k=Math.floor(n/sz);if(k){w.push(h(k)+(nm?" "+nm:""));n%=sz}}
   let t=w.join(" ");if(b!==undefined)t+=" point "+[...b].map(d=>O[+d]).join(" ");
-  if(u){const one=v==="1";t+=" "+(u==="baht"?({vi:"dong",ms:"ringgit",tl:one?"peso":"pesos",es:one?"peso":"pesos",esp:one?"euro":"euros",esa:one?"peso":"pesos",it:one?"euro":"euros"}[S.lang]||"baht"):u==="beer"?(one?"beer":"beers"):(one?"coffee":"coffees"))}
+  if(u){const one=v==="1";t+=" "+(u==="baht"?({vi:"dong",ms:"ringgit",tl:one?"peso":"pesos",es:one?"peso":"pesos",esp:one?"euro":"euros",esa:one?"peso":"pesos",it:one?"euro":"euros",fr:one?"euro":"euros"}[S.lang]||"baht"):u==="beer"?(one?"beer":"beers"):(one?"coffee":"coffees"))}
   return{th:t,ro:"",tn:""};
 }
-function numFor(v,u){if(TU())return enNum(v,u);return S.lang==="vi"?viNum(v,u):S.lang==="ms"||S.lang==="tl"?ltNum(v,u,S.lang):ESL()?esNum(v,u,S.lang):ITL()?itNum(v,u):thNum(v,u)}
-const CUR={vi:[" ₫"," dong","₫ Dong"],ms:["RM "," ringgit","RM Ringgit"],tl:["₱"," pesos","₱ Peso"],es:["$"," pesos","$ Pesos"],esp:[" €"," euros","€ Euros"],esa:["$"," pesos","$ Pesos"],it:[" €"," euro","€ Euro"]};
+function numFor(v,u){if(TU())return enNum(v,u);return S.lang==="vi"?viNum(v,u):S.lang==="ms"||S.lang==="tl"?ltNum(v,u,S.lang):ESL()?esNum(v,u,S.lang):ITL()?itNum(v,u):FRL()?frNum(v,u):thNum(v,u)}
+const CUR={vi:[" ₫"," dong","₫ Dong"],ms:["RM "," ringgit","RM Ringgit"],tl:["₱"," pesos","₱ Peso"],es:["$"," pesos","$ Pesos"],esp:[" €"," euros","€ Euros"],esa:["$"," pesos","$ Pesos"],it:[" €"," euro","€ Euro"],fr:[" €"," euros","€ Euros"]};
 function nUnit(k,i){return k==="baht"&&CUR[S.lang]?CUR[S.lang][i]:NUNIT[k][i]}
 function numLang(){return CUR[S.lang]?S.lang:"th"}
 let NKV="",NKB="";
