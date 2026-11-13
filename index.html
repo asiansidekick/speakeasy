@@ -827,7 +827,7 @@ html[data-th="light"]:not([data-look]) .offdone .offok{color:#15803d}
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 13 Nov 2026, build 122</div>
+  <div class="hint">Version: 13 Nov 2026, build 123</div>
   <input type="file" id="file" accept=".json,application/json" hidden>
   <div id="bs" style="font-size:var(--fs-s);color:var(--mute);min-height:18px;margin-top:6px"></div>
   <div class="act" style="justify-content:space-between">
@@ -7925,7 +7925,31 @@ function frNum(str,unit){
     w+=({baht:(big?" d'":" ")+(one?"euro":"euros"),beer:(big?" de ":" ")+(one?"bière":"bières"),coffee:(big?" de ":" ")+(one?"café":"cafés")})[unit]}
   return{th:w,ro:frPron(w)};
 }
-const SOUNDS=["th","vi","ms","tl","es","esp","esa","it","fr"];
+/* Khmer numbers for the keypad and number tiles (build 123): 21 ម្ភៃមួយ, 15,000 មួយម៉ឺនប្រាំពាន់, 250,000 ពីរសែនប្រាំម៉ឺន.
+   Khmer counts in ten-thousands (ម៉ឺន) and hundred-thousands (សែន), then millions (លាន). */
+const KML=()=>S.lang==="km";
+const KM_U=[["សូន្យ","soun"],["មួយ","muoy"],["ពីរ","pii"],["បី","bei"],["បួន","buon"],["ប្រាំ","pram"],["ប្រាំមួយ","pram muoy"],["ប្រាំពីរ","pram pii"],["ប្រាំបី","pram bei"],["ប្រាំបួន","pram buon"]];
+const KM_T=[null,["ដប់","dop"],["ម្ភៃ","mphei"],["សាមសិប","saam seb"],["សែសិប","sae seb"],["ហាសិប","haa seb"],["ហុកសិប","hok seb"],["ចិតសិប","chet seb"],["ប៉ែតសិប","paet seb"],["កៅសិប","kau seb"]];
+function kmBelowM(n){const w=[];
+  for(const[sz,km,ro]of[[100000,"សែន","saen"],[10000,"ម៉ឺន","meun"],[1000,"ពាន់","poan"],[100,"រយ","roy"]]){const k=Math.floor(n/sz);if(k){w.push([KM_U[k][0]+km,KM_U[k][1]+" "+ro]);n%=sz}}
+  if(n>=10){w.push(KM_T[Math.floor(n/10)]);n%=10}
+  if(n)w.push(KM_U[n]);return w}
+function kmNumWords(ip){let n=+ip;if(!n)return[KM_U[0]];const w=[];
+  const m=Math.floor(n/1e6);if(m){w.push(...kmBelowM(m),["លាន","lean"]);n%=1e6}
+  w.push(...kmBelowM(n));return w}
+function kmNum(str,unit){
+  let [ip,fp]=String(str).split(".");ip=(ip||"").replace(/^0+(?=\d)/,"");
+  const w=kmNumWords(ip||"0");
+  if(fp!==undefined&&fp!=="")w.push(["ក្បៀស","kbieh"],...[...fp].map(c=>KM_U[+c]));
+  let th=w.map(x=>x[0]).join(""),ro=w.map(x=>x[1]).join(" ");
+  if(unit==="baht"){th+="រៀល";ro+=" riel"}
+  else if(unit==="beer"){th="ស្រាបៀរ "+th+"ដប";ro="sra bier "+ro+" dap"}
+  else if(unit==="coffee"){th="កាហ្វេ "+th+"កែវ";ro="kafe "+ro+" kaev"}
+  return{th,ro};
+}
+/* Casual spoken Khmer for Friends mode audio: drop the written question word តើ, អ្វី -> អី, មិន ... ទេ -> អត់ ... ទេ */
+const SPOKEN_KM=[[/^តើ\s*/,""],[/(\s)តើ\s*/g,"$1"],[/ដែរឬទេ/g,"អត់"],[/ឬទេ(?=\s*\?)/g,"អត់"],[/អ្វី/g,"អី"],[/យ៉ាងដូចម្តេច|ដូចម្តេច|យ៉ាងម៉េច/g,"ម៉េច"],[/អញ្ចឹង/g,"ចឹង"],[/បរិភោគ|ពិសា/g,"ញ៉ាំ"],[/មិន(?!មែន)(?=\S{1,24}ទេ)/g,"អត់"]];
+const SOUNDS=["th","vi","ms","tl","es","esp","esa","it","fr","km"];
 const GL_FIX={th:{"ครับ":"(polite)","ค่ะ":"(polite)","คะ":"(polite)","นะ":"(soft)","จ้ะ":"(friendly)","จ้า":"(friendly)","ไหม":"(question)","มั้ย":"(question)","ได้":"can","ไม่":"not","หน่อย":"please","ด้วย":"please","คับ":"(polite)","เหรอ":"(really?)","ล่ะ":"(then?)","สิ":"(do it)","เลย":"(right now)"},vi:{"ạ":"(polite)","nhé":"(ok?)","không":"no / (question)","ơi":"(hey)","nhỉ":"(right?)"},tl:{po:"(polite)",ho:"(polite)"},ms:{lah:"(emphasis)"}};
 const VI_WORDS=new Set("cái này|cái kia|cái đó|cái gì|bao nhiêu|bao giờ|bao lâu|nhà vệ sinh|vệ sinh|cảm ơn|xin chào|xin lỗi|tạm biệt|khách sạn|nhà hàng|cà phê|sân bay|bệnh viện|nhà thuốc|hiệu thuốc|cảnh sát|ngân hàng|siêu thị|chợ đêm|đường phố|thành phố|xe buýt|xe máy|xe ôm|tắc xi|taxi|máy bay|tàu hỏa|ga tàu|vé tàu|hộ chiếu|điện thoại|máy quay|máy ảnh|diễn viên|đạo diễn|quay phim|bộ phim|hóa trang|trang điểm|hành động|ở đâu|ở đây|ở đó|bên trái|bên phải|đi thẳng|rẽ trái|rẽ phải|bây giờ|hôm nay|ngày mai|hôm qua|buổi sáng|buổi chiều|buổi tối|ban đêm|tuần sau|tháng sau|thời gian|mấy giờ|một chút|chút xíu|làm ơn|giúp đỡ|giúp tôi|được không|không sao|không có|không phải|có thể|có không|tại sao|như thế nào|thế nào|như vậy|vì sao|người việt|việt nam|tiếng việt|tiếng anh|người nước ngoài|nước ngoài|nước suối|nước đá|nước mía|bia hơi|thức ăn|đồ ăn|ăn sáng|ăn trưa|ăn tối|thực đơn|hóa đơn|tính tiền|tiền mặt|thẻ tín dụng|giảm giá|đắt quá|rẻ quá|ngon quá|rất ngon|bánh mì|phở bò|phở gà|cơm gà|cơm tấm|bún chả|nem rán|chả giò|gỏi cuốn|rau thơm|hải sản|thịt bò|thịt gà|thịt heo|thịt lợn|trứng gà|đồ uống|trà đá|sinh tố|ăn chay|dị ứng|đậu phộng|không cay|ít cay|ít đường|không đá|bác sĩ|đau bụng|đau đầu|cấp cứu|nguy hiểm|an toàn|khẩn cấp|đi bộ|chờ đợi|chờ một chút|đợi một chút|bắt đầu|kết thúc|nghỉ ngơi|làm việc|công việc|hiểu không|không hiểu|biết không|không biết|chụp ảnh|mua sắm|quần áo|giày dép|kích cỡ|màu sắc|phòng tắm|phòng ngủ|điều hòa|wifi|mật khẩu|ổ cắm|sạc pin|đẹp quá|vui vẻ|hạnh phúc|bạn bè|gia đình|anh ấy|chị ấy|cô ấy|ông ấy|bà ấy|chúng tôi|chúng ta|các bạn|mọi người|tất cả|cũng được|đúng rồi|sai rồi|xong rồi|chưa xong|sẵn sàng|chuẩn bị|lần nữa|một lần|hai lần|lần đầu|cẩn thận|chậm lại|nhanh lên|nói chậm|im lặng|yên lặng|đồng hồ|hôm nào|lúc nào|ai đó|cái nào|chỗ nào|đâu đó|tiếp theo|cảnh quay|máu giả|tóc giả|râu giả".split("|"));
 /* common Thai words with the meaning they usually have in a sentence (a one-word web lookup often picks a rarer sense) */
@@ -8762,7 +8786,7 @@ function speak(i,tts){
   if(!("speechSynthesis" in window)){toast("Speech isn't supported in this browser.",true);return}
   const ss=window.speechSynthesis;
   const lc=(tts||LG().tts||"").slice(0,2).toLowerCase(),fr=regNow()==="friends";
-  const u=new SpeechSynthesisUtterance(!fr?f.th:lc==="th"&&/[฀-๿]/.test(f.th||"")?spokenTh(f.th):lc==="fr"?spokenRe(f.th,SPOKEN_FR):lc==="es"?spokenRe(f.th,/^es-es/i.test(tts||LG().tts)?SPOKEN_ESP:/^es-ar/i.test(tts||LG().tts)?SPOKEN_ESA:SPOKEN_ES):lc==="ms"?spokenRe(f.th,SPOKEN_MS):lc==="it"?spokenRe(f.th,SPOKEN_IT):f.th);
+  const u=new SpeechSynthesisUtterance(!fr?f.th:lc==="th"&&/[฀-๿]/.test(f.th||"")?spokenTh(f.th):lc==="fr"?spokenRe(f.th,SPOKEN_FR):lc==="es"?spokenRe(f.th,/^es-es/i.test(tts||LG().tts)?SPOKEN_ESP:/^es-ar/i.test(tts||LG().tts)?SPOKEN_ESA:SPOKEN_ES):lc==="ms"?spokenRe(f.th,SPOKEN_MS):lc==="it"?spokenRe(f.th,SPOKEN_IT):lc==="km"?spokenRe(f.th,SPOKEN_KM):f.th);
   u.lang=tts||LG().tts;u.rate=S.rate||0.9;
   const v=pickVoice(tts);
   if(!v&&/^km/i.test(u.lang)){kmSay(u.text);return}
@@ -9518,7 +9542,7 @@ function setText(i,L,t,ro,auto,ph){
   if(L==="th"){i.th=t;i.ro=ro||"";i.ph=ph||"";i.auto=auto?1:0}
   else{if(!t){if(i.tr)delete i.tr[L];return}i.tr=i.tr||{};i.tr[L]={t,ro:ro||"",ph:ph||"",auto:auto?1:0}}
 }
-function vw(i){if(CUR[S.lang]&&i.cat==="Numbers"&&/^\d[\d,]*$/.test(i.en||"")){const n=(i.en||"").replace(/,/g,""),r=TU()?(S.lang==="vi"?viNum(n,""):ESL()?esNum(n,"",S.lang):ITL()?itNum(n,""):FRL()?frNum(n,""):ltNum(n,"",S.lang)):numFor(n,"");return{th:r.th,ro:r.ro,auto:0,en:i.en}}const x=getText(i,S.lang);return{th:x.t,ro:sx(x),auto:x.auto,en:bLabel(i)}}
+function vw(i){if(CUR[S.lang]&&i.cat==="Numbers"&&/^\d[\d,]*$/.test(i.en||"")){const n=(i.en||"").replace(/,/g,""),r=TU()?(S.lang==="vi"?viNum(n,""):ESL()?esNum(n,"",S.lang):ITL()?itNum(n,""):FRL()?frNum(n,""):KML()?kmNum(n,""):ltNum(n,"",S.lang)):numFor(n,"");return{th:r.th,ro:r.ro,auto:0,en:i.en}}const x=getText(i,S.lang);return{th:x.t,ro:sx(x),auto:x.auto,en:bLabel(i)}}
 function srcFor(i){
   if(i.en)return{q:i.en,from:i.bl||"en"};
   if(i.th)return{q:i.th,from:"th"};
@@ -10202,11 +10226,11 @@ function enNum(v,u){
   if(!n)w.push("zero");
   for(const[sz,nm]of[[1e9,"billion"],[1e6,"million"],[1e3,"thousand"],[1,""]]){const k=Math.floor(n/sz);if(k){w.push(h(k)+(nm?" "+nm:""));n%=sz}}
   let t=w.join(" ");if(b!==undefined)t+=" point "+[...b].map(d=>O[+d]).join(" ");
-  if(u){const one=v==="1";t+=" "+(u==="baht"?({vi:"dong",ms:"ringgit",tl:one?"peso":"pesos",es:one?"peso":"pesos",esp:one?"euro":"euros",esa:one?"peso":"pesos",it:one?"euro":"euros",fr:one?"euro":"euros"}[S.lang]||"baht"):u==="beer"?(one?"beer":"beers"):(one?"coffee":"coffees"))}
+  if(u){const one=v==="1";t+=" "+(u==="baht"?({vi:"dong",ms:"ringgit",tl:one?"peso":"pesos",es:one?"peso":"pesos",esp:one?"euro":"euros",esa:one?"peso":"pesos",it:one?"euro":"euros",fr:one?"euro":"euros",km:"riel"}[S.lang]||"baht"):u==="beer"?(one?"beer":"beers"):(one?"coffee":"coffees"))}
   return{th:t,ro:"",tn:""};
 }
-function numFor(v,u){if(TU())return enNum(v,u);return S.lang==="vi"?viNum(v,u):S.lang==="ms"||S.lang==="tl"?ltNum(v,u,S.lang):ESL()?esNum(v,u,S.lang):ITL()?itNum(v,u):FRL()?frNum(v,u):thNum(v,u)}
-const CUR={vi:[" ₫"," dong","₫ Dong"],ms:["RM "," ringgit","RM Ringgit"],tl:["₱"," pesos","₱ Peso"],es:["$"," pesos","$ Pesos"],esp:[" €"," euros","€ Euros"],esa:["$"," pesos","$ Pesos"],it:[" €"," euro","€ Euro"],fr:[" €"," euros","€ Euros"]};
+function numFor(v,u){if(TU())return enNum(v,u);return S.lang==="vi"?viNum(v,u):S.lang==="ms"||S.lang==="tl"?ltNum(v,u,S.lang):ESL()?esNum(v,u,S.lang):ITL()?itNum(v,u):FRL()?frNum(v,u):KML()?kmNum(v,u):thNum(v,u)}
+const CUR={vi:[" ₫"," dong","₫ Dong"],ms:["RM "," ringgit","RM Ringgit"],tl:["₱"," pesos","₱ Peso"],es:["$"," pesos","$ Pesos"],esp:[" €"," euros","€ Euros"],esa:["$"," pesos","$ Pesos"],it:[" €"," euro","€ Euro"],fr:[" €"," euros","€ Euros"],km:[" ៛"," riel","៛ Riel"]};
 function nUnit(k,i){return k==="baht"&&CUR[S.lang]?CUR[S.lang][i]:NUNIT[k][i]}
 function numLang(){return CUR[S.lang]?S.lang:"th"}
 let NKV="",NKB="";
@@ -10455,7 +10479,7 @@ function convPaint(){
   $("convThem").innerHTML=TU()?`<span lang="${S.lang}">${esc(U().flag+" "+U().me)}</span><small>${esc(U().meL)}</small>`:T&&!UB()?`<span lang="th">พูดภาษาไทย</span><small>Them: Thai</small>`:(UB()?`<span lang="${UL()}">${esc(U().them+": "+tgName())}</span><small>Them: ${esc(LG().n)}</small>`:`${esc(LG().n)}<small>Them</small>`);
   $("convLog").innerHTML=CONV.length?CONV.map((c,k)=>{
     const thSide=c.who==="me";
-    let pr="";if(thSide&&SOUNDS.includes(S.lang)&&S.ro!==false){const f=full({th:c.out,ro:c.ro,en:c.inp,cat:"x"});const h=toneHTML(f.th,c.ph||(c.ro?phonFromRo(c.ro):""),c.tn||"",true);pr=h?`<div class="rro">${h}</div>`:""}
+    let pr="";if(thSide&&SOUNDS.includes(S.lang)&&S.ro!==false){const f=full({th:c.out,ro:c.ro,en:c.inp,cat:"x"});const h=toneHTML(f.th,c.ph||(c.ro?(KML()?c.ro:phonFromRo(c.ro)):""),c.tn||"",true);pr=h?`<div class="rro">${h}</div>`:""}
     return`<div class="cvb ${c.who}" data-k="${k}"><div class="cvo" dir="auto">${esc(c.inp)}</div><div class="cvt" dir="auto" lang="${thSide?S.lang:BASE()}">${esc(thSide?full({th:c.out,ro:"",en:"",cat:"x"}).th:c.out)}</div>${pr}${!thSide&&TU()&&BASE()==="en"?`<div class="rro">${enHTML(c.out)}</div>`:""}<button class="ib cvplay" type="button" data-k="${k}">${SPK}Play</button></div>`}).join(""):NL()?`<div class="hint" style="text-align:center;margin-top:30px" lang="${UL()}">${NL().shr.convHint.split("{ME}").join(esc(U().me)).split("{L}").join(esc(LG().n))}</div>`:`<div class="hint" style="text-align:center;margin-top:30px">Tap <b>Me</b> and speak English. Tap the other button and let them speak ${esc(LG().n)}. Each line is translated and, with Auto-play on, played straight away. Tap Play to hear a line again.</div>`;
   $("convAuto").textContent="Auto-play: "+(S.convAuto!==false?"On":"Off");$("convAuto").setAttribute("aria-pressed",S.convAuto!==false);
   const L=$("convLog");L.scrollTop=L.scrollHeight;
