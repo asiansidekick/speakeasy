@@ -827,7 +827,7 @@ html[data-th="light"]:not([data-look]) .offdone .offok{color:#15803d}
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 13 Nov 2026, build 124</div>
+  <div class="hint">Version: 13 Nov 2026, build 125</div>
   <input type="file" id="file" accept=".json,application/json" hidden>
   <div id="bs" style="font-size:var(--fs-s);color:var(--mute);min-height:18px;margin-top:6px"></div>
   <div class="act" style="justify-content:space-between">
@@ -8838,6 +8838,25 @@ function speak(i,tts){
   if(!v&&voicesLoaded){let st=0;try{u.addEventListener("start",()=>{st=1})}catch(e){st=1}const nm=tts?(tts===BTTS()?BLG().n:"English"):LG().n;setTimeout(()=>{if(!st&&!ss.speaking)toast("No "+nm+" voice found on this phone. Add one in Settings > Accessibility > Spoken Content > Voices.",true)},2500)}
 }
 
+/* Built-in Khmer phrase audio (build 125). Every built-in Khmer phrase is pre-recorded in km-audio-1.bin (same site),
+   kept in the phone's cache after the first download, so on iPhone the phrase board plays Khmer with no internet. */
+let KMP=null,KMPI=null,KMPL=0,KMPU="";
+const KMP_C="speakeasy-km-audio-1",KMP_B="km-audio-1.bin",KMP_I="km-audio-1.json";
+async function kmPackLoad(){
+  if(KMP||KMPL||!("caches" in window))return;
+  try{if(voicesLoaded&&pickVoice("km-KH"))return}catch(e){}
+  KMPL=1;
+  try{const c=await caches.open(KMP_C);let ri=await c.match(KMP_I),rb=await c.match(KMP_B);
+    if((!ri||!rb)&&navigator.onLine!==false){const[a,b]=await Promise.all([fetch(KMP_I),fetch(KMP_B)]);
+      if(a.ok&&b.ok){await c.put(KMP_I,a.clone());await c.put(KMP_B,b.clone());ri=a;rb=b}}
+    if(ri&&rb){const ix=await ri.json(),bf=await rb.arrayBuffer();KMPI=ix;KMP=bf}
+  }catch(e){}
+  KMPL=0;
+}
+function kmPackURL(t){const k=String(t||"").trim(),x=KMP&&KMPI&&KMPI[k];if(!x)return"";
+  try{if(KMPU)URL.revokeObjectURL(KMPU)}catch(e){}
+  KMPU=URL.createObjectURL(new Blob([KMP.slice(x[0],x[0]+x[1])],{type:"audio/mpeg"}));return KMPU}
+setTimeout(()=>{try{if(S.lang==="km")kmPackLoad()}catch(e){}},2500);
 /* Online Khmer voice (build 121). iPhones have no Khmer voice, so Play uses Google's.
    Google refuses the audio when a referrer is sent, so the page sends none just for that load. */
 let KMA=null,KMQ=[],KMT=0;
@@ -8845,12 +8864,14 @@ function kmRef(on){try{let m=document.querySelector('meta[name="referrer"]');if(
 function kmStop(){KMQ=[];clearTimeout(KMT);if(KMA){try{KMA.pause()}catch(e){}}}
 function kmChunks(t){t=String(t||"").replace(/\s+/g," ").trim();const out=[];while(t.length>180){let k=Math.max(t.lastIndexOf("។",180),t.lastIndexOf("?",180),t.lastIndexOf("!",180),t.lastIndexOf(",",180));if(k<60)k=t.lastIndexOf(" ",180);if(k<60)k=179;out.push(t.slice(0,k+1).trim());t=t.slice(k+1).trim()}if(t)out.push(t);return out}
 function kmSay(t){kmStop();try{window.__kmIn=1;speechSynthesis.cancel()}catch(e){}window.__kmIn=0;
-  if(!navigator.onLine){toast("This phone has no Khmer voice, and the online Khmer voice needs internet.",true);return}
-  KMQ=kmChunks(t);if(!KMA){KMA=new Audio();KMA.preload="auto";KMA.onended=kmNext;KMA.onerror=()=>{kmRef(false);if(KMQ.length||KMA._live)toast("Couldn't play the online Khmer voice. Check your internet and try again.",true);KMA._live=0;KMQ=[]};KMA.addEventListener("loadeddata",()=>kmRef(false))}
+  const pk=kmPackURL(t);
+  if(!pk&&!navigator.onLine){toast("This phone has no Khmer voice, and the online Khmer voice needs internet.",true);return}
+  KMQ=pk?[pk]:kmChunks(t);if(!KMA){KMA=new Audio();KMA.preload="auto";KMA.onended=kmNext;KMA.onerror=()=>{kmRef(false);if(KMQ.length||KMA._live)toast("Couldn't play the online Khmer voice. Check your internet and try again.",true);KMA._live=0;KMQ=[]};KMA.addEventListener("loadeddata",()=>kmRef(false))}
   kmNext()}
 function kmNext(){const c=KMQ.shift();if(!c){if(KMA)KMA._live=0;audioSleepSoon();return}
+  KMA._live=1;if(/^blob:/.test(c))KMA.src=c;else{
   kmRef(true);clearTimeout(KMT);KMT=setTimeout(()=>kmRef(false),5000);
-  KMA._live=1;KMA.src="https://translate.googleapis.com/translate_tts?ie=UTF-8&client=gtx&tl=km&q="+encodeURIComponent(c);
+  KMA.src="https://translate.googleapis.com/translate_tts?ie=UTF-8&client=gtx&tl=km&q="+encodeURIComponent(c)}
   const r=Math.min(2,Math.max(0.5,S.rate||0.9));try{KMA.defaultPlaybackRate=r;KMA.playbackRate=r}catch(e){}
   if(S.vlog){try{vlog("Online Khmer voice, "+c.length+" letters")}catch(e){}}
   const pr=KMA.play();if(pr&&pr.catch)pr.catch(e=>{if(e&&e.name==="NotAllowedError")toast("Tap Play again to hear it.",true)})}
@@ -9554,6 +9575,7 @@ function refreshLang(){
   const sw=$("polT").parentElement;if(sw)sw.style.display=S.lang==="th"?"":"none";
   try{offPaint()}catch(e){}
   try{phPaint()}catch(e){}
+  try{if(S.lang==="km")kmPackLoad()}catch(e){}
 }
 $("lang").onchange=e=>{talkDrop();S.lang=e.target.value;CONV=[];save();cat="All";qs="";$("q").value="";setDir(TU()?"th":"en");thLabels();refreshLang();render();renderHist()};
 $("tabbar").onclick=e=>{
