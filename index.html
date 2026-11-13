@@ -827,7 +827,7 @@ html[data-th="light"]:not([data-look]) .offdone .offok{color:#15803d}
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 13 Nov 2026, build 125</div>
+  <div class="hint">Version: 13 Nov 2026, build 126</div>
   <input type="file" id="file" accept=".json,application/json" hidden>
   <div id="bs" style="font-size:var(--fs-s);color:var(--mute);min-height:18px;margin-top:6px"></div>
   <div class="act" style="justify-content:space-between">
@@ -8838,6 +8838,74 @@ function speak(i,tts){
   if(!v&&voicesLoaded){let st=0;try{u.addEventListener("start",()=>{st=1})}catch(e){st=1}const nm=tts?(tts===BTTS()?BLG().n:"English"):LG().n;setTimeout(()=>{if(!st&&!ss.speaking)toast("No "+nm+" voice found on this phone. Add one in Settings > Accessibility > Spoken Content > Voices.",true)},2500)}
 }
 
+const KM_DICT={"i":"ខ្ញុំ|knyom","me":"ខ្ញុំ|knyom","my":"របស់ខ្ញុំ|robah knyom","mine":"របស់ខ្ញុំ|robah knyom","you":"អ្នក|neak","your":"របស់អ្នក|robah neak","he":"គាត់|koat","him":"គាត់|koat","his":"របស់គាត់|robah koat","she":"គាត់|koat","her":"គាត់|koat","we":"យើង|yeung","us":"យើង|yeung","our":"របស់យើង|robah yeung","they":"ពួកគេ|puok kei","them":"ពួកគេ|puok kei","their":"របស់ពួកគេ|robah puok kei","it":"វា|vea","this":"នេះ|nih","that":"នោះ|nuh","these":"ទាំងនេះ|teang nih","those":"ទាំងនោះ|teang nuh","here":"ទីនេះ|tee nih","there":"ទីនោះ|tee nuh","what":"អ្វី|avey","where":"នៅឯណា|nov ae naa","when":"ពេលណា|pel naa","why":"ហេតុអ្វី|het avey","who":"នរណា|norona","how":"យ៉ាងម៉េច|yang mech","which":"មួយណា|muoy naa","yes":"បាទ / ចាស|baat / chaa","no":"ទេ|tay","not":"មិន|min","don't":"កុំ|kom","please":"សូម|som","thanks":"អរគុណ|aw kun","thank":"អរគុណ|aw kun","sorry":"សុំទោស|som toh","hello":"សួស្តី|suor sdei","hi":"សួស្តី|suor sdei","bye":"លាហើយ|lea hai","goodbye":"លាហើយ|lea hai","ok":"អូខេ|okay","okay":"អូខេ|okay","and":"និង|neung","or":"ឬ|reu","but":"ប៉ុន្តែ|pontae","because":"ព្រោះ|pruoh","if":"បើ|bae","so":"ដូច្នេះ|doch neh","with":"ជាមួយ|chea muoy","without":"គ្មាន|kmean","for":"សម្រាប់|samrap","from":"ពី|pii","to":"ទៅ|tau","in":"នៅក្នុង|nov knong","on":"នៅលើ|nov leu","at":"នៅ|nov","under":"នៅក្រោម|nov kraom","near":"ជិត|jit","far":"ឆ្ងាយ|chngai","before":"មុន|mun","after":"ក្រោយ|kraoy","now":"ឥឡូវ|eilov","today":"ថ្ងៃនេះ|tngai nih","tomorrow":"ថ្ងៃស្អែក|tngai s'aek","yesterday":"ម្សិលមិញ|msel minh","tonight":"យប់នេះ|yup nih","morning":"ពេលព្រឹក|pel preuk","afternoon":"ពេលរសៀល|pel rosiel","evening":"ពេលល្ងាច|pel lngiech","night":"យប់|yup","day":"ថ្ងៃ|tngai","week":"សប្តាហ៍|sapda","month":"ខែ|khae","year":"ឆ្នាំ|chnam","time":"ពេល|pel","hour":"ម៉ោង|maong","minute":"នាទី|neatee","o'clock":"ម៉ោង|maong","early":"ព្រឹក|preuk","late":"យឺត|yeut","soon":"ឆាប់ៗ|chap chap","always":"ជានិច្ច|chea nich","never":"មិនដែល|min dael","again":"ម្តងទៀត|mdong tiet","more":"ទៀត|tiet","less":"តិច|tech","very":"ណាស់|nah","too":"ពេក|peik","much":"ច្រើន|chraen","many":"ច្រើន|chraen","a lot":"ច្រើន|chraen","little":"តិច|tech","all":"ទាំងអស់|teang awh","some":"ខ្លះ|khlah","every":"រាល់|roal","other":"ផ្សេង|pseng","same":"ដូចគ្នា|doch knea","only":"តែ|tae","also":"ដែរ|dae","already":"ហើយ|hai","still":"នៅតែ|nov tae","yet":"នៅ|nov","just":"ទើបតែ|teub tae","be":"ជា|chea","have":"មាន|mean","has":"មាន|mean","had":"មាន|mean","can":"អាច|ach","could":"អាច|ach","will":"នឹង|neung","would":"នឹង|neung","should":"គួរ|kuor","must":"ត្រូវ|trov","need":"ត្រូវការ|trov kar","want":"ចង់|chang","like":"ចូលចិត្ត|chol chet","love":"ស្រឡាញ់|srolanh","know":"ដឹង|deung","think":"គិត|kut","understand":"យល់|yuol","go":"ទៅ|tau","come":"មក|mok","get":"យក|yok","take":"លើក|leuk","give":"ឲ្យ|oy","bring":"យកមក|yok mok","make":"ធ្វើ|tveu","do":"ធ្វើ|tveu","see":"មើល|meul","look":"មើល|meul","watch":"មើល|meul","hear":"ឮ|leu","listen":"ស្តាប់|sdap","say":"និយាយ|niyeay","speak":"និយាយ|niyeay","talk":"និយាយ|niyeay","tell":"ប្រាប់|prab","ask":"សួរ|suor","call":"ហៅ|hav","eat":"ញ៉ាំ|nyam","drink":"ផឹក|phoek","sleep":"គេង|keng","wake":"ភ្ញាក់|pnhak","sit":"អង្គុយ|angkuy","stand":"ឈរ|chhor","walk":"ដើរ|daeu","run":"រត់|rot","wait":"រង់ចាំ|rung cham","stop":"ឈប់|chhup","start":"ចាប់ផ្តើម|chap phdaem","finish":"បញ្ចប់|bonhchob","open":"បើក|baek","close":"បិទ|bet","turn":"បត់|bot","buy":"ទិញ|tinh","sell":"លក់|luok","pay":"បង់|bong","cost":"តម្លៃ|domlai","help":"ជួយ|chuoy","work":"ធ្វើការ|tveu kar","play":"លេង|leng","live":"រស់នៅ|ruos nov","stay":"ស្នាក់នៅ|snak nov","meet":"ជួប|chuop","find":"រក|rok","lose":"បាត់|bat","lost":"វង្វេង|vungveng","use":"ប្រើ|prae","try":"សាក|sak","learn":"រៀន|rien","read":"អាន|an","write":"សរសេរ|sorser","send":"ផ្ញើ|phnhae","show":"បង្ហាញ|bonghanh","put":"ដាក់|dak","leave":"ចេញ|chenh","arrive":"មកដល់|mok dol","return":"ត្រឡប់|tralob","change":"ប្តូរ|pdo","move":"ផ្លាស់ទី|phlas tee","carry":"កាន់|kan","hold":"កាន់|kan","clean":"ស្អាត|s'aat","wash":"លាង|leang","cook":"ចម្អិន|cham'en","shoot":"ថត|tot","film":"ថត|tot","record":"ថត|tot","check":"ពិនិត្យ|pinit","fix":"ជួសជុល|chuoh chul","break":"សម្រាក|samrak","rest":"សម្រាក|samrak","hurt":"ឈឺ|cheu","feel":"មានអារម្មណ៍|mean arom","remember":"ចាំ|cham","forget":"ភ្លេច|plech","good":"ល្អ|l'aw","bad":"អាក្រក់|akrok","big":"ធំ|thom","small":"តូច|toch","hot":"ក្តៅ|kdau","cold":"ត្រជាក់|trachea","new":"ថ្មី|tmei","old":"ចាស់|chas","young":"ក្មេង|kmeng","fast":"លឿន|leuan","quick":"លឿន|leuan","slow":"យឺត|yeut","easy":"ងាយ|ngeay","difficult":"ពិបាក|pibak","hard":"ពិបាក|pibak","beautiful":"ស្អាត|s'aat","pretty":"ស្អាត|s'aat","delicious":"ឆ្ងាញ់|chnganh","spicy":"ហឹរ|hur","sweet":"ផ្អែម|ph'aem","sour":"ជូរ|chuu","salty":"ប្រៃ|prai","expensive":"ថ្លៃ|tlai","cheap":"ថោក|thaok","happy":"សប្បាយ|sabai","sad":"ក្រៀមក្រំ|kriem krom","tired":"ហត់|hat","hungry":"ឃ្លាន|khlean","thirsty":"ស្រេកទឹក|srek teuk","sick":"ឈឺ|cheu","full":"ឆ្អែត|ch'aet","ready":"រួចរាល់|ruoch roal","right":"ស្តាំ|sdam","left":"ឆ្វេង|chveng","straight":"ត្រង់|trong","correct":"ត្រូវ|trov","wrong":"ខុស|khoh","true":"ពិត|pit","closed":"បិទ|bet","free":"ឥតគិតថ្លៃ|et kut tlai","busy":"រវល់|rovol","safe":"សុវត្ថិភាព|sovathepheap","dangerous":"គ្រោះថ្នាក់|kruoh tnak","careful":"ប្រយ័ត្ន|brayat","quiet":"ស្ងាត់|sngat","loud":"ខ្លាំង|khlang","bright":"ភ្លឺ|plii","dark":"ងងឹត|ngongeut","dirty":"កខ្វក់|kakhvak","wet":"សើម|saeum","dry":"ស្ងួត|snguot","first":"ដំបូង|dambong","last":"ចុងក្រោយ|chong kraoy","next":"បន្ទាប់|bontoap","people":"មនុស្ស|monuh","person":"មនុស្ស|monuh","man":"បុរស|boros","woman":"ស្ត្រី|satrei","child":"ក្មេង|kmeng","friend":"មិត្តភក្តិ|mit pheak","family":"គ្រួសារ|kruosar","mother":"ម្តាយ|mdai","father":"ឪពុក|ovpuk","name":"ឈ្មោះ|chhmuoh","house":"ផ្ទះ|pteah","home":"ផ្ទះ|pteah","room":"បន្ទប់|bontop","toilet":"បង្គន់|bong-kun","bathroom":"បន្ទប់ទឹក|bontop teuk","hotel":"សណ្ឋាគារ|sonthakea","restaurant":"ភោជនីយដ្ឋាន|phochniyothan","market":"ផ្សារ|psar","shop":"ហាង|hang","store":"ហាង|hang","hospital":"មន្ទីរពេទ្យ|montee pet","doctor":"គ្រូពេទ្យ|kru pet","medicine":"ថ្នាំ|tnam","pharmacy":"ឱសថស្ថាន|osot sthan","police":"ប៉ូលិស|police","bank":"ធនាគារ|thoneakea","money":"លុយ|luy","dollar":"ដុល្លារ|dollar","riel":"រៀល|riel","price":"តម្លៃ|domlai","airport":"ព្រលានយន្តហោះ|prolean yon hos","station":"ស្ថានីយ|sthanee","road":"ផ្លូវ|plauv","street":"ផ្លូវ|plauv","way":"ផ្លូវ|plauv","car":"ឡាន|laan","taxi":"តាក់ស៊ី|taxi","tuk-tuk":"តុកតុក|tuk tuk","tuktuk":"តុកតុក|tuk tuk","bus":"ឡានក្រុង|laan krong","motorbike":"ម៉ូតូ|moto","motorcycle":"ម៉ូតូ|moto","bike":"កង់|kong","boat":"ទូក|tuuk","plane":"យន្តហោះ|yon hos","ticket":"សំបុត្រ|sombot","phone":"ទូរស័ព្ទ|turasap","number":"លេខ|lek","water":"ទឹក|teuk","food":"អាហារ|ahar","rice":"បាយ|bai","noodles":"មី|mii","soup":"ស៊ុប|soup","meat":"សាច់|sach","chicken":"មាន់|moan","pork":"សាច់ជ្រូក|sach chruk","beef":"សាច់គោ|sach ko","fish":"ត្រី|trei","egg":"ពង|pong","vegetable":"បន្លែ|bonlae","vegetables":"បន្លែ|bonlae","fruit":"ផ្លែឈើ|plae chheu","coffee":"កាហ្វេ|kafe","tea":"តែ|tae","milk":"ទឹកដោះគោ|teuk dah ko","sugar":"ស្ករ|skor","ice":"ទឹកកក|teuk kok","beer":"ស្រាបៀរ|sra bier","alcohol":"ស្រា|sra","bread":"នំបុ័ង|num pang","breakfast":"អាហារពេលព្រឹក|ahar pel preuk","lunch":"អាហារថ្ងៃត្រង់|ahar tngai trong","dinner":"អាហារពេលល្ងាច|ahar pel lngiech","menu":"ម៉ឺនុយ|menu","bill":"វិក្កយបត្រ|vikayabat","table":"តុ|tok","chair":"កៅអី|kav ey","door":"ទ្វារ|tvear","window":"បង្អួច|bong'uoch","bed":"គ្រែ|krae","key":"សោ|sao","bag":"កាបូប|kabob","clothes":"សម្លៀកបំពាក់|samliek bampeak","shirt":"អាវ|av","shoes":"ស្បែកជើង|sbaek cheung","hat":"មួក|muok","size":"ទំហំ|tumhum","color":"ពណ៌|poar","colour":"ពណ៌|poar","red":"ក្រហម|krahorm","white":"ស|sor","black":"ខ្មៅ|khmau","blue":"ខៀវ|khiev","green":"បៃតង|baitong","yellow":"លឿង|lueng","camera":"កាមេរ៉ា|kamera","light":"ភ្លើង|pleung","lights":"ភ្លើង|pleung","sound":"សំឡេង|samleng","scene":"ឈុត|chhut","actor":"តួសម្តែង|tua samdaeng","actors":"តួសម្តែង|tua samdaeng","director":"អ្នកដឹកនាំរឿង|neak deuk noam reuang","crew":"ក្រុមការងារ|krom kar ngea","script":"សាច់រឿង|sach reuang","makeup":"ការផាត់មុខ|kar phat muk","costume":"សម្លៀកបំពាក់|samliek bampeak","set":"កន្លែងថត|konleng tot","smoke":"ផ្សែង|psaeng","fire":"ភ្លើង|pleung","rain":"ភ្លៀង|plieng","blood":"ឈាម|chheam","battery":"ថ្ម|tmaw","cable":"ខ្សែ|khsae","power":"ភ្លើង|pleung","schedule":"កាលវិភាគ|kalviphak","meeting":"ការប្រជុំ|kar prachum","problem":"បញ្ហា|panhaa","question":"សំណួរ|samnuor","answer":"ចម្លើយ|chamlaeuy","language":"ភាសា|pheasa","english":"អង់គ្លេស|ang-kles","khmer":"ខ្មែរ|khmai","cambodia":"កម្ពុជា|kampuchea","thai":"ថៃ|thai","country":"ប្រទេស|prateh","city":"ក្រុង|krong","weather":"អាកាសធាតុ|akas theat","sun":"ព្រះអាទិត្យ|preah atit","head":"ក្បាល|kbal","hand":"ដៃ|dai","foot":"ជើង|cheung","eye":"ភ្នែក|pnaek","eyes":"ភ្នែក|pnaek","face":"មុខ|muk","mouth":"មាត់|moat","stomach":"ពោះ|pueh","pain":"ឈឺ|cheu","one":"មួយ|muoy","two":"ពីរ|pii","three":"បី|bei","four":"បួន|buon","five":"ប្រាំ|pram","six":"ប្រាំមួយ|pram muoy","seven":"ប្រាំពីរ|pram pii","eight":"ប្រាំបី|pram bei","nine":"ប្រាំបួន|pram buon","ten":"ដប់|dop","twenty":"ម្ភៃ|mphei","hundred":"រយ|roy","thousand":"ពាន់|poan","how much":"ប៉ុន្មាន|ponmaan","how many":"ប៉ុន្មាន|ponmaan","what time":"ម៉ោងប៉ុន្មាន|maong ponmaan","excuse me":"សុំទោស|som toh","thank you":"អរគុណ|aw kun","good morning":"អរុណសួស្តី|arun suor sdei","good night":"រាត្រីសួស្តី|reatrey suor sdei","see you":"ជួបគ្នា|chuop knea","of course":"ពិតណាស់|pit nah","a little":"បន្តិច|bontech","over there":"នៅទីនោះ|nov tee nuh","right now":"ឥឡូវនេះ|eilov nih"};
+/* Offline Cambodian for typed sentences (build 126). There is no small offline Khmer translator, so:
+   1. every sentence translated online is remembered on the phone (S.kmm) and reused offline, both directions;
+   2. built-in phrases match too;
+   3. anything else gets a rough word-by-word translation from KM_DICT, marked as rough. */
+let KMOFFNOW=0,KMDX=null,KMRX=null;
+const KM_SKIP=new Set(["a","an","the","is","am","are","was","were","be","'s","'m","'re"]);
+const KM_AUX=new Set(["do","does","did","is","are","am","can","could","will","would","should","have","has"]);
+const KM_WH=["how much","how many","what time","what","where","when","who","which","how","why"];
+function kmClean(t){return String(t||"").split("|")[0].replace(/[!?។.]+\s*$/,"").trim()}
+function kmDict(){if(KMDX)return KMDX;const D=Object.assign({},KM_DICT);
+  try{for(const k in KM_PH){const w=k.toLowerCase().replace(/\s*\(.*?\)\s*/g,"").trim();if(/^[a-z'-]+( [a-z'-]+)?$/.test(w)&&!D[w]){const v=KM_PH[k],s=typeof v==="string"?v:v.p;D[w]=kmClean(s)+"|"+(s.split("|")[1]||"")}}}catch(e){}
+  return KMDX=D}
+function kmRemember(en,km,ph){try{if(!en||!km||!/[ក-៿]/.test(km)||/[ក-៿]/.test(en))return;S.kmm=S.kmm||{};const k=normQ(en);if(!k)return;delete S.kmm[k];S.kmm[k]=[km,ph||""];
+  const ks=Object.keys(S.kmm);if(ks.length>3000)ks.slice(0,ks.length-3000).forEach(x=>delete S.kmm[x]);KMRX=null;save()}catch(e){}}
+function kmLemma(w,D){if(D[w])return w;const c=[w.replace(/ies$/,"y"),w.replace(/es$/,""),w.replace(/s$/,""),w.replace(/ied$/,"y"),w.replace(/ed$/,""),w.replace(/d$/,""),w.replace(/ing$/,""),w.replace(/ing$/,"e"),w.replace(/(.)\1ing$/,"$1"),w.replace(/(.)\1ed$/,"$1"),w.replace(/n't$/,"")];for(const x of c)if(x&&x!==w&&D[x])return x;return null}
+function kmEnToKm(q){
+  const D=kmDict(),qm=/\?\s*$/.test(q);
+  let ws=String(q).toLowerCase().replace(/[’]/g,"'").replace(/(\w)'(s|m|re|ll|ve|d)\b/g,"$1 '$2").replace(/[^a-z0-9.,' -]/g," ").replace(/[.,](?!\d)/g," ").split(/\s+/).filter(Boolean);
+  const neg=ws.some(w=>/n't$|^not$|^no$|^never$/.test(w));
+  // a question word goes to the end in Khmer: "where is the toilet" -> "toilet where"
+  let wh=null;if(qm)for(const w of KM_WH){const n=w.split(" ").length;if(ws.slice(0,n).join(" ")===w&&D[w]){wh=w;ws=ws.slice(n);break}}
+  const aux=qm&&!wh&&KM_AUX.has(ws[0]);if(aux&&/^(do|does|did)$/.test(ws[0]))ws=ws.slice(1);
+  const out=[],ints=[];let hit=0,miss=0;
+  for(let i=0;i<ws.length;){let done=0;
+    for(let L=3;L>=2&&!done;L--){const k=ws.slice(i,i+L).join(" ");if(i+L<=ws.length&&D[k]){out.push(D[k]);hit+=L;i+=L;done=1}}
+    if(done)continue;const w=ws[i++];
+    if(KM_SKIP.has(w)||(aux&&i===1&&KM_AUX.has(w)&&!D[w]))continue;
+    if(/^(don't|doesn't|didn't|isn't|aren't|wasn't|not|no)$/.test(w)&&!qm){out.push("មិន|min");hit++;continue}
+    if(/^\d[\d,]*(\.\d+)?$/.test(w)){const r=kmNum(w.replace(/,/g,""),"");out.push(r.th+"|"+r.ro);hit++;continue}
+    const l=kmLemma(w,D);if(l){if(/^(very|too|really|so)$/.test(w))ints.push(out.length);out.push(D[l]);hit++}else{out.push(w+"|"+w);miss++}
+  }
+  // ណាស់ / ពេក come after the word they describe: "very hungry" -> ឃ្លានណាស់
+  ints.reverse().forEach(k=>{if(k+1<out.length){const x=out[k];out[k]=out[k+1];out[k+1]=x}});
+  if(wh){out.push(D[wh]);hit++}
+  if(neg&&!qm)out.push("ទេ|tay");else if(aux||(qm&&!wh))out.push("ទេ|tay");
+  if(!hit)return null;
+  let t="",ro=[];out.forEach(x=>{const[a,b]=x.split("|");const lat=/^[a-z0-9]/i.test(a);t+=(t&&(lat||/[a-z0-9]$/i.test(t))?" ":"")+a;ro.push(b||a)});
+  return{t:t+(qm?"?":""),ph:ro.join(" "),rough:1,ok:hit/(hit+miss)};
+}
+function kmRev(){if(KMRX)return KMRX;const R={};const add=(km,en)=>{const k=String(km||"").replace(/[\s!?។.,]/g,"");if(k&&en&&!R[k])R[k]=en};
+  try{for(const k in S.kmm||{})add(S.kmm[k][0],k)}catch(e){}
+  try{for(const k in KM_PH){const v=KM_PH[k];[typeof v==="string"?v:v.f,typeof v==="string"?v:v.p].forEach(s=>add(kmClean(s),k.replace(/\s*\(.*?\)\s*/g,"").replace(/ \/ .*$/,"")))}}catch(e){}
+  const D=kmDict();for(const en in D)add(kmClean(D[en]),en.split(" / ")[0]);
+  return KMRX=R}
+function kmKmToEn(q){const R=kmRev(),s=String(q).replace(/[\s!?។.,]/g,"");if(!s)return null;
+  const out=[];let hit=0,un="";const maxL=40;
+  for(let i=0;i<s.length;){let m=0;for(let L=Math.min(maxL,s.length-i);L>0;L--){if(R[s.slice(i,i+L)]){m=L;break}}
+    if(m){if(un){out.push("…");un=""}out.push(R[s.slice(i,i+m)]);hit+=m;i+=m}else{un+=s[i];i++}}
+  if(un)out.push("…");if(!hit||hit/s.length<0.5)return null;
+  let t=out.join(" ").replace(/(… )+…/g,"…");t=t[0].toUpperCase()+t.slice(1);return{t:t+(/\?\s*$/.test(q)?"?":""),rough:1}}
+function kmOff(q,dir){if(BASE()!=="en")return null;const n=normQ(q);
+  if(dir==="en"){const m=(S.kmm||{})[n];if(m)return{t:m[0],ph:m[1],rough:0};
+    const sv=savedFor(q);if(sv){const x=getText(sv,"km");if(x.t)return{t:x.t,ph:x.ph||"",rough:0}}
+    return kmEnToKm(q)}
+  const s=String(q).replace(/[\s!?។.,]/g,"");
+  for(const k in S.kmm||{}){if(String(S.kmm[k][0]).replace(/[\s!?។.,]/g,"")===s)return{t:k.charAt(0).toUpperCase()+k.slice(1),rough:0}}
+  const sr=savedRev(q);if(sr)return{t:bLabel(sr),rough:0};
+  return kmKmToEn(q)}
+function kmOffNote(r){return TU()?(r.rough?"បកប្រែគ្មានអ៊ីនធឺណិត៖ ប្រែពាក្យម្តងមួយៗ ប្រហែលៗ។ សូមពិនិត្យមុនពេលប្រើ។":"បកប្រែគ្មានអ៊ីនធឺណិត (អ្នកធ្លាប់បកប្រែវាពីមុន)។"):(r.rough?"Offline: rough word-by-word translation. Please check it before relying on it.":"Translated offline (you translated this before).")}
+function kmOffShow(q,tok){if(S.lang!=="km"||tok!==TRTOK)return false;const r=kmOff(q,DIR);if(!r||!r.t)return false;
+  KMOFFNOW=1;try{if(DIR==="en")showRes(r.t,"",q,kmOffNote(r),!!r.rough,false,r.ph||"");else showRes(q,"",r.t,kmOffNote(r),!!r.rough)}finally{KMOFFNOW=0}
+  if(RES)RES.off=1;return true}
+async function convKm(q,dir){
+  const off=e=>{const r=kmOff(q,dir);if(!r){if(e)throw e;throw new Error("offline")}return{t:r.t,ro:"",ph:r.ph||"",off:1}};
+  if(navigator.onLine===false&&!(dir==="en"?savedFor(q):savedRev(q)))return off(null);
+  try{const r=await convTranslate0(q,dir);try{if(r&&r.t&&!r.off){if(dir==="en")kmRemember(q,r.t,r.ph);else kmRemember(r.t,q,"")}}catch(x){}return r}catch(e){return off(e)}
+}
 /* Built-in Khmer phrase audio (build 125). Every built-in Khmer phrase is pre-recorded in km-audio-1.bin (same site),
    kept in the phone's cache after the first download, so on iPhone the phrase board plays Khmer with no internet. */
 let KMP=null,KMPI=null,KMPL=0,KMPU="";
@@ -9158,6 +9226,7 @@ function showRes(th,ro,en,note,auto,nohist,ph,alts,tn){
     const d=last.getBoundingClientRect().bottom-(tb.getBoundingClientRect().top-10);if(d<=0)return;window.scrollBy({top:Math.min(d,Math.max(0,bub.getBoundingClientRect().top-8)),behavior:"smooth"})}catch(e){}});
 }
 function addHist(h){
+  if(S.lang==="km"&&!KMOFFNOW&&BASE()==="en"){if(DIR==="en")kmRemember(h.en,h.th,h.ph);else kmRemember(h.en,h.th,"")}
   S.hist=(S.hist||[]).filter(x=>!(x.th===h.th&&x.en===h.en));
   S.hist.unshift({th:h.th,ro:h.ro||"",en:h.en,ph:h.ph||"",lang:S.lang,dir:DIR,...(BASE()!=="en"?{b:BASE()}:{})});
   S.hist=S.hist.slice(0,60);save();renderHist();if(cat==="__t")render();
@@ -9189,6 +9258,7 @@ async function doTr(depth){
   $("trOut").innerHTML="";trBusy(TALKHEARD);TALKHEARD=false;
   const tok=++TRTOK;
   if(navigator.onLine===false&&offHas(S.lang)&&await offShow(q,tok))return;
+  if(navigator.onLine===false&&kmOffShow(q,tok))return;
   try{
     if(DIR==="en"){
       const r=await aiTr(q,BASE(),S.lang);if(tok!==TRTOK)return;
@@ -9215,7 +9285,7 @@ async function doTr(depth){
       if(det&&det!==mine){const dl=LANGS.find(l=>l.mm.split("-")[0].toLowerCase()===det||l.c===det);note="Detected "+(dl?dl.n:det.toUpperCase())+" (you had "+LG().n+" selected). "+note}
       showRes(q,"",b.t,note,true);
     }
-  }catch(e){if(tok!==TRTOK)return;if(offHas(S.lang)&&await offShow(q,tok))return;$("trOut").innerHTML=`<div style="margin-top:12px;color:#ff6b6b">Couldn't translate. ${esc(why(e))}.${esc(hintHost())} Try again, or type the translation yourself.</div>`}
+  }catch(e){if(tok!==TRTOK)return;if(offHas(S.lang)&&await offShow(q,tok))return;if(kmOffShow(q,tok))return;$("trOut").innerHTML=`<div style="margin-top:12px;color:#ff6b6b">Couldn't translate. ${esc(why(e))}.${esc(hintHost())} Try again, or type the translation yourself.</div>`}
 }
 // the animated "Translating" sits inside the Translate button while it works
 let TRN=0,TRBT=null;
@@ -10512,7 +10582,7 @@ function micErr(err,ln){return err==="not-allowed"||err==="service-not-allowed"?
 
 /* Conversation mode */
 let CONV=[],CVBUSY=false,CVGEN=0;
-function convTranslate(q,dir){return offHas(S.lang)?convOff(q,dir):convTranslate0(q,dir)}
+function convTranslate(q,dir){return offHas(S.lang)?convOff(q,dir):S.lang==="km"?convKm(q,dir):convTranslate0(q,dir)}
 async function convOff(q,dir){
   const off=async e=>{const t=await offTrB(q,dir==="en"?BASE():S.lang,dir==="en"?S.lang:BASE());if(!t){if(e)throw e;return convTranslate0(q,dir)}return{t,ro:"",ph:"",off:1}};
   if(navigator.onLine===false&&!(dir==="en"?savedFor(q):savedRev(q)))return off(null);
