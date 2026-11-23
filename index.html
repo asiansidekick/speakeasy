@@ -827,7 +827,7 @@ html[data-th="light"]:not([data-look]) .offdone .offok{color:#15803d}
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 20 Nov 2026, build 127</div>
+  <div class="hint">Version: 23 Nov 2026, build 128</div>
   <input type="file" id="file" accept=".json,application/json" hidden>
   <div id="bs" style="font-size:var(--fs-s);color:var(--mute);min-height:18px;margin-top:6px"></div>
   <div class="act" style="justify-content:space-between">
@@ -9242,9 +9242,15 @@ $("hist").onclick=e=>{
 };
 let LASTPLAY=0;
 function playRes(){if(!RES)return;LASTPLAY=Date.now();if(RES.dir==="en")speak({th:RES.th,ro:RES.ro,en:RES.en,cat:"x",np:0});else speak({th:RES.en,ro:"",en:RES.th,cat:"x",np:1,lang:BASE()},BTTS())}
+// typed text that is plainly in the chosen language's own script (Thai, Khmer, Japanese...), with no Latin letters
+function otherSide(q){const re=SCRIPT[S.lang],br=SCRIPT[BASE()];if(!re||(br&&br.source===re.source)||/[A-Za-z]/.test(q))return false;
+  const L=q.match(/\p{L}/gu)||[];if(!L.length)return false;return (q.match(new RegExp(re.source,"g"))||[]).length>=L.length*0.5}
+function baseSide(q){const re=SCRIPT[S.lang];return !!re&&!SCRIPT[BASE()]&&/[A-Za-z]/.test(q)&&!re.test(q)}
 async function doTr(depth){
   TRTOK++;const q=$("trIn").value.trim();
   if(!q)return;
+  if(DIR==="th"&&depth!==1&&baseSide(q)){toast("That's already "+BLG().n+". Translating it into "+LG().n+" instead.");setDir("en");$("trIn").value=q;await doTr(1);return}
+  if(DIR==="en"&&depth!==1&&otherSide(q)){toast("That's "+LG().n+". Translating it into "+BLG().n+" instead.");setDir("th");$("trIn").value=q;await doTr(1);return}
   if(DIR==="en"&&SOUNDS.includes(S.lang)&&/^[\d,]+(\.\d+)?$/.test(q)&&q.replace(/\D/g,"").length<=12){openNum(q.replace(/,/g,""));return}
   if(!SKIPSAVED){
     if(DIR==="en"){
@@ -9285,7 +9291,7 @@ async function doTr(depth){
       if(det&&det!==mine){const dl=LANGS.find(l=>l.mm.split("-")[0].toLowerCase()===det||l.c===det);note="Detected "+(dl?dl.n:det.toUpperCase())+" (you had "+LG().n+" selected). "+note}
       showRes(q,"",b.t,note,true);
     }
-  }catch(e){if(tok!==TRTOK)return;if(offHas(S.lang)&&await offShow(q,tok))return;if(kmOffShow(q,tok))return;$("trOut").innerHTML=`<div style="margin-top:12px;color:#ff6b6b">Couldn't translate. ${esc(why(e))}.${esc(hintHost())} Try again, or type the translation yourself.</div>`}
+  }catch(e){if(tok!==TRTOK)return;OFFWHY="";const oh=offHas(S.lang);if(oh&&await offShow(q,tok))return;if(kmOffShow(q,tok))return;$("trOut").innerHTML=`<div style="margin-top:12px;color:#ff6b6b">Couldn't translate. ${esc(why(e))}.${oh&&OFFWHY?" Offline: "+esc(OFFWHY)+".":""}${esc(hintHost())} Try again, or type the translation yourself.</div>`}
 }
 // the animated "Translating" sits inside the Translate button while it works
 let TRN=0,TRBT=null;
@@ -9438,7 +9444,7 @@ const OFF_LIBF=[["translator.js",30661,"b46f0ccf834392caf097cf4eed968d72e3ec8a85
 function offLibUrl(p){return new URL(OFF_LIB+p,location.href).href}
 const OFF_NOTE="Translated offline";
 const OFF_CAN=(()=>{try{return typeof caches!=="undefined"&&typeof WebAssembly!=="undefined"&&typeof Worker!=="undefined"&&!!(window.crypto&&crypto.subtle)&&typeof Blob!=="undefined"}catch(e){return false}})();
-let OFFDL=null,OFFENG=null,OFFQ=Promise.resolve(),OFFMSG={},OFFLASTERR="",OFFUI="",OFFENGC="";
+let OFFWHY="",OFFDL=null,OFFENG=null,OFFQ=Promise.resolve(),OFFMSG={},OFFLASTERR="",OFFUI="",OFFENGC="";
 function offName(c){const l=LANGS.find(x=>x.c===c);return(l?l.n:c).replace(/\s*\(.*?\)\s*/g," ").trim()}
 function offHas(c){c=OA(c);return OFF_CAN&&!!(S.offl&&S.offl[c])&&OFF_LANGS.indexOf(c)>=0}
 function offKey(c){return"https://speakeasy-offline.invalid/manifest/"+c+".json"}
@@ -9597,9 +9603,11 @@ async function offTr(q,from,to){
 }
 // main Translate box: true when an offline translation was shown (or the request was replaced)
 async function offShow(q,tok){
-  const en=DIR==="en",t=await offTrB(q,en?BASE():S.lang,en?S.lang:BASE());
+  const en=DIR==="en",f=en?BASE():S.lang,to=en?S.lang:BASE();OFFLASTERR="";
+  let t=await offTrB(q,f,to);
   if(tok!==TRTOK)return true;
-  if(!t)return false;
+  if(!t&&OFFLASTERR!=="timed out"&&offHas(S.lang)){offReset();OFFQ=Promise.resolve();OFFLASTERR="";t=await offTrB(q,f,to);if(tok!==TRTOK)return true}
+  if(!t){OFFWHY=OFFLASTERR||"no answer";return false}
   if(en)showRes(t,"",q,OFF_NOTE,true,false,"",[]);else showRes(q,"",t,OFF_NOTE,true);
   if(RES)RES.off=1;
   return true;
@@ -10160,7 +10168,7 @@ $("moreBack").onclick=async()=>{
   const o=$("moreBackOut");o.textContent="Checking…";
   try{
     let t;const r=await aiTr(RES.th,S.lang,BASE());
-    if(r)t=r.t;else t=await webTr(RES.th,LG().mm,BLG().mm);
+    if(r)t=r.t;else try{t=await webTr(RES.th,LG().mm,BLG().mm)}catch(e){t=offHas(S.lang)?await offTrB(RES.th,S.lang,BASE()):null;if(!t)throw e}
     o.innerHTML=`<label>Translated back to ${esc(BLG().n)}</label><div class="note" style="margin:4px 0">${esc(t)}</div><div class="hint">Compare this with "${esc(RES.en)}". If the meaning has drifted, try Other ways to say it or reword your ${esc(BLG().n)}.</div>`;
   }catch(e){o.textContent="Couldn't check: "+why(e)}
 };
@@ -10237,7 +10245,7 @@ async function add(){
   if(!th&&$("en").value.trim()){
     say("Translating…",true);
     try{th=await webTranslate($("en").value.trim());auto=true}
-    catch(e){say("Couldn't translate: "+why(e)+"."+hintHost()+" Try again, or type the text yourself.",false);return}
+    catch(e){const o=offHas(S.lang)?await offTrB($("en").value.trim(),BASE(),S.lang):null;if(o){th=o;auto=true;say("",true)}else{say("Couldn't translate: "+why(e)+"."+hintHost()+" Try again, or type the text yourself.",false);return}}
   }
   if(!th){say("Type a word in "+BLG().n+" first.",false);$("en").focus();return}
   let c=$("cat").value;
