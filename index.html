@@ -298,6 +298,7 @@ header{padding:6px 16px 0}
 #bigSub{margin-top:10px}
 #bigSub .bsr{font-size:var(--fs-l);color:var(--accent)}
 #bigSub .bse{font-size:var(--fs-m);color:var(--mute)}
+.bub .twn,#bigSub .twn{display:block;font-size:var(--fs-s);line-height:1.25;color:var(--mute);margin-top:6px}
 #bigBar{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px))}
 #bigBar .ib{min-height:46px;padding:2px 16px;font-size:var(--fs-s)}
 #bigBar #bigX,html[data-look] #bigBar #bigX{background:#fde68a!important;color:#1e3a8a!important;border:0!important;font-weight:700;padding-left:22px;padding-right:22px}
@@ -830,7 +831,7 @@ padding:14px 18px;min-height:64px;border:0;border-radius:18px;background:var(--a
   <div class="hint" id="pubOut">Needs a fine-grained token with Contents: read and write for this repository only. Stored only on this device.</div>
   <button class="ib" id="testTr" style="width:100%;margin-top:12px">Test translation</button>
   <div class="hint" id="testOut"></div>
-  <div class="hint">Version: 23 Nov 2026, build 131</div>
+  <div class="hint">Version: 23 Nov 2026, build 132</div>
   <input type="file" id="file" accept=".json,application/json" hidden>
   <div id="bs" style="font-size:var(--fs-s);color:var(--mute);min-height:18px;margin-top:6px"></div>
   <div class="act" style="justify-content:space-between">
@@ -7328,6 +7329,125 @@ function builtinFull(i,L){
   return k<0?{t:s,ph:""}:{t:s.slice(0,k),ph:s.slice(k+1)};
 }
 function builtinFor(i,L){const b=builtinFull(i,L);return b?b.t:""}
+// Taiwan Mandarin notes (build 132): how Taiwan differs from mainland Mandarin. Shown under Chinese (Taiwan) phrases.
+// ZT_TERM: [Taiwan word (regex), note] checked against any Traditional Chinese text; ZT_KEYN: notes for a built-in phrase (by English key).
+const ZT_TERM=[
+[/計程車/,"Mainland: 出租车 chū zū chē"],
+[/捷運/,"Taiwan's metro is 捷運 jié yùn · mainland: 地铁 dì tiě"],
+[/公車/,"Mainland: 公交车 gōng jiāo chē"],
+[/機車(?!.*煩)/,"機車 = scooter (also slang for annoying) · mainland: 摩托车"],
+[/腳踏車/,"Mainland: 自行车 zì xíng chē"],
+[/飯店/,"Say 飯店 for hotel: in Taiwan 酒店 can mean a hostess bar"],
+[/酒店/,"Careful: in Taiwan 酒店 can mean a hostess bar; say 飯店 for hotel"],
+[/外帶/,"Mainland: 打包 dǎ bāo or 带走"],
+[/內用/,"Mainland: 在这儿吃 or 堂食 táng shí"],
+[/結帳/,"Mainland: 买单 mǎi dān"],
+[/跳錶/,"Mainland: 打表 dǎ biǎo"],
+[/塞車/,"Mainland: 堵车 dǔ chē"],
+[/禮拜/,"Taiwan says 禮拜 lǐ bài for week · mainland: 周 zhōu or 星期"],
+[/星期/,"星期 is xīng qí in Taiwan, xīng qī in mainland"],
+[/便當/,"Mainland: 盒饭 hé fàn"],
+[/衛生紙/,"Mainland: 纸巾 zhǐ jīn"],
+[/延長線/,"Mainland: 插线板 chā xiàn bǎn"],
+[/記憶卡/,"Mainland: 存储卡 cún chǔ kǎ"],
+[/影格率/,"Mainland: 帧率 zhēn lǜ"],
+[/剪接/,"Mainland: 剪辑 jiǎn jí"],
+[/收音/,"Mainland: 录音 lù yīn"],
+[/堆高機/,"Mainland: 叉车 chā chē"],
+[/訊號/,"Mainland: 信号 xìn hào"],
+[/矽膠/,"矽 xì in Taiwan · mainland: 硅胶 guī jiāo"],
+[/便利商店/,"Mainland: 便利店 biàn lì diàn"],
+[/軟體/,"Mainland: 软件 ruǎn jiàn"],
+[/網路/,"Mainland: 网络 wǎng luò"],
+[/影片/,"Mainland: 视频 shì pín"],
+[/簡訊/,"Mainland: 短信 duǎn xìn"],
+[/冷氣/,"Mainland: 空调 kōng tiáo"],
+[/鳳梨/,"Mainland: 菠萝 bō luó"],
+[/馬鈴薯/,"Mainland: 土豆 tǔ dòu"],
+[/優格/,"Mainland: 酸奶 suān nǎi"],
+[/高麗菜/,"Mainland: 卷心菜 juǎn xīn cài"],
+[/宵夜/,"Mainland: 夜宵 yè xiāo"],
+[/螢幕/,"Mainland: 屏幕 píng mù"],
+[/滑鼠/,"Mainland: 鼠标 shǔ biāo"],
+[/列印/,"Mainland: 打印 dǎ yìn"],
+[/資訊/,"Mainland: 信息 xìn xī"],
+[/品質/,"Mainland: 质量 zhì liàng (in Taiwan 質量 means mass)"],
+[/筆電/,"Mainland: 笔记本 bǐ jì běn"],
+[/放飯/,"Taiwan crew slang for the meal break · mainland: 吃饭"],
+[/副導/,"Mainland: 副导演 fù dǎo yǎn"],
+[/梳化/,"梳化 = hair and makeup · mainland: 化妆 huà zhuāng"],
+[/搭景/,"Mainland: 置景 zhì jǐng"],
+[/器材組/,"Mainland: 机械组 jī xiè zǔ"],
+[/器材助理/,"Mainland: 机械员 jī xiè yuán"],
+[/製片助理/,"Mainland: 场务 chǎng wù"],
+[/鏡位/,"Mainland: 机位 jī wèi"],
+[/失焦/,"Mainland: 跑焦 pǎo jiāo"],
+[/拉近/,"Mainland: 推近 tuī jìn"],
+[/第二次/,"Mainland counts takes with 条 tiáo: 第二条"],
+[/假髮|頭髮/,"髮 is fǎ in Taiwan, fà in mainland"],
+[/危險/,"危 is wéi in Taiwan, wēi in mainland"],
+[/期待/,"期 is qí in Taiwan, qī in mainland"],
+[/暫時/,"暫 is zhàn in Taiwan, zàn in mainland"],
+[/垃圾/,"垃圾 is lè sè in Taiwan, lā jī in mainland"],
+[/蛋和|和你|和我/,"和 (and) is often hàn in Taiwan, hé in mainland"],
+[/洗手台/,"Mainland: 洗手池 xǐ shǒu chí"],
+[/蝦子/,"Taiwan adds 子 · mainland: 虾 xiā"],
+[/讚/,"讚 zàn = great (Taiwan) · mainland: 牛 niú or 棒"],
+[/靠北|三小|幹(?!嘛|麼)/,"Taiwanese (Hokkien) swearing, very Taiwan · mainland: 卧槽, 他妈的"],
+[/不鳥/,"Taiwan slang · mainland: 不在乎"],
+[/屁啦/,"Taiwan slang · mainland: 放屁"],
+[/智障/,"Common Taiwan insult · mainland: 傻逼"],
+[/超/,"超 chāo (super) is how Taiwan says very · mainland often 太…了",1],
+[/謝謝/,"Taiwan says xiè xiè with full tones · mainland xiè xie"],
+[/休息/,"Full tones in Taiwan: xiū xí · mainland xiū xi"],
+[/漂亮/,"Full tones in Taiwan: piào liàng · mainland piào liang"],
+[/認識/,"Full tones in Taiwan: rèn shí · mainland rèn shi"],
+[/麻煩/,"麻煩 má fán = please, very Taiwan · mainland says 请"],
+[/舒服/,"Full tones in Taiwan: shū fú · mainland shū fu"],
+[/名字/,"Full tones in Taiwan: míng zì · mainland míng zi"],
+[/東西/,"Full tones in Taiwan: dōng xī · mainland dōng xi"],
+[/告訴/,"Full tones in Taiwan: gào sù · mainland gào su"],
+[/[喔囉耶啦](?![^！？。]*[A-Za-z])/,"喔 囉 耶 啦 are soft Taiwan sentence endings",1],
+[/哪裡|在哪|這裡|那裡/,"Taiwan never adds the -r sound · mainland: 哪儿 nǎr, 这儿 zhèr",1],
+[/一點/,"Taiwan says 一點 · mainland adds -r: 一点儿 yì diǎnr",1]
+];
+const ZT_KEYN={
+"Hello":"哈囉 is the casual Taiwan hello · mainland: 你好",
+"You're welcome / no problem":"不會啦 is the Taiwan way · mainland: 没事儿 or 不客气",
+"Bye, I'm off":"掰掰 bāi bāi is everyday Taiwan · mainland: 拜拜",
+"I understand":"Taiwan says 懂 · mainland often 明白",
+"I don't understand":"Taiwan says 懂 · mainland often 明白",
+"Can you speak slowly?":"講 jiǎng (speak) is very Taiwan · mainland: 说",
+"Do you speak English?":"Taiwan says 英文 · mainland: 英语",
+"Eaten yet? (casual hello)":"吃飽了沒 is the Taiwan greeting · mainland: 吃了吗",
+"Dunno":"耶 makes it softer, very Taiwan",
+"Fried egg":"Mainland: 煎蛋 jiān dàn",
+"Not sweet":"Drinks in Taiwan: 無糖 no sugar, 半糖 half, 少冰 less ice",
+"Can you discount it?":"算便宜一點 is the Taiwan way to bargain · mainland: 便宜点儿",
+"Just looking":"Mainland: 我就随便看看",
+"What's up?":"Mainland: 怎么样",
+"I'm confused":"Mainland slang: 我有点懵",
+"Got played / got tricked":"Mainland: 被坑了",
+"Absolutely stunning":"Mainland: 美翻了",
+"Super cool":"Mainland: 帅呆了",
+"*eye roll*":"Mainland: 无语",
+"Killer! (slang: awesome)":"Mainland: 绝了",
+"Amazing! / The best":"Mainland: 太牛了",
+"Let's do it / go for it":"Mainland slang: 搞起",
+"See you soon":"Mainland: 回头见",
+"Does it hurt?":"Taiwan says 會痛嗎 · mainland: 疼不疼",
+"Is it itchy?":"Taiwan says 會癢嗎 · mainland: 痒不痒",
+"What's your name?":"Polite 您 is used less in Taiwan; 你 is fine with most people"
+};
+function ztNotes(t,key){
+  const o=[];if(!t)return o;
+  const kn=key&&ZT_KEYN[key],kw=kn&&kn.match(/^[\u3400-\u9fff]+/);
+  if(kn&&(!kw||t.indexOf(kw[0])>=0))o.push(kn);
+  // weak notes (sentence endings, the -r sound, 超) only when nothing more specific applies
+  for(const w of [0,1])if(!o.length||!w)for(const [re,n,wk] of ZT_TERM){if(o.length>=3)break;if(!wk===!w&&re.test(t)&&o.indexOf(n)<0)o.push(n)}
+  return o;
+}
+function ztNoteHTML(t,key,n){if(S.lang!=="zt"||TU())return"";const a=ztNotes(t,key).slice(0,n);return a.length?`<small class="twn" lang="en">${a.map(esc).join("<br>")}</small>`:""}
 function frBuiltin(i){return builtinFor(i,"fr")}
 // one time: drop machine-made French for built-in phrases, the list above replaces it
 function applyP17(){if(!Array.isArray(S.applied))S.applied=[];if(S.applied.includes('frph1'))return;
@@ -9215,7 +9335,7 @@ function showRes(th,ro,en,note,auto,nohist,ph,alts,tn){
   const cs=cats();
   const opts=cs.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");
   const rev=DIR!=="en";let rp;
-  $("trOut").innerHTML=`<div class="bub">${!rev&&RES.alts.length?`<button class="altjump">↓ ${RES.alts.length>1?RES.alts.length+" other ways to say it":"Another way to say it"} below</button>`:""}<div class="rth" lang="${rev?BASE():S.lang}" dir="auto">${esc(rev?en:f.th)}</div>${rev&&TU()&&BASE()==="en"?`<div class="rro">${enHTML(en)}</div>`:""}${(!rev&&f.ro)?`<div class="rro">${toneHTML(f.th,f.ro,RES.tn,true)}</div>`:""}${(rev||norm(en)!==norm($("trIn").value))?`<div class="ren" lang="${rev?S.lang:BASE()}" dir="auto">${esc(rev?th:en)}</div>`:""}${rev&&!TU()&&SOUNDS.includes(S.lang)&&(rp=toneHTML(th,"","",true))?`<div class="rro">${rp}</div>`:""}</div>`+
+  $("trOut").innerHTML=`<div class="bub">${!rev&&RES.alts.length?`<button class="altjump">↓ ${RES.alts.length>1?RES.alts.length+" other ways to say it":"Another way to say it"} below</button>`:""}<div class="rth" lang="${rev?BASE():S.lang}" dir="auto">${esc(rev?en:f.th)}</div>${rev&&TU()&&BASE()==="en"?`<div class="rro">${enHTML(en)}</div>`:""}${(!rev&&f.ro)?`<div class="rro">${toneHTML(f.th,f.ro,RES.tn,true)}</div>`:""}${(rev||norm(en)!==norm($("trIn").value))?`<div class="ren" lang="${rev?S.lang:BASE()}" dir="auto">${esc(rev?th:en)}</div>`:""}${rev&&!TU()&&SOUNDS.includes(S.lang)&&(rp=toneHTML(th,"","",true))?`<div class="rro">${rp}</div>`:""}${ztNoteHTML(rev?th:f.th,"",3)}</div>`+
    (!rev&&RES.alts.length?RES.alts.map((a,i)=>`<button class="altline" data-alt="${i}"><small>${esc(a.label==="Second opinion"?"Second opinion":a.label)} · tap to use</small><span class="alth" lang="${S.lang}" dir="auto">${esc(a.t)}</span>${(rp=toneHTML(a.t,a.ph||"","",true))?`<span class="rro">${rp}</span>`:""}</button>`).join(""):"")+
    `<div class="row actrow"><button class="ib speakbtn" data-a="sp">${SPK}${bi("ฟัง","Play")}</button><button class="ib showbtn" data-a="show" aria-label="Show full screen to the other person">${HANDI}${bi("แสดง","Show")}</button></div>`+
    `<div class="row actrow"><select id="rcat" aria-label="Save to category" style="flex:1;min-width:0">${opts}<option value="__new">＋ New category…</option></select><button class="ib savebtn sm" data-a="save">💾 ${bi("บันทึก","Save")}</button></div><input id="rcatNew" placeholder="New category name" style="display:none;margin-top:8px"><button class="ib moreline" data-a="more">✏️ Copy · Edit · Check meaning</button>`+
@@ -10031,7 +10151,7 @@ $("bigTalk").onclick=()=>replyGo(true);$("bigType").onclick=()=>replyGo(false);
 function showBig(v){BIG.id=v.id||"";$("bigFav").hidden=!BIG.id;paintFav();BIG.th=v.th;BIG.ro=v.ro||"";BIG.en=v.en||"";BIG.lang=v.lang||S.lang;BIG.tts=v.tts||"";BIG.tn=v.tn||"";BIG.noEn=!!v.noEn;$("big").hidden=false;paintReply();paintBig()}
 function paintBig(){
   const t=$("bigTxt");t.textContent=BIG.th;t.lang=BIG.lang||S.lang;
-  $("bigSub").innerHTML=BIG.sub?`<div class="bsr">${BIG.lang==="en"&&TU()&&BASE()==="en"?enHTML(BIG.th):(BIG.lang||S.lang)===S.lang?toneHTML(BIG.th,BIG.ro,BIG.tn||"",!BIG.ro):esc(BIG.ro)}</div>${BIG.noEn?"":`<div class="bse">${esc(BIG.en)}</div>`}`:"";
+  $("bigSub").innerHTML=BIG.sub?`<div class="bsr">${BIG.lang==="en"&&TU()&&BASE()==="en"?enHTML(BIG.th):(BIG.lang||S.lang)===S.lang?toneHTML(BIG.th,BIG.ro,BIG.tn||"",!BIG.ro):esc(BIG.ro)}</div>${BIG.noEn?"":`<div class="bse">${esc(BIG.en)}</div>`}${(BIG.lang||S.lang)==="zt"?ztNoteHTML(BIG.th,((S.items||[]).find(x=>x.id===BIG.id)||{}).en||"",3):""}`:"";
   t.style.transform=BIG.rot?"rotate(180deg)":"";
   $("bigSnd").textContent=BIG.sub?(BIG.lang===BASE()&&BIG.lang!==S.lang?BLG().n:S.lang==="th"?"Thai":LG().n)+" only":"Sounds";
   fitBig();
